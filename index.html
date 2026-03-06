@@ -912,6 +912,7 @@
     const result = await signUpWithEmail({ email, password: pass, displayName: name, role });
     if (result.error) { showMsg(errEl, result.error); btn.innerHTML='Create Account'; btn.disabled=false; return; }
     showMsg(sucEl, '✅ Account created! Redirecting to dashboard...', 'success');
+    showToast('🎉','Account created successfully!');
     setTimeout(() => { closeModal(); window.location.href='dashboard.html'; }, 1200);
   };
 
@@ -943,5 +944,31 @@
     el.textContent = msg; el.className = `auth-msg ${type}`; el.style.display='block';
   }
 </script>
+<script type="module">
+
+
+/* LOGIN */
+
+document.getElementById("login-btn").addEventListener("click", async ()=>{
+
+  const email = document.getElementById("li-email").value;
+  const password = document.getElementById("li-pass").value;
+
+  const res = await loginWithEmail(email,password);
+
+  if(res.error){
+
+    alert(res.error);
+
+  }else{
+
+    window.location.href="dashboard.html";
+
+  }
+
+});
+
+</script>
+
 </body>
 </html>

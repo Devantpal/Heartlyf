@@ -16,29 +16,24 @@ onAuthChange((user)=>{
   const guard = document.getElementById("auth-guard");
 
   if(!user){
-
     window.location.href="index.html";
     return;
-
   }
 
   guard.classList.add("hidden");
 
-
-  /* SHOW USER NAME */
-
   const name = user.displayName || "User";
 
-  document.getElementById("sb-name").textContent=name;
+  document.getElementById("sb-name").textContent = name;
 
   const initials = name
     .split(" ")
-    .map(w=>w[0])
+    .map(w => w[0])
     .join("")
     .toUpperCase()
     .slice(0,2);
 
-  document.getElementById("sb-avatar").textContent=initials;
+  document.getElementById("sb-avatar").textContent = initials;
 
 });
 
@@ -48,30 +43,28 @@ onAuthChange((user)=>{
 window.handleLogout = async ()=>{
 
   await logout();
-
   window.location.href="index.html";
 
 };
 
 
-/* REALTIME DATABASE */
+/* REALTIME HEART DATA */
 
 const heartRef = ref(db,"heartmonitor/device1");
 
 onValue(heartRef,(snapshot)=>{
 
   const data = snapshot.val();
-
   if(!data) return;
 
   document.getElementById("v-bpm").innerHTML =
-    data.bpm+"<span class='vital-unit'> BPM</span>";
+    data.bpm + "<span class='vital-unit'> BPM</span>";
 
   document.getElementById("v-spo2").innerHTML =
-    data.spo2+"<span class='vital-unit'>%</span>";
+    data.spo2 + "<span class='vital-unit'>%</span>";
 
   document.getElementById("v-hrv").innerHTML =
-    data.hrv+"<span class='vital-unit'> ms</span>";
+    data.hrv + "<span class='vital-unit'> ms</span>";
 
 });
 
@@ -83,10 +76,9 @@ const gpsRef = ref(db,"gps");
 onValue(gpsRef,(snapshot)=>{
 
   const gps = snapshot.val();
-
   if(!gps) return;
 
   document.getElementById("gps-coords").innerText =
-    gps.lat+" , "+gps.lng;
+    gps.lat + " , " + gps.lng;
 
 });
