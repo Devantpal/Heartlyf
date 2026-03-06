@@ -1,40 +1,92 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { app, onAuthChange, logout } from "./firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDf_eg6rmbvb_4sM_haZCRc0oOxtI7HqS8",
-  authDomain: "myloginapp-4e769.firebaseapp.com",
-  databaseURL: "https://heartmonitorproject-ba398-default-rtdb.firebaseio.com",
-  projectId: "myloginapp-4e769"
-};
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const heartRef = ref(db, "heartmonitor/device1");
 
-onValue(heartRef, (snapshot) => {
-  const data = snapshot.val();
+/* AUTH GUARD */
 
-  if (!data) return;
+onAuthChange((user)=>{
 
-  document.getElementById("v-bpm").innerHTML =
-    data.bpm + "<span class='vital-unit'> BPM</span>";
+  const guard = document.getElementById("auth-guard");
 
-  document.getElementById("v-spo2").innerHTML =
-    data.spo2 + "<span class='vital-unit'>%</span>";
+  if(!user){
 
-  document.getElementById("v-hrv").innerHTML =
-    data.hrv + "<span class='vital-unit'> ms</span>";
+    window.location.href="index.html";
+    return;
+
+  }
+
+  guard.classList.add("hidden");
+
+
+  /* SHOW USER NAME */
+
+  const name = user.displayName || "User";
+
+  document.getElementById("sb-name").textContent=name;
+
+  const initials = name
+    .split(" ")
+    .map(w=>w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0,2);
+
+  document.getElementById("sb-avatar").textContent=initials;
+
 });
 
-const gpsRef = ref(db, "gps");
 
-onValue(gpsRef, (snapshot) => {
+/* LOGOUT BUTTON */
+
+window.handleLogout = async ()=>{
+
+  await logout();
+
+  window.location.href="index.html";
+
+};
+
+
+/* REALTIME DATABASE */
+
+const heartRef = ref(db,"heartmonitor/device1");
+
+onValue(heartRef,(snapshot)=>{
+
+  const data = snapshot.val();
+
+  if(!data) return;
+
+  document.getElementById("v-bpm").innerHTML =
+    data.bpm+"<span class='vital-unit'> BPM</span>";
+
+  document.getElementById("v-spo2").innerHTML =
+    data.spo2+"<span class='vital-unit'>%</span>";
+
+  document.getElementById("v-hrv").innerHTML =
+    data.hrv+"<span class='vital-unit'> ms</span>";
+
+});
+
+
+/* GPS */
+
+const gpsRef = ref(db,"gps");
+
+onValue(gpsRef,(snapshot)=>{
+
   const gps = snapshot.val();
-  if (!gps) return;
+
+  if(!gps) return;
 
   document.getElementById("gps-coords").innerText =
-    gps.lat + " , " + gps.lng;
+    gps.lat+" , "+gps.lng;
+
 });

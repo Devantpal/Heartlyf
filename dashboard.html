@@ -395,25 +395,28 @@
   const rtdb = getDatabase(app);
 
   /* ── AUTH GUARD ─ */
-  onAuthChange(user => {
-    const guard = document.getElementById('auth-guard');
-    if (!user) {
-      guard.innerHTML = `
-        <h2 style="font-family:'Fraunces',serif">Access Denied</h2>
-        <p>You must be signed in to view the dashboard.</p>
-        <a href="index.html" style="margin-top:16px;background:var(--crimson);color:#fff;padding:12px 30px;border-radius:8px;font-weight:700;text-decoration:none;">Go to Sign In</a>`;
-      return;
-    }
-    guard.classList.add('hidden');
-    initUser(user);
-    listenFirebase(user);
-    // initSimulation();  
-    initCharts();
-    renderAlerts();
-    renderReports();
-    <!-- setInterval(updateGpsTime, 10000); -->
-    updateGpsTime();
-  });
+onAuthChange(user => {
+
+  if(!user){
+
+    window.location.href="index.html";
+    return;
+
+  }
+
+  const name = user.displayName || "User";
+
+  const initials = name
+    .split(" ")
+    .map(w=>w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0,2);
+
+  document.getElementById("sb-avatar").textContent = initials;
+  document.getElementById("sb-name").textContent = name;
+
+});
 
   window.handleLogout = async function() {
     await logout();
@@ -429,10 +432,10 @@
 
   /* ── FIREBASE REALTIME LISTEN ─ */
   function listenFirebase(user) {
-    onValue(ref(rtdb, `vitals/${user.uid}`), snap => {
-      const d = snap.val();
-      if (d) updateVitals(d);
-    });
+    onValue(ref(rtdb, "heartmonitor/device1"), snap => {
+   const d = snap.val();
+   if (d) updateVitals(d);
+});
   }
 
   /* ── SIMULATION ─ */
@@ -456,41 +459,55 @@
 
   /* ── UPDATE VITALS UI ─ */
   function updateVitals({ bpm, spo2, hrv }) {
-    if (bpm !== undefined) {
-      const el  = document.getElementById('v-bpm');
-      const el2 = document.getElementById('ecg-bpm');
-      const tag = `${bpm}<span class="vital-unit">BPM</span>`;
-      el.innerHTML = tag; if (el2) el2.innerHTML = tag;
 
-      if (bpm > 100) { el.className='vital-number vred';   document.getElementById('v-bpm-status').textContent='⚠️ Tachycardia detected'; }
-      else if (bpm < 55) { el.className='vital-number vamber'; document.getElementById('v-bpm-status').textContent='⚠️ Bradycardia detected'; }
-      else { el.className='vital-number vgreen'; document.getElementById('v-bpm-status').textContent='Normal sinus rhythm'; }
+  if (bpm !== undefined) {
 
-      const ai    = document.getElementById('v-ai');
-      const aiSub = document.getElementById('v-ai-sub');
-      const now   = Date.now();
-      if (bpm > 125 && now - alertShownAt > 12000) {
-        alertShownAt = now;
-        showNotif('crit','🚨 Critical Tachycardia',`BPM: ${bpm} — Emergency contacts notified with GPS location.`);
-        ai.textContent='Critical'; ai.className='vital-number vred';
-        aiSub.textContent='High-risk event detected';
-      } else if (bpm > 100) {
-        ai.textContent='Warning'; ai.className='vital-number vamber';
-        aiSub.textContent='Mild tachycardia — monitoring';
-      } else {
-        ai.textContent='Normal'; ai.className='vital-number vgreen';
-        aiSub.textContent='No anomalies detected';
-      }
-    }
-    if (spo2 !== undefined) {
-      const el = document.getElementById('v-spo2');
-      el.innerHTML = `${spo2}<span class="vital-unit">%</span>`;
-      el.className = spo2 < 94 ? 'vital-number vred' : 'vital-number vblue';
-    }
-    if (hrv !== undefined) {
-      document.getElementById('v-hrv').innerHTML = `${hrv}<span class="vital-unit">ms</span>`;
+    const el  = document.getElementById('v-bpm');
+    const el2 = document.getElementById('ecg-bpm');
+
+    const tag = `${bpm}<span class="vital-unit">BPM</span>`;
+    el.innerHTML = tag;
+    if (el2) el2.innerHTML = tag;
+
+    /* update chart data */
+    const now = new Date();
+    const t = now.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+    timeLabels.push(t);
+    bpmArr.push(bpm);
+
+    if (timeLabels.length > 60) timeLabels.shift();
+    if (bpmArr.length > 60) bpmArr.shift();
+
+    if(chartBpm){
+      chartBpm.data.labels = [...timeLabels];
+      chartBpm.data.datasets[0].data = [...bpmArr];
+      chartBpm.update();
     }
   }
+
+
+  if (spo2 !== undefined) {
+
+    const el = document.getElementById('v-spo2');
+    el.innerHTML = `${spo2}<span class="vital-unit">%</span>`;
+
+    spo2Arr.push(spo2);
+    if (spo2Arr.length > 60) spo2Arr.shift();
+
+    if(chartSpo2){
+      chartSpo2.data.labels = [...timeLabels];
+      chartSpo2.data.datasets[0].data = [...spo2Arr];
+      chartSpo2.update();
+    }
+  }
+
+
+  if (hrv !== undefined) {
+    document.getElementById('v-hrv').innerHTML =
+      `${hrv}<span class="vital-unit">ms</span>`;
+  }
+}
 
   /* ── CHARTS ─ */
   const baseOptions = {
@@ -623,6 +640,7 @@
   };
 </script>
 
+
 <script>
   /* ── PAGE NAVIGATION ─ */
   const PAGE_META = {
@@ -645,7 +663,6 @@
   };
 </script>
 
-<script type="module" src="firebase-auth.js"></script>
-<script type="module" src="dashboard-data.js"></script>
+
 </body>
 </html>
