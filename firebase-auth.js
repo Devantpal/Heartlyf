@@ -1,28 +1,18 @@
-/* HEARTLYF — Firebase Authentication */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
 import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-  onAuthStateChanged,
-  signOut,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  updateProfile,
+  sendEmailVerification,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-
-/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCzVspRaeqMm6uab3DzvGNLJUkQrgJ60IE",
   authDomain: "heartmonitorproject-ba398.firebaseapp.com",
@@ -30,41 +20,16 @@ const firebaseConfig = {
   projectId: "heartmonitorproject-ba398",
   storageBucket: "heartmonitorproject-ba398.firebasestorage.app",
   messagingSenderId: "509942804692",
-  appId: "1:509942804692:web:c2248b8a87205ff1974b41"
+  appId: "1:509942804692:web:c2248b8a87205ff1974b41",
+  measurementId: "G-HPP83R4R5G"
 };
 
-
-/* INITIALIZE FIREBASE (ONLY ONCE) */
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-const googleProvider = new GoogleAuthProvider();
-
-
-/* SAVE USER PROFILE */
-async function saveUserProfile(user, role = "Patient") {
-
-  const ref = doc(db, "users", user.uid);
-
-  await setDoc(ref,{
-    uid:user.uid,
-    email:user.email,
-    displayName:user.displayName,
-    role:role,
-    createdAt:serverTimestamp(),
-    lastSeen:serverTimestamp()
-  },{merge:true});
-}
-
-
-/* AUTH STATE */
-export function onAuthChange(callback){
-  onAuthStateChanged(auth,callback);
-}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 
 /* SIGN UP */
+
 export async function signUpWithEmail({email,password,displayName,role}){
 
   try{
@@ -77,63 +42,74 @@ export async function signUpWithEmail({email,password,displayName,role}){
 
     await sendEmailVerification(cred.user);
 
-    await saveUserProfile(cred.user,role);
-
     return {user:cred.user};
 
-  }catch(err){
+  }catch(error){
 
-    return {error:err.message};
+    return {error:error.message};
 
   }
+
 }
 
 
+
 /* LOGIN */
+
 export async function loginWithEmail(email,password){
 
   try{
 
     const cred = await signInWithEmailAndPassword(auth,email,password);
 
-    if(!cred.user.emailVerified){
-
-      await signOut(auth);
-
-      return {error:"Verify your email first."};
-
-    }
-
     return {user:cred.user};
 
-  }catch(err){
+  }catch(error){
 
-    return {error:err.message};
+    return {error:error.message};
 
   }
+
 }
 
 
+
 /* GOOGLE LOGIN */
+
 export async function loginWithGoogle(){
 
   try{
 
-    const cred = await signInWithPopup(auth,googleProvider);
+    const provider = new GoogleAuthProvider();
 
-    await saveUserProfile(cred.user);
+    const result = await signInWithPopup(auth,provider);
 
-    return {user:cred.user};
+    return {user:result.user};
 
-  }catch(err){
+  }catch(error){
 
-    return {error:err.message};
+    return {error:error.message};
 
   }
+
 }
 
 
+
 /* LOGOUT */
+
 export async function logout(){
+
   await signOut(auth);
+
+}
+
+
+
+/* AUTH LISTENER */
+
+export function onAuthChange(callback){
+
+  return onAuthStateChanged(auth,callback);
+
 }

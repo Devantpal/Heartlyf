@@ -1,42 +1,43 @@
-import { app, onAuthChange, logout } from "./firebase-auth.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-  getDatabase,
-  ref,
-  onValue
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyCzVspRaeqMm6uab3DzvGNLJUkQrgJ60IE",
+  authDomain: "heartmonitorproject-ba398.firebaseapp.com",
+  databaseURL: "https://heartmonitorproject-ba398-default-rtdb.firebaseio.com",
+  projectId: "heartmonitorproject-ba398",
+  storageBucket: "heartmonitorproject-ba398.firebasestorage.app",
+  messagingSenderId: "509942804692",
+  appId: "1:509942804692:web:c2248b8a87205ff1974b41",
+  measurementId: "G-HPP83R4R5G"
+};
+
+const app = initializeApp(firebaseConfig);
 
 const db = getDatabase(app);
+const auth = getAuth(app);
 
 
 /* AUTH GUARD */
+/* AUTH GUARD */
 
-onAuthChange((user)=>{
+onAuthStateChanged(auth,(user)=>{
 
   const guard = document.getElementById("auth-guard");
+  const main  = document.getElementById("dashboard-main");
 
   if(!user){
+
     window.location.href="index.html";
     return;
+
   }
 
-  guard.classList.add("hidden");
-
-  const name = user.displayName || "User";
-
-  document.getElementById("sb-name").textContent = name;
-
-  const initials = name
-    .split(" ")
-    .map(w => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0,2);
-
-  document.getElementById("sb-avatar").textContent = initials;
+  if(guard) guard.style.display="none";
+  if(main) main.style.display="block";
 
 });
-
 
 /* LOGOUT BUTTON */
 

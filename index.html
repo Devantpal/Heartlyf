@@ -840,71 +840,103 @@
 </div>
 
 <!-- ── SCRIPTS ─────────────────────────────────────────── -->
-<script>
-  // Navbar scroll effect
-  window.addEventListener('scroll', () => {
-    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
-  });
+<!-- ───────────────── SCRIPTS ───────────────── -->
 
-  // Modal open/close
-  window.openModal = function(tab) {
-    document.getElementById('modal-backdrop').classList.add('open');
-    switchTab(tab);
-  };
-  window.closeModal = function() {
-    document.getElementById('modal-backdrop').classList.remove('open');
-  };
-  document.getElementById('modal-backdrop').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-backdrop')) closeModal();
-  });
-  window.switchTab = function(tab) {
-    document.getElementById('form-login').style.display   = tab==='login'  ? 'block' : 'none';
-    document.getElementById('form-signup').style.display  = tab==='signup' ? 'block' : 'none';
-    document.getElementById('tab-login').classList.toggle('active',  tab==='login');
-    document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
-    document.getElementById('modal-title').textContent = tab==='login' ? 'Welcome back' : 'Create your account';
-    document.getElementById('modal-sub').textContent   = tab==='login'
-      ? 'Sign in to access your cardiac monitoring dashboard.'
-      : 'Start monitoring your cardiac health today.';
-  };
+<script type="module">
 
-  // Toast helper
-  function showToast(icon, msg, type='success') {
-    const t = document.getElementById('toast');
-    document.getElementById('toast-icon').textContent = icon;
-    document.getElementById('toast-text').textContent  = msg;
-    t.className = `toast ${type} show`;
-    setTimeout(() => t.classList.remove('show'), 3500);
-  }
-  window.showToast = showToast;
+import {
+  loginWithEmail,
+  loginWithGoogle,
+  signUpWithEmail,
+  logout,
+  onAuthChange
+} from "./firebase-auth.js";
 
-  // Auth button wrappers — delegate to firebase-auth.js module functions
-window.handleLogin = async function() {
+/* NAVBAR SCROLL EFFECT */
 
-  const email = document.getElementById('li-email').value.trim();
-  const pass  = document.getElementById('li-pass').value;
+window.addEventListener("scroll", () => {
+  document
+    .getElementById("navbar")
+    .classList.toggle("scrolled", window.scrollY > 40);
+});
 
-  const errEl = document.getElementById('li-error');
-  const btn   = document.getElementById('li-btn');
 
-  errEl.style.display = 'none';
+/* MODAL FUNCTIONS */
 
-  if(!email || !pass){
-    showMsg(errEl,"Please fill all fields.");
+window.openModal = function(tab){
+  document.getElementById("modal-backdrop").classList.add("open");
+  switchTab(tab);
+};
+
+window.closeModal = function(){
+  document.getElementById("modal-backdrop").classList.remove("open");
+};
+
+document.getElementById("modal-backdrop").addEventListener("click",e=>{
+  if(e.target.id==="modal-backdrop") closeModal();
+});
+
+window.switchTab=function(tab){
+
+  document.getElementById("form-login").style.display =
+    tab==="login" ? "block" : "none";
+
+  document.getElementById("form-signup").style.display =
+    tab==="signup" ? "block" : "none";
+
+  document
+    .getElementById("tab-login")
+    .classList.toggle("active",tab==="login");
+
+  document
+    .getElementById("tab-signup")
+    .classList.toggle("active",tab==="signup");
+
+};
+
+
+/* TOAST */
+
+function showToast(icon,msg,type="success"){
+
+  const toast=document.getElementById("toast");
+
+  document.getElementById("toast-icon").textContent=icon;
+  document.getElementById("toast-text").textContent=msg;
+
+  toast.className="toast "+type+" show";
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },3500);
+
+}
+
+window.showToast=showToast;
+
+
+/* LOGIN */
+
+window.handleLogin=async function(){
+
+  const email=document.getElementById("li-email").value.trim();
+  const pass=document.getElementById("li-pass").value;
+
+  const btn=document.getElementById("li-btn");
+
+  if(!email||!pass){
+    showToast("⚠️","Please fill all fields","error");
     return;
   }
 
-  btn.innerHTML = '<span class="spinner"></span> Signing in...';
-  btn.disabled = true;
+  btn.innerHTML='<span class="spinner"></span> Signing in...';
+  btn.disabled=true;
 
-  const { loginWithEmail } = await import("./firebase-auth.js");
-
-  const result = await loginWithEmail(email,pass);
+  const result=await loginWithEmail(email,pass);
 
   if(result.error){
 
     showToast("❌",result.error,"error");
-    showMsg(errEl,result.error);
 
     btn.innerHTML="Sign In";
     btn.disabled=false;
@@ -916,139 +948,117 @@ window.handleLogin = async function() {
 
   setTimeout(()=>{
     window.location.href="dashboard.html";
-  },900);
-
-};
-
-window.handleSignup = async function() {
-
-const name  = document.getElementById('su-name').value.trim();
-const email = document.getElementById('su-email').value.trim();
-const pass  = document.getElementById('su-pass').value;
-const role  = document.getElementById('su-role').value;
-
-const errEl = document.getElementById('su-error');
-const sucEl = document.getElementById('su-success');
-const btn   = document.getElementById('su-btn');
-
-errEl.style.display = "none";
-sucEl.style.display = "none";
-
-if(!name || !email || !pass){
-showMsg(errEl,"Please fill all fields");
-return;
-}
-
-if(pass.length < 8){
-showMsg(errEl,"Password must be at least 8 characters");
-return;
-}
-
-btn.innerHTML = '<span class="spinner"></span> Creating account...';
-btn.disabled = true;
-
-try{
-
-const { signUpWithEmail } = await import("./firebase-auth.js");
-
-const result = await signUpWithEmail({
-  email,
-  password: pass,
-  displayName: name,
-  role
-});
-
-if(result.error){
-
-  showToast("❌", result.error, "error");
-  showMsg(errEl, result.error);
-
-  btn.innerHTML = "Create Account";
-  btn.disabled = false;
-  return;
-
-}
-
-/* SUCCESS */
-
-showToast("🎉","Account created successfully!");
-
-showMsg(
-  sucEl,
-  "Account created successfully. Please verify your email before login.",
-  "success"
-);
-
-btn.innerHTML = "Create Account";
-btn.disabled = false;
-
-setTimeout(()=>{
-  switchTab("login");
-},2000);
-
-}
-catch(error){
-
-
-showToast("❌","Unexpected error occurred","error");
-
-btn.innerHTML = "Create Account";
-btn.disabled = false;
-
-}
+  },800);
 
 };
 
 
-  window.handleGoogle = async function() {
-    const { loginWithGoogle } = await import('./firebase-auth.js');
-    const result = await loginWithGoogle();
-    if (result.error) { showToast('❌', result.error, 'error'); return; }
-    if (result.user)  { closeModal(); showToast('✅','Signed in with Google!'); setTimeout(()=>window.location.href='dashboard.html',800); }
-  };
+/* SIGNUP */
 
-  window.handleLogout = async function() {
-    const { logout } = await import('./firebase-auth.js');
-    await logout();
-    showToast('👋','Signed out successfully.');
-  };
+window.handleSignup=async function(){
 
-  // Auth state — update nav buttons
-  (async function() {
-    const { onAuthChange } = await import('./firebase-auth.js');
-    onAuthChange(user => {
-      document.getElementById('nav-dashboard').style.display = user ? 'inline-flex' : 'none';
-      document.getElementById('nav-login').style.display     = user ? 'none' : 'inline-flex';
-      document.getElementById('nav-signup').style.display    = user ? 'none' : 'inline-flex';
-      document.getElementById('nav-logout').style.display    = user ? 'inline-flex' : 'none';
-    });
-  })();
+  const name=document.getElementById("su-name").value.trim();
+  const email=document.getElementById("su-email").value.trim();
+  const pass=document.getElementById("su-pass").value;
+  const role=document.getElementById("su-role").value;
 
-  function showMsg(el, msg, type='error') {
-    el.textContent = msg; el.className = `auth-msg ${type}`; el.style.display='block';
+  const btn=document.getElementById("su-btn");
+
+  if(!name||!email||!pass){
+
+    showToast("⚠️","Please fill all fields","error");
+    return;
+
   }
-</script>
-<script type="module">
+
+  if(pass.length<8){
+
+    showToast("⚠️","Password must be 8 characters","error");
+    return;
+
+  }
+
+  btn.innerHTML='<span class="spinner"></span> Creating account...';
+  btn.disabled=true;
+
+  const result=await signUpWithEmail({
+    email,
+    password:pass,
+    displayName:name,
+    role
+  });
+
+  if(result.error){
+
+    showToast("❌",result.error,"error");
+
+    btn.innerHTML="Create Account";
+    btn.disabled=false;
+
+    return;
+
+  }
+
+  showToast("✅","Account created. Verify email.");
+
+  btn.innerHTML="Create Account";
+  btn.disabled=false;
+
+  setTimeout(()=>{
+    switchTab("login");
+  },2000);
+
+};
 
 
-/* LOGIN */
+/* GOOGLE LOGIN */
 
-document.getElementById("login-btn").addEventListener("click", async ()=>{
+window.handleGoogle=async function(){
 
-  const email = document.getElementById("li-email").value;
-  const password = document.getElementById("li-pass").value;
+  const result=await loginWithGoogle();
 
-  const res = await loginWithEmail(email,password);
+  if(result.error){
 
-  if(res.error){
+    showToast("❌",result.error,"error");
+    return;
 
-    alert(res.error);
+  }
 
-  }else{
+  showToast("✅","Signed in with Google");
 
+  setTimeout(()=>{
     window.location.href="dashboard.html";
+  },800);
 
-  }
+};
+
+
+/* LOGOUT */
+
+window.handleLogout=async function(){
+
+  await logout();
+
+  showToast("👋","Signed out");
+
+};
+
+
+/* AUTH STATE */
+
+onAuthChange(user=>{
+
+  document.getElementById("nav-dashboard").style.display =
+    user?"inline-flex":"none";
+
+  document.getElementById("nav-login").style.display =
+    user?"none":"inline-flex";
+
+  document.getElementById("nav-signup").style.display =
+    user?"none":"inline-flex";
+
+  document.getElementById("nav-logout").style.display =
+    user?"inline-flex":"none";
 
 });
 

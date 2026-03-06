@@ -641,22 +641,21 @@ footer {
 
 /* ── AUTH MODAL ────────────────────────────── */
 .modal-backdrop{
-
-  position:fixed;
-  inset:0;
-
-  background:rgba(0,0,0,0.7);
-  backdrop-filter:blur(6px);
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  z-index:999;
-
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
 .modal-backdrop.open { display: flex; }
+
+
+
+
 .modal-box {
 /* 
   width:420px;
@@ -664,12 +663,21 @@ footer {
   max-height:90vh;
   overflow-y:auto;
    */
+    transform: scale(.95);
+  opacity:0;
+  transition:.25s ease;
   background: var(--navy-card); border: 1px solid var(--navy-border2);
   border-radius: var(--radius-xl); padding: 48px 44px;
   width: 100%; max-width: 430px; position: relative;
   animation: fadeUp 0.22s ease;
   box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 40px rgba(200,16,46,0.08);
 }
+
+.modal-backdrop.open .modal-box{
+  transform:scale(1);
+  opacity:1;
+}
+
 .modal-close {
   position: absolute; top: 20px; right: 20px;
   width: 32px; height: 32px; border-radius: 8px;
