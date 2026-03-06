@@ -787,7 +787,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="li-pass" placeholder="••••••••"/>
+        <input class="form-input" type="password" id="li-pass" placeholder="••••••••" required/>
       </div>
       <button class="btn-submit" id="li-btn" onclick="handleLogin()">Sign In</button>
       <div class="or-divider">or continue with</div>
@@ -819,7 +819,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="su-pass" placeholder="Minimum 8 characters"/>
+       <input class="form-input" type="password" id="su-pass" placeholder="Minimum 8 characters" required>
       </div>
       <button class="btn-submit" id="su-btn" onclick="handleSignup()">Create Account</button>
       <div class="or-divider">or continue with</div>
@@ -879,42 +879,126 @@
   window.showToast = showToast;
 
   // Auth button wrappers — delegate to firebase-auth.js module functions
-  window.handleLogin = async function() {
-    const email = document.getElementById('li-email').value.trim();
-    const pass  = document.getElementById('li-pass').value;
-    const errEl = document.getElementById('li-error');
-    const btn   = document.getElementById('li-btn');
-    errEl.style.display = 'none';
-    if (!email || !pass) { showMsg(errEl, 'Please fill in all fields.'); return; }
-    btn.innerHTML = '<span class="spinner"></span> Signing in...';
-    btn.disabled = true;
-    const { loginWithEmail } = await import('./firebase-auth.js');
-    const result = await loginWithEmail(email, pass);
-    if (result.error) { showMsg(errEl, result.error); btn.innerHTML='Sign In'; btn.disabled=false; return; }
-    closeModal(); showToast('✅', 'Signed in successfully!');
-    setTimeout(() => window.location.href = 'dashboard.html', 800);
-  };
+window.handleLogin = async function() {
 
-  window.handleSignup = async function() {
-    const name  = document.getElementById('su-name').value.trim();
-    const email = document.getElementById('su-email').value.trim();
-    const pass  = document.getElementById('su-pass').value;
-    const role  = document.getElementById('su-role').value;
-    const errEl = document.getElementById('su-error');
-    const sucEl = document.getElementById('su-success');
-    const btn   = document.getElementById('su-btn');
-    errEl.style.display='none'; sucEl.style.display='none';
-    if (!name||!email||!pass) { showMsg(errEl,'Please fill in all fields.'); return; }
-    if (pass.length < 8)      { showMsg(errEl,'Password must be at least 8 characters.'); return; }
-    btn.innerHTML = '<span class="spinner"></span> Creating account...';
-    btn.disabled = true;
-    const { signUpWithEmail } = await import('./firebase-auth.js');
-    const result = await signUpWithEmail({ email, password: pass, displayName: name, role });
-    if (result.error) { showMsg(errEl, result.error); btn.innerHTML='Create Account'; btn.disabled=false; return; }
-    showMsg(sucEl, '✅ Account created! Redirecting to dashboard...', 'success');
-    showToast('🎉','Account created successfully!');
-    setTimeout(() => { closeModal(); window.location.href='dashboard.html'; }, 1200);
-  };
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+
+  const errEl = document.getElementById('li-error');
+  const btn   = document.getElementById('li-btn');
+
+  errEl.style.display = 'none';
+
+  if(!email || !pass){
+    showMsg(errEl,"Please fill all fields.");
+    return;
+  }
+
+  btn.innerHTML = '<span class="spinner"></span> Signing in...';
+  btn.disabled = true;
+
+  const { loginWithEmail } = await import("./firebase-auth.js");
+
+  const result = await loginWithEmail(email,pass);
+
+  if(result.error){
+
+    showToast("❌",result.error,"error");
+    showMsg(errEl,result.error);
+
+    btn.innerHTML="Sign In";
+    btn.disabled=false;
+
+    return;
+  }
+
+  showToast("✅","Login successful");
+
+  setTimeout(()=>{
+    window.location.href="dashboard.html";
+  },900);
+
+};
+
+window.handleSignup = async function() {
+
+const name  = document.getElementById('su-name').value.trim();
+const email = document.getElementById('su-email').value.trim();
+const pass  = document.getElementById('su-pass').value;
+const role  = document.getElementById('su-role').value;
+
+const errEl = document.getElementById('su-error');
+const sucEl = document.getElementById('su-success');
+const btn   = document.getElementById('su-btn');
+
+errEl.style.display = "none";
+sucEl.style.display = "none";
+
+if(!name || !email || !pass){
+showMsg(errEl,"Please fill all fields");
+return;
+}
+
+if(pass.length < 8){
+showMsg(errEl,"Password must be at least 8 characters");
+return;
+}
+
+btn.innerHTML = '<span class="spinner"></span> Creating account...';
+btn.disabled = true;
+
+try{
+
+const { signUpWithEmail } = await import("./firebase-auth.js");
+
+const result = await signUpWithEmail({
+  email,
+  password: pass,
+  displayName: name,
+  role
+});
+
+if(result.error){
+
+  showToast("❌", result.error, "error");
+  showMsg(errEl, result.error);
+
+  btn.innerHTML = "Create Account";
+  btn.disabled = false;
+  return;
+
+}
+
+/* SUCCESS */
+
+showToast("🎉","Account created successfully!");
+
+showMsg(
+  sucEl,
+  "Account created successfully. Please verify your email before login.",
+  "success"
+);
+
+btn.innerHTML = "Create Account";
+btn.disabled = false;
+
+setTimeout(()=>{
+  switchTab("login");
+},2000);
+
+}
+catch(error){
+
+
+showToast("❌","Unexpected error occurred","error");
+
+btn.innerHTML = "Create Account";
+btn.disabled = false;
+
+}
+
+};
+
 
   window.handleGoogle = async function() {
     const { loginWithGoogle } = await import('./firebase-auth.js');
