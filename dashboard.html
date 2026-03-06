@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Heartlyf — Cardiac Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── AUTH GUARD ──────────────────────────────── -->
+<div id="auth-guard">
+  <div class="guard-spinner"></div>
+  <h2>Verifying session…</h2>
+  <p>Please wait while we authenticate your account.</p>
+</div>
+
+<!-- ── SIDEBAR ────────────────────────────────── -->
+<aside class="sidebar">
+  <a href="index.html" class="sb-logo">
+    <svg viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="9" fill="rgba(200,16,46,0.15)"/>
+      <path d="M4 18 L9 18 L11 10 L15 26 L18 13 L21 20 L23 18 L32 18" stroke="#c8102e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Heartlyf
+  </a>
+
+  <nav class="sb-nav">
+    <div class="sb-section-label">Monitoring</div>
+    <a class="sb-item active" href="#" onclick="showPage('overview',this)">
+      <span class="sb-icon">📊</span> Overview
+    </a>
+    <a class="sb-item" href="#" onclick="showPage('ecg',this)">
+      <span class="sb-icon">📈</span> Live ECG
+    </a>
+    <a class="sb-item" href="#" onclick="showPage('alerts',this)">
+      <span class="sb-icon">🚨</span> Alerts
+      <span class="sb-badge" id="alert-badge">3</span>
+    </a>
+    <div class="sb-section-label">Tools</div>
+    <a class="sb-item" href="#" onclick="showPage('location',this)">
+      <span class="sb-icon">📍</span> GPS Location
+    </a>
+    <a class="sb-item" href="#" onclick="showPage('reports',this)">
+      <span class="sb-icon">📋</span> Reports
+    </a>
+    <div class="sb-section-label">System</div>
+    <a class="sb-item" href="#" onclick="showPage('settings',this)">
+      <span class="sb-icon">⚙️</span> Settings
+    </a>
+    <a class="sb-item" href="index.html">
+      <span class="sb-icon">🌐</span> Project Site
+    </a>
+  </nav>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">U</div>
+      <div>
+        <div class="sb-user-name" id="sb-name">Loading…</div>
+        <div class="sb-user-role" id="sb-role">Patient</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────── -->
+<main class="main">
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <h2 id="page-title">Overview</h2>
+      <p id="page-subtitle">Real-time cardiac monitoring dashboard</p>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill"><span class="live-dot"></span>Live Feed</div>
+      <button class="topbar-btn" onclick="exportReport()">⬇ Export PDF</button>
+      <button class="topbar-btn danger" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══ OVERVIEW PAGE ════════════════════════ -->
+    <div class="page active" id="page-overview">
+      <!-- Vitals row -->
+      <div class="vitals-grid">
+        <div class="vital-card vc-red">
+          <div class="vital-label">❤️ Heart Rate</div>
+          <div class="vital-number vgreen" id="v-bpm">72<span class="vital-unit">BPM</span></div>
+          <div class="vital-status" id="v-bpm-status">Normal sinus rhythm</div>
+        </div>
+        <div class="vital-card vc-blue">
+          <div class="vital-label">💧 SpO2</div>
+          <div class="vital-number vblue" id="v-spo2">98<span class="vital-unit">%</span></div>
+          <div class="vital-status">Blood oxygen saturation</div>
+        </div>
+        <div class="vital-card vc-green">
+          <div class="vital-label">📉 HRV</div>
+          <div class="vital-number vgreen" id="v-hrv">42<span class="vital-unit">ms</span></div>
+          <div class="vital-status">Heart rate variability</div>
+        </div>
+        <div class="vital-card vc-amber">
+          <div class="vital-label">🤖 AI Analysis</div>
+          <div class="vital-number vgreen" id="v-ai" style="font-size:1.4rem;">Normal</div>
+          <div class="vital-status" id="v-ai-sub">No anomalies detected</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">BPM Trend</div>
+              <div class="chart-sub">Real-time heart rate (last 60 seconds)</div>
+            </div>
+            <div class="time-tabs">
+              <span class="time-tab active">1 min</span>
+              <span class="time-tab">5 min</span>
+            </div>
+          </div>
+          <div class="chart-body"><canvas id="c-bpm"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">SpO2 Trend</div>
+              <div class="chart-sub">Blood oxygen saturation level</div>
+            </div>
+          </div>
+          <div class="chart-body"><canvas id="c-spo2"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Full-width hourly distribution -->
+      <div class="chart-card full">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">24-Hour BPM Distribution</div>
+            <div class="chart-sub">Hourly average heart rate — today</div>
+          </div>
+          <div style="display:flex;gap:16px;font-size:.75rem;align-items:center;">
+            <span style="display:flex;align-items:center;gap:5px;color:var(--text-muted)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(200,16,46,0.55);display:inline-block;"></span>Tachycardia</span>
+            <span style="display:flex;align-items:center;gap:5px;color:var(--text-muted)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(59,130,246,0.5);display:inline-block;"></span>Normal</span>
+          </div>
+        </div>
+        <div class="chart-body tall"><canvas id="c-dist"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ═══ LIVE ECG PAGE ═════════════════════════ -->
+    <div class="page" id="page-ecg">
+      <div class="chart-card" style="margin-bottom:22px;">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Live ECG Waveform</div>
+            <div class="chart-sub">Real-time electrocardiogram — AD8232 sensor · Lead II</div>
+          </div>
+          <div class="live-pill"><span class="live-dot"></span>Streaming</div>
+        </div>
+        <div class="chart-body" style="height:280px;"><canvas id="c-ecg"></canvas></div>
+      </div>
+      <div class="vitals-grid">
+        <div class="vital-card vc-red">
+          <div class="vital-label">❤️ BPM</div>
+          <div class="vital-number vgreen" id="ecg-bpm">72<span class="vital-unit">BPM</span></div>
+          <div class="vital-status">Real-time</div>
+        </div>
+        <div class="vital-card vc-blue">
+          <div class="vital-label">〰️ P-Wave</div>
+          <div class="vital-number vblue" style="font-size:1.3rem;">Normal</div>
+          <div class="vital-status">Atrial contraction</div>
+        </div>
+        <div class="vital-card vc-green">
+          <div class="vital-label">📐 QRS Width</div>
+          <div class="vital-number vgreen">92<span class="vital-unit">ms</span></div>
+          <div class="vital-status">Ventricular contraction</div>
+        </div>
+        <div class="vital-card vc-amber">
+          <div class="vital-label">〰️ T-Wave</div>
+          <div class="vital-number vgreen" style="font-size:1.3rem;">Normal</div>
+          <div class="vital-status">Ventricular recovery</div>
+        </div>
+      </div>
+      <div class="chart-card" style="margin-top:22px;">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">RR-Interval Analysis</div>
+            <div class="chart-sub">Time between consecutive R-peaks (ms)</div>
+          </div>
+        </div>
+        <div class="chart-body"><canvas id="c-rr"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ═══ ALERTS PAGE ═══════════════════════════ -->
+    <div class="page" id="page-alerts">
+      <div class="alerts-header">
+        <h3>Alert History</h3>
+        <button class="topbar-btn" onclick="clearAlerts()">Clear All</button>
+      </div>
+      <div class="alerts-list" id="alerts-list"></div>
+    </div>
+
+    <!-- ═══ GPS / LOCATION PAGE ═══════════════════ -->
+    <div class="page" id="page-location">
+      <div class="gps-card">
+        <div class="gps-header">
+          <h3>📍 Live GPS Location</h3>
+          <div class="live-pill"><span class="live-dot"></span>NEO-6M Active</div>
+        </div>
+        <div class="gps-map">
+          <div class="gps-map-grid"></div>
+          <div class="gps-pin">📍</div>
+          <div class="gps-coords" id="gps-coords">28.4744° N, 77.5040° E</div>
+          <div class="gps-location-text">Greater Noida, Uttar Pradesh, India</div>
+          <a class="gps-open-btn" href="https://maps.google.com/?q=28.4744,77.5040" target="_blank">Open in Google Maps ↗</a>
+        </div>
+      </div>
+      <div class="vitals-grid">
+        <div class="vital-card vc-green">
+          <div class="vital-label">🛰️ GPS Fix</div>
+          <div class="vital-number vgreen" style="font-size:1.3rem;">Active</div>
+          <div class="vital-status">NEO-6M connected</div>
+        </div>
+        <div class="vital-card vc-blue">
+          <div class="vital-label">📡 Satellites</div>
+          <div class="vital-number vblue">8<span class="vital-unit">sat</span></div>
+          <div class="vital-status">Good signal quality</div>
+        </div>
+        <div class="vital-card vc-green">
+          <div class="vital-label">🎯 Accuracy</div>
+          <div class="vital-number vgreen">±3<span class="vital-unit">m</span></div>
+          <div class="vital-status">High precision</div>
+        </div>
+        <div class="vital-card vc-amber">
+          <div class="vital-label">⏱️ Last Fix</div>
+          <div class="vital-number vamber" id="gps-time" style="font-size:1.3rem;">--:--</div>
+          <div class="vital-status">Real-time sync</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REPORTS PAGE ══════════════════════════ -->
+    <div class="page" id="page-reports">
+      <div class="alerts-header">
+        <h3>Session Reports</h3>
+        <button class="topbar-btn" onclick="exportReport()">⬇ Export PDF</button>
+      </div>
+      <div class="chart-card">
+        <div class="report-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Session ID</th><th>Date &amp; Time</th><th>Duration</th>
+                <th>Avg BPM</th><th>Peak BPM</th><th>Avg SpO2</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="report-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS PAGE ════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <!-- Alert thresholds -->
+        <div class="settings-card">
+          <h3>🔔 Alert Thresholds</h3>
+          <div class="setting-row">
+            <div class="setting-group">
+              <label>Tachycardia (BPM upper limit)</label>
+              <div class="setting-input-row">
+                <input class="s-input" type="number" id="s-tachy" value="100" min="80" max="200"/>
+                <button class="s-save" onclick="saveSetting('Tachycardia threshold')">Save</button>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-group">
+              <label>Bradycardia (BPM lower limit)</label>
+              <div class="setting-input-row">
+                <input class="s-input" type="number" id="s-brady" value="50" min="30" max="80"/>
+                <button class="s-save" onclick="saveSetting('Bradycardia threshold')">Save</button>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-group">
+              <label>SpO2 low alert (%)</label>
+              <div class="setting-input-row">
+                <input class="s-input" type="number" id="s-spo2" value="94" min="80" max="99"/>
+                <button class="s-save" onclick="saveSetting('SpO2 threshold')">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification channels -->
+        <div class="settings-card">
+          <h3>📱 Notification Channels</h3>
+          <div class="setting-row">
+            <div class="setting-info"><h4>Telegram Bot Alerts</h4><p>Instant message via Telegram on anomaly detection</p></div>
+            <label class="toggle"><input type="checkbox" checked id="tog-telegram"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><h4>Twilio SMS</h4><p>SMS to all registered emergency contacts</p></div>
+            <label class="toggle"><input type="checkbox" checked id="tog-sms"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><h4>Auto Phone Call</h4><p>Automated call on critical cardiac events only</p></div>
+            <label class="toggle"><input type="checkbox" id="tog-call"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><h4>GPS Link in Alerts</h4><p>Append real-time Google Maps link to each alert</p></div>
+            <label class="toggle"><input type="checkbox" checked id="tog-gps"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+        </div>
+
+        <!-- Emergency contacts -->
+        <div class="settings-card">
+          <h3>👤 Emergency Contacts</h3>
+          <div class="setting-row">
+            <div class="setting-group">
+              <label>Primary Contact</label>
+              <div class="setting-input-row">
+                <input class="s-input" type="tel" id="c-primary" placeholder="+91 XXXXXXXXXX"/>
+                <button class="s-save" onclick="saveSetting('Primary contact')">Save</button>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-group">
+              <label>Secondary Contact</label>
+              <div class="setting-input-row">
+                <input class="s-input" type="tel" id="c-secondary" placeholder="+91 XXXXXXXXXX"/>
+                <button class="s-save" onclick="saveSetting('Secondary contact')">Save</button>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-group">
+              <label>Doctor / Physician</label>
+              <div class="setting-input-row">
+                <input class="s-input" type="tel" id="c-doctor" placeholder="+91 XXXXXXXXXX"/>
+                <button class="s-save" onclick="saveSetting('Doctor contact')">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Device power -->
+        <div class="settings-card">
+          <h3>🔋 Device Power Management</h3>
+          <div class="setting-row">
+            <div class="setting-info"><h4>GPS Sleep Mode</h4><p>Poll GPS only on anomaly events to conserve battery</p></div>
+            <label class="toggle"><input type="checkbox" checked id="tog-gps-sleep"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><h4>Dynamic Wi-Fi Control</h4><p>Disable Wi-Fi radio between data transmissions</p></div>
+            <label class="toggle"><input type="checkbox" checked id="tog-wifi"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><h4>SD Card Logging</h4><p>Buffer ECG data locally when Wi-Fi is unavailable</p></div>
+            <label class="toggle"><input type="checkbox" checked id="tog-sd"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ── NOTIFICATION POPUP ─────────────────────── -->
+<div class="notif-popup" id="notif-popup">
+  <button class="np-close" onclick="closeNotif()">✕</button>
+  <span class="np-icon" id="np-icon">🚨</span>
+  <div>
+    <div class="np-title" id="np-title">Alert</div>
+    <div class="np-body"  id="np-body"></div>
+  </div>
+</div>
+
+<!-- ── FIREBASE + DASHBOARD SCRIPT ───────────── -->
+<script type="module">
+  import { onAuthChange, logout, app } from './firebase-auth.js';
+  import { getDatabase, ref, onValue, set }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const rtdb = getDatabase(app);
+
+  /* ── AUTH GUARD ─ */
+  onAuthChange(user => {
+    const guard = document.getElementById('auth-guard');
+    if (!user) {
+      guard.innerHTML = `
+        <h2 style="font-family:'Fraunces',serif">Access Denied</h2>
+        <p>You must be signed in to view the dashboard.</p>
+        <a href="index.html" style="margin-top:16px;background:var(--crimson);color:#fff;padding:12px 30px;border-radius:8px;font-weight:700;text-decoration:none;">Go to Sign In</a>`;
+      return;
+    }
+    guard.classList.add('hidden');
+    initUser(user);
+    listenFirebase(user);
+    // initSimulation();  
+    initCharts();
+    renderAlerts();
+    renderReports();
+    <!-- setInterval(updateGpsTime, 10000); -->
+    updateGpsTime();
+  });
+
+  window.handleLogout = async function() {
+    await logout();
+    window.location.href = 'index.html';
+  };
+
+  function initUser(user) {
+    const name = user.displayName || user.email.split('@')[0];
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('sb-avatar').textContent = initials;
+    document.getElementById('sb-name').textContent   = name;
+  }
+
+  /* ── FIREBASE REALTIME LISTEN ─ */
+  function listenFirebase(user) {
+    onValue(ref(rtdb, `vitals/${user.uid}`), snap => {
+      const d = snap.val();
+      if (d) updateVitals(d);
+    });
+  }
+
+  /* ── SIMULATION ─ */
+  let simBPM = 72, simSPO2 = 98, simHRV = 42;
+  let bpmArr = [], spo2Arr = [], timeLabels = [];
+  let ecgBuf = [], rrArr = [];
+  let chartBpm, chartSpo2, chartEcg, chartRr, chartDist;
+  let alertShownAt = 0;
+
+  function ecgVal(t) {
+    const c = ((t * 2.2) | 0) % 100;
+    if (c>=63&&c<65) return -0.15*(c-63);
+    if (c>=65&&c<67) return -0.3 + 0.55*(c-65);
+    if (c>=67&&c<69) return 0.8  - 0.65*(c-67);
+    if (c>=69&&c<71) return -0.5 + 0.42*(c-69);
+    if (c>=71&&c<73) return -0.08+ 0.06*(c-71);
+    if (c>=81&&c<87) return 0.09 * Math.sin((c-81)*Math.PI/6);
+    return (Math.random()-.5)*0.018;
+  }
+
+
+  /* ── UPDATE VITALS UI ─ */
+  function updateVitals({ bpm, spo2, hrv }) {
+    if (bpm !== undefined) {
+      const el  = document.getElementById('v-bpm');
+      const el2 = document.getElementById('ecg-bpm');
+      const tag = `${bpm}<span class="vital-unit">BPM</span>`;
+      el.innerHTML = tag; if (el2) el2.innerHTML = tag;
+
+      if (bpm > 100) { el.className='vital-number vred';   document.getElementById('v-bpm-status').textContent='⚠️ Tachycardia detected'; }
+      else if (bpm < 55) { el.className='vital-number vamber'; document.getElementById('v-bpm-status').textContent='⚠️ Bradycardia detected'; }
+      else { el.className='vital-number vgreen'; document.getElementById('v-bpm-status').textContent='Normal sinus rhythm'; }
+
+      const ai    = document.getElementById('v-ai');
+      const aiSub = document.getElementById('v-ai-sub');
+      const now   = Date.now();
+      if (bpm > 125 && now - alertShownAt > 12000) {
+        alertShownAt = now;
+        showNotif('crit','🚨 Critical Tachycardia',`BPM: ${bpm} — Emergency contacts notified with GPS location.`);
+        ai.textContent='Critical'; ai.className='vital-number vred';
+        aiSub.textContent='High-risk event detected';
+      } else if (bpm > 100) {
+        ai.textContent='Warning'; ai.className='vital-number vamber';
+        aiSub.textContent='Mild tachycardia — monitoring';
+      } else {
+        ai.textContent='Normal'; ai.className='vital-number vgreen';
+        aiSub.textContent='No anomalies detected';
+      }
+    }
+    if (spo2 !== undefined) {
+      const el = document.getElementById('v-spo2');
+      el.innerHTML = `${spo2}<span class="vital-unit">%</span>`;
+      el.className = spo2 < 94 ? 'vital-number vred' : 'vital-number vblue';
+    }
+    if (hrv !== undefined) {
+      document.getElementById('v-hrv').innerHTML = `${hrv}<span class="vital-unit">ms</span>`;
+    }
+  }
+
+  /* ── CHARTS ─ */
+  const baseOptions = {
+    animation: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { display: false, grid: { display: false } },
+      y: { grid: { color:'rgba(255,255,255,0.04)', drawBorder: false },
+           ticks: { color:'#5f7d96', font: { size:10, family:'DM Mono' } } }
+    }
+  };
+
+  function initCharts() {
+    chartBpm  = mkLine('c-bpm',  bpmArr,  '#c8102e', 'rgba(200,16,46,0.07)',  timeLabels, {min:40, max:160});
+    chartSpo2 = mkLine('c-spo2', spo2Arr, '#3b82f6', 'rgba(59,130,246,0.07)', timeLabels, {min:88, max:101});
+    const ecgLabels = Array.from({length:220},(_,i)=>i);
+    chartEcg = mkLine('c-ecg', ecgBuf, '#10b981', 'rgba(16,185,129,0)',   ecgLabels, {min:-.65, max:.95});
+    chartRr  = mkBar ('c-rr',  rrArr,  '#f59e0b', {min:500, max:1300});
+
+    const hours    = Array.from({length:24},(_,i)=>`${i}:00`);
+    const distData = [62,60,58,57,55,56,60,68,75,80,82,85,79,77,74,76,80,83,85,82,79,75,70,65];
+    chartDist = new Chart(document.getElementById('c-dist').getContext('2d'), {
+      type:'bar',
+      data: {
+        labels: hours,
+        datasets:[{ data: distData,
+          backgroundColor: distData.map(v=>v>100?'rgba(200,16,46,0.6)':'rgba(59,130,246,0.45)'),
+          borderRadius:4, borderSkipped:false }]
+      },
+      options:{...baseOptions,
+        scales:{...baseOptions.scales,
+          x:{...baseOptions.scales.x, display:true, ticks:{color:'#5f7d96',font:{size:9,family:'DM Mono'}}},
+          y:{...baseOptions.scales.y, min:40}}}
+    });
+  }
+
+  function mkLine(id, data, color, fill, labels, yRange) {
+    const ctx = document.getElementById(id)?.getContext('2d'); if(!ctx) return null;
+    return new Chart(ctx, {
+      type:'line',
+      data:{ labels:[...labels], datasets:[{ data:[...data], borderColor:color, borderWidth:2, backgroundColor:fill, fill:true, tension:.4, pointRadius:0 }]},
+      options:{...baseOptions, scales:{...baseOptions.scales, y:{...baseOptions.scales.y,...yRange}}}
+    });
+  }
+  function mkBar(id, data, color, yRange) {
+    const ctx = document.getElementById(id)?.getContext('2d'); if(!ctx) return null;
+    return new Chart(ctx, {
+      type:'bar',
+      data:{ labels:Array.from({length:data.length},(_,i)=>i), datasets:[{ data:[...data], backgroundColor:`${color}80`, borderColor:color, borderWidth:1, borderRadius:3 }]},
+      options:{...baseOptions, scales:{...baseOptions.scales, y:{...baseOptions.scales.y,...yRange}}}
+    });
+  }
+
+  function updateCharts() {
+    if(chartBpm ){ chartBpm.data.labels=[...timeLabels]; chartBpm.data.datasets[0].data=[...bpmArr];  chartBpm.update('none'); }
+    if(chartSpo2){ chartSpo2.data.labels=[...timeLabels]; chartSpo2.data.datasets[0].data=[...spo2Arr]; chartSpo2.update('none'); }
+    if(chartEcg ){ chartEcg.data.datasets[0].data=[...ecgBuf]; chartEcg.update('none'); }
+    if(chartRr  ){ chartRr.data.datasets[0].data=[...rrArr];   chartRr.update('none'); }
+  }
+
+  /* ── ALERTS ─ */
+  const alertsList = [
+    { type:'crit', icon:'🚨', title:'Critical Tachycardia',     body:'Peak BPM: 138. Emergency contacts notified via Telegram + SMS + GPS link.',  time:'11:47' },
+    { type:'warn', icon:'⚠️', title:'Mild Tachycardia',          body:'Heart rate reached 108 BPM. Monitoring closely for sustained elevation.',    time:'10:24' },
+    { type:'ok',   icon:'✅', title:'Heart Rate Normalized',      body:'BPM returned to normal range (72 BPM). Patient stable.',                    time:'11:52' },
+    { type:'ok',   icon:'✅', title:'System Online',              body:'Heartlyf monitoring session started. Device connected successfully.',        time:'09:00' },
+  ];
+  function renderAlerts() {
+    const list = document.getElementById('alerts-list'); if (!list) return;
+    list.innerHTML = alertsList.map(a => `
+      <div class="alert-item ${a.type}">
+        <span class="alert-icon">${a.icon}</span>
+        <div>
+          <div class="alert-title">${a.title}</div>
+          <div class="alert-desc">${a.body}</div>
+        </div>
+        <span class="alert-time">${a.time}</span>
+      </div>`).join('');
+    document.getElementById('alert-badge').textContent = alertsList.filter(a=>a.type!=='ok').length;
+  }
+
+  /* ── REPORTS ─ */
+  function renderReports() {
+    const tbody = document.getElementById('report-tbody'); if (!tbody) return;
+    const rows = [
+      {id:'SES-005', date:'Mar 06, 2026  08:00', dur:'4h 12m', avg:71, peak:88,  spo2:98, st:'normal'},
+      {id:'SES-004', date:'Mar 05, 2026  09:15', dur:'6h 40m', avg:74, peak:108, spo2:97, st:'warn'},
+      {id:'SES-003', date:'Mar 04, 2026  08:30', dur:'5h 55m', avg:76, peak:138, spo2:96, st:'crit'},
+      {id:'SES-002', date:'Mar 03, 2026  09:00', dur:'7h 02m', avg:69, peak:85,  spo2:99, st:'normal'},
+      {id:'SES-001', date:'Mar 02, 2026  08:45', dur:'5h 30m', avg:72, peak:91,  spo2:98, st:'normal'},
+    ];
+    const labels = { normal:'Normal', warn:'Warning', crit:'Critical' };
+    tbody.innerHTML = rows.map(r=>`
+      <tr>
+        <td style="font-family:'DM Mono',monospace;color:var(--text-muted)">${r.id}</td>
+        <td>${r.date}</td><td>${r.dur}</td>
+        <td>${r.avg} BPM</td><td>${r.peak} BPM</td><td>${r.spo2}%</td>
+        <td><span class="badge ${r.st}">${labels[r.st]}</span></td>
+      </tr>`).join('');
+  }
+
+  /* ── HELPERS ─ */
+  function updateGpsTime() {
+    const el = document.getElementById('gps-time');
+    if (el) el.textContent = new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  let notifTimer;
+  function showNotif(type, title, body) {
+    const el = document.getElementById('notif-popup');
+    el.className = `notif-popup ${type} show`;
+    document.getElementById('np-icon').textContent  = type==='crit' ? '🚨' : 'ℹ️';
+    document.getElementById('np-title').textContent = title;
+    document.getElementById('np-body').textContent  = body;
+    clearTimeout(notifTimer);
+    notifTimer = setTimeout(closeNotif, 6000);
+  }
+  window.closeNotif = () => document.getElementById('notif-popup').classList.remove('show');
+
+  window.clearAlerts = function() {
+    alertsList.length = 0;
+    alertsList.push({ type:'ok', icon:'ℹ️', title:'History Cleared', body:'Alert history has been cleared.', time: new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'}) });
+    renderAlerts();
+  };
+  window.saveSetting = function(name) {
+    showNotif('info','✅ Saved', `${name} updated successfully.`);
+  };
+  window.exportReport = function() {
+    showNotif('info','📄 Exporting','PDF report generation started. Connect Firebase to enable full export.');
+  };
+</script>
+
+<script>
+  /* ── PAGE NAVIGATION ─ */
+  const PAGE_META = {
+    overview: { title:'Overview',       sub:'Real-time cardiac monitoring dashboard' },
+    ecg:      { title:'Live ECG',        sub:'Streaming electrocardiogram waveform' },
+    alerts:   { title:'Alert History',   sub:'All detected anomalies and events' },
+    location: { title:'GPS Location',    sub:'Real-time patient location tracking' },
+    reports:  { title:'Session Reports', sub:'Historical ECG sessions and analytics' },
+    settings: { title:'Settings',        sub:'Configure thresholds, contacts and device' },
+  };
+  window.showPage = function(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+id)?.classList.add('active');
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const m = PAGE_META[id] || {};
+    document.getElementById('page-title').textContent    = m.title    || id;
+    document.getElementById('page-subtitle').textContent = m.sub      || '';
+    return false;
+  };
+</script>
+
+<script type="module" src="firebase-auth.js"></script>
+<script type="module" src="dashboard-data.js"></script>
+</body>
+</html>

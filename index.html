@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Heartlyf — AI-Powered Cardiac Monitoring System</title>
+  <meta name="description" content="IoT-based autonomous cardiac arrest prediction and emergency response system using TinyML, ESP32 edge AI and real-time geo-location."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="9" fill="rgba(200,16,46,0.12)"/>
+      <path d="M4 18 L9 18 L11 10 L15 26 L18 13 L21 20 L23 18 L32 18" stroke="#c8102e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Heartlyf
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#hardware">Hardware</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="dashboard.html" class="btn btn-outline btn-sm" id="nav-dashboard">Dashboard</a>
+    <button class="btn btn-outline btn-sm" id="nav-login"  onclick="openModal('login')">Sign In</button>
+    <button class="btn btn-primary btn-sm" id="nav-signup" onclick="openModal('signup')">Get Started</button>
+    <button class="btn btn-outline btn-sm" id="nav-logout" onclick="handleLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────── -->
+<section class="hero" id="home">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow-tl"></div>
+  <div class="hero-glow-br"></div>
+
+  <div class="hero-badge">
+    <span class="pulse-dot"></span>
+    Live AI Cardiac Monitoring · GNIOT CSE-IoT · 2025-26
+  </div>
+
+  <h1 class="hero-title">
+    Predict Cardiac Events<br>
+    <em>Before They Happen</em>
+  </h1>
+
+  <p class="hero-subtitle">
+    Heartlyf fuses TinyML edge intelligence, ESP32 wearable hardware and real-time Firebase cloud to continuously monitor ECG, detect arrhythmias and dispatch GPS-enabled emergency alerts in under one second.
+  </p>
+
+  <div class="hero-cta">
+    <button class="btn btn-primary btn-lg" onclick="openModal('signup')">
+      &#x25B6;&nbsp; Start Monitoring Free
+    </button>
+    <a href="#about" class="btn btn-outline btn-lg">Explore the Project</a>
+  </div>
+
+  <!-- Live ECG strip -->
+  <div class="ecg-strip-wrap">
+    <div class="ecg-strip-line"></div>
+    <svg class="ecg-svg" viewBox="0 0 740 90" preserveAspectRatio="none">
+      <path class="ecg-path-glow" d="M0,45 L55,45 L60,43 L63,47 L68,12 L72,78 L76,42 L90,45 L130,45 L135,43 L138,47 L143,12 L147,78 L151,42 L165,45 L205,45 L210,43 L213,47 L218,12 L222,78 L226,42 L240,45 L280,45 L285,43 L288,47 L293,14 L297,76 L301,42 L315,45 L355,45 L360,43 L363,47 L368,10 L372,80 L376,42 L390,45 L430,45 L435,43 L438,47 L443,13 L447,77 L451,42 L465,45 L505,45 L510,43 L513,47 L518,12 L522,78 L526,42 L540,45 L580,45 L585,43 L588,47 L593,11 L597,79 L601,42 L615,45 L655,45 L660,43 L663,47 L668,12 L672,78 L676,42 L690,45 L740,45"/>
+      <path class="ecg-path-main" d="M0,45 L55,45 L60,43 L63,47 L68,12 L72,78 L76,42 L90,45 L130,45 L135,43 L138,47 L143,12 L147,78 L151,42 L165,45 L205,45 L210,43 L213,47 L218,12 L222,78 L226,42 L240,45 L280,45 L285,43 L288,47 L293,14 L297,76 L301,42 L315,45 L355,45 L360,43 L363,47 L368,10 L372,80 L376,42 L390,45 L430,45 L435,43 L438,47 L443,13 L447,77 L451,42 L465,45 L505,45 L510,43 L513,47 L518,12 L522,78 L526,42 L540,45 L580,45 L585,43 L588,47 L593,11 L597,79 L601,42 L615,45 L655,45 L660,43 L663,47 L668,12 L672,78 L676,42 L690,45 L740,45"/>
+    </svg>
+    <div class="ecg-labels">
+      <span>P-wave</span><span>QRS Complex</span><span>T-wave</span><span>P-wave</span><span>QRS Complex</span><span>T-wave</span>
+    </div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    scroll to explore
+  </div>
+</section>
+
+<!-- ── STATS BAR ──────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-value">&lt;1s</span><div class="stat-label">Alert Latency</div></div>
+  <div class="stat-item"><span class="stat-value">99.2%</span><div class="stat-label">Detection Accuracy</div></div>
+  <div class="stat-item"><span class="stat-value">138+</span><div class="stat-label">Peak BPM Detected</div></div>
+  <div class="stat-item"><span class="stat-value">5-Layer</span><div class="stat-label">AI Architecture</div></div>
+  <div class="stat-item"><span class="stat-value">24/7</span><div class="stat-label">Continuous Monitoring</div></div>
+</div>
+
+<!-- ── ABOUT / PROJECT DETAILS ───────────────────────── -->
+<section id="about">
+  <div class="about-grid">
+    <!-- Visual side -->
+    <div class="about-visual">
+      <div class="about-img-main">
+        <!-- Inline SVG diagram: ECG waveform with annotations -->
+        <svg viewBox="0 0 520 340" fill="none" style="width:100%;height:100%;padding:24px;">
+          <!-- Background -->
+          <rect width="520" height="340" fill="#071829"/>
+          <!-- Grid lines -->
+          <g stroke="rgba(37,99,235,0.08)" stroke-width="1">
+            <line x1="0" y1="60"  x2="520" y2="60"/>
+            <line x1="0" y1="120" x2="520" y2="120"/>
+            <line x1="0" y1="180" x2="520" y2="180"/>
+            <line x1="0" y1="240" x2="520" y2="240"/>
+            <line x1="0" y1="300" x2="520" y2="300"/>
+            <line x1="80"  y1="0" x2="80"  y2="340"/>
+            <line x1="160" y1="0" x2="160" y2="340"/>
+            <line x1="240" y1="0" x2="240" y2="340"/>
+            <line x1="320" y1="0" x2="320" y2="340"/>
+            <line x1="400" y1="0" x2="400" y2="340"/>
+            <line x1="480" y1="0" x2="480" y2="340"/>
+          </g>
+          <!-- ECG trace -->
+          <path d="M20,180 L80,180 L85,178 L88,182 L93,60 L98,300 L103,175 L130,180 L210,180 L215,178 L218,182 L223,60 L228,300 L233,175 L260,180 L340,180 L345,178 L348,182 L353,60 L358,300 L363,175 L390,180 L470,180 L475,178 L478,182 L483,60 L488,300 L493,175 L520,180"
+            stroke="#c8102e" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <!-- Glow -->
+          <path d="M20,180 L80,180 L85,178 L88,182 L93,60 L98,300 L103,175 L130,180 L210,180 L215,178 L218,182 L223,60 L228,300 L233,175 L260,180 L340,180 L345,178 L348,182 L353,60 L358,300 L363,175 L390,180 L470,180 L475,178 L478,182 L483,60 L488,300 L493,175 L520,180"
+            stroke="rgba(200,16,46,0.2)" stroke-width="8" stroke-linecap="round" fill="none" filter="url(#blur)"/>
+          <defs><filter id="blur"><feGaussianBlur stdDeviation="4"/></filter></defs>
+          <!-- Annotations -->
+          <g fill="#5f7d96" font-family="DM Mono, monospace" font-size="11">
+            <text x="83" y="54">P</text>
+            <text x="91" y="50" fill="#c8102e" font-size="14" font-weight="bold">QRS</text>
+            <text x="103" y="300">T</text>
+          </g>
+          <!-- Labels -->
+          <rect x="16" y="16" width="120" height="28" rx="6" fill="rgba(200,16,46,0.1)" stroke="rgba(200,16,46,0.2)" stroke-width="1"/>
+          <text x="26" y="34" fill="#c8102e" font-family="DM Mono,monospace" font-size="11" font-weight="600">LEAD II · LIVE</text>
+          <!-- BPM readout -->
+          <rect x="390" y="16" width="114" height="46" rx="6" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+          <text x="400" y="33" fill="#5f7d96" font-family="DM Mono,monospace" font-size="9">HEART RATE</text>
+          <text x="400" y="54" fill="#10b981" font-family="Fraunces, serif" font-size="22" font-weight="700">72 BPM</text>
+          <!-- SpO2 -->
+          <rect x="390" y="72" width="114" height="42" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+          <text x="400" y="89" fill="#5f7d96" font-family="DM Mono,monospace" font-size="9">SPO2</text>
+          <text x="400" y="107" fill="#60a5fa" font-family="Fraunces, serif" font-size="20" font-weight="700">98%</text>
+          <!-- Status pill -->
+          <rect x="160" y="300" width="200" height="26" rx="13" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.25)" stroke-width="1"/>
+          <circle cx="177" cy="313" r="4" fill="#10b981"/>
+          <text x="188" y="317" fill="#10b981" font-family="DM Sans,sans-serif" font-size="11" font-weight="700">Normal Sinus Rhythm</text>
+        </svg>
+        <div class="about-img-overlay"></div>
+        <div class="about-scan-bar"></div>
+      </div>
+      <!-- Floating stat card -->
+      <div class="about-img-float">
+        <span class="float-icon">🤖</span>
+        <div>
+          <div class="float-value">TinyML</div>
+          <div class="float-label">On-Device AI · ESP32</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text side -->
+    <div>
+      <div class="section-eyebrow">About the Project</div>
+      <h2 class="section-title">Cardiac safety powered by edge&nbsp;AI</h2>
+      <p class="section-sub">
+        Cardiovascular diseases are the world's leading cause of death. Heartlyf is a final-year IoT project from GNIOT that addresses the critical gap in continuous, remote cardiac monitoring — combining wearable hardware, machine learning and cloud infrastructure into one cohesive system.
+      </p>
+
+      <div class="about-points">
+        <div class="about-point">
+          <div class="point-icon">🧠</div>
+          <div>
+            <div class="point-title">TinyML Arrhythmia Detection</div>
+            <div class="point-desc">CNN and Random Forest models trained on the MIT-BIH arrhythmia dataset, converted to TensorFlow Lite and deployed directly on the ESP32 for real-time offline classification.</div>
+          </div>
+        </div>
+        <div class="about-point">
+          <div class="point-icon">📡</div>
+          <div>
+            <div class="point-title">Real-Time Firebase Cloud</div>
+            <div class="point-desc">Firebase Realtime Database stores every ECG sample with millisecond precision. Cloud Functions trigger instantly on anomalies to run secondary detection algorithms.</div>
+          </div>
+        </div>
+        <div class="about-point">
+          <div class="point-icon">🚨</div>
+          <div>
+            <div class="point-title">GPS-Enabled Emergency Response</div>
+            <div class="point-desc">When a critical event is confirmed, the system simultaneously fires Telegram messages, Twilio SMS, auto-call and a live Google Maps link to all registered emergency contacts.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ───────────────────────────────────────── -->
+<section id="features">
+  <div class="features-header">
+    <div>
+      <div class="section-eyebrow">Capabilities</div>
+      <h2 class="section-title">Everything for cardiac safety</h2>
+    </div>
+    <p class="section-sub" style="max-width:380px;">Nine tightly integrated upgrades that transform a basic heart monitor into an autonomous emergency response system.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-num">01</div>
+      <div class="feat-icon-wrap">🧠</div>
+      <div class="feat-title">TinyML Arrhythmia Detection</div>
+      <div class="feat-desc">CNN / Random Forest trained on MIT-BIH dataset. Replaced simple BPM threshold alerts with learned pattern recognition for accurate arrhythmia classification.</div>
+      <span class="feat-tag">AI · ML</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">02</div>
+      <div class="feat-icon-wrap">⚡</div>
+      <div class="feat-title">Edge AI on ESP32</div>
+      <div class="feat-desc">TensorFlow Lite model deployed directly on the microcontroller. Heart rhythm classification runs offline — no cloud required for critical decisions.</div>
+      <span class="feat-tag">Edge Computing</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">03</div>
+      <div class="feat-icon-wrap">📍</div>
+      <div class="feat-title">GPS Emergency Integration</div>
+      <div class="feat-desc">NEO-6M GPS module attached to the wearable. Sends a live Google Maps link automatically embedded in every critical alert notification.</div>
+      <span class="feat-tag">GPS · NEO-6M</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">04</div>
+      <div class="feat-icon-wrap">📱</div>
+      <div class="feat-title">Flutter Mobile App</div>
+      <div class="feat-desc">Full-featured Android companion app with live ECG waveform, BLE connectivity mode, push notifications and one-tap PDF session report generation.</div>
+      <span class="feat-tag">Flutter · BLE</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">05</div>
+      <div class="feat-icon-wrap">🔬</div>
+      <div class="feat-title">Advanced Signal Processing</div>
+      <div class="feat-desc">Butterworth and Chebyshev digital filters clean the raw ECG signal. RR-interval extraction and adaptive noise removal produce medical-grade waveforms.</div>
+      <span class="feat-tag">DSP · Filtering</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">06</div>
+      <div class="feat-icon-wrap">🔩</div>
+      <div class="feat-title">Hardware Enhancements</div>
+      <div class="feat-desc">Added NEO-6M GPS, SD card for offline ECG logging, and a LiPo battery pack — transforming the prototype into a genuinely portable wearable device.</div>
+      <span class="feat-tag">IoT · Hardware</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">07</div>
+      <div class="feat-icon-wrap">🔔</div>
+      <div class="feat-title">Multi-Channel Alert System</div>
+      <div class="feat-desc">Telegram bot + Twilio SMS + automated phone call — three simultaneous notification channels ensure that at least one reaches emergency contacts instantly.</div>
+      <span class="feat-tag">Twilio · Telegram</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">08</div>
+      <div class="feat-icon-wrap">☁️</div>
+      <div class="feat-title">Firebase Backend Upgrade</div>
+      <div class="feat-desc">Migrated to Firebase Realtime Database + Cloud Functions with secure Google Authentication, row-level security rules and real-time analytics dashboards.</div>
+      <span class="feat-tag">Firebase · Cloud</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">09</div>
+      <div class="feat-icon-wrap">🔋</div>
+      <div class="feat-title">Power Optimization</div>
+      <div class="feat-desc">GPS sleep mode reduces location polling to events-only. Dynamic Wi-Fi control disables the radio between transmissions — extending LiPo battery life significantly.</div>
+      <span class="feat-tag">Power · Efficiency</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── SYSTEM ARCHITECTURE ────────────────────────────── -->
+<section id="architecture">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-eyebrow">System Design</div>
+    <h2 class="section-title">Five-layer pipeline from<br>heartbeat to alert</h2>
+    <p class="section-sub">Every layer is engineered for sub-second response and fault tolerance — from the electrode on skin to the notification on a doctor's phone.</p>
+  </div>
+
+  <div class="arch-container">
+    <div class="arch-pipeline">
+      <div class="arch-step">
+        <div class="arch-step-num">01</div>
+        <span class="arch-step-icon">❤️</span>
+        <div class="arch-step-title">Patient Unit</div>
+        <div class="arch-step-desc">AD8232 ECG + MAX30105 SpO2 wearable captures continuous biometric signals.</div>
+        <div class="arch-connector">›</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-num">02</div>
+        <span class="arch-step-icon">🤖</span>
+        <div class="arch-step-title">Edge AI</div>
+        <div class="arch-step-desc">ESP32 runs TensorFlow Lite model, applies DSP filters, extracts RR-intervals.</div>
+        <div class="arch-connector">›</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-num">03</div>
+        <span class="arch-step-icon">☁️</span>
+        <div class="arch-step-title">Firebase Cloud</div>
+        <div class="arch-step-desc">Realtime DB stores every packet. Cloud Functions run secondary analysis algorithms.</div>
+        <div class="arch-connector">›</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-num">04</div>
+        <span class="arch-step-icon">📊</span>
+        <div class="arch-step-title">Dashboard</div>
+        <div class="arch-step-desc">Web and Flutter app display live ECG, BPM, SpO2 and AI-generated insights.</div>
+        <div class="arch-connector">›</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-num">05</div>
+        <span class="arch-step-icon">🚨</span>
+        <div class="arch-step-title">Emergency Alert</div>
+        <div class="arch-step-desc">Telegram + SMS + Auto-call + GPS link sent simultaneously to all contacts.</div>
+      </div>
+    </div>
+
+    <div class="arch-details">
+      <div class="arch-detail-card">
+        <h4>🛠️ Hardware Layer</h4>
+        <p>ESP32 DevKit (dual-core 240 MHz), AD8232 analog front-end, MAX30105 optical sensor, NEO-6M GPS module and LiPo battery with power management circuit.</p>
+      </div>
+      <div class="arch-detail-card">
+        <h4>🔬 Signal Processing</h4>
+        <p>5th-order Butterworth high-pass filter (0.5 Hz cutoff) removes baseline wander. Chebyshev low-pass (40 Hz) eliminates EMG noise. Pan-Tompkins algorithm detects QRS peaks.</p>
+      </div>
+      <div class="arch-detail-card">
+        <h4>🧠 AI Classification</h4>
+        <p>CNN model classifies 5 rhythm classes: Normal, Atrial Fibrillation, Ventricular Tachycardia, PVC, and Bundle Branch Block — all running on-device at 200ms inference time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────── -->
+<section id="how">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-eyebrow">Methodology</div>
+    <h2 class="section-title">How Heartlyf works</h2>
+  </div>
+  <div class="how-grid" style="max-width:1100px;margin:56px auto 0;">
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-left"><div class="step-circle">01</div><div class="step-vline"></div></div>
+        <div class="step-body">
+          <h4>Signal Acquisition</h4>
+          <p>The AD8232 ECG sensor uses a 3-lead electrode system (RA, LA, RL) to capture the heart's electrical activity. The MAX30105 simultaneously measures blood oxygen saturation and pulse rate — providing two independent vital signs for higher diagnostic confidence.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-left"><div class="step-circle">02</div><div class="step-vline"></div></div>
+        <div class="step-body">
+          <h4>On-Device Preprocessing & AI</h4>
+          <p>The ESP32 samples the ADC at 360 Hz, applies Butterworth and Chebyshev digital filters to remove noise and baseline wander, extracts RR-intervals, and runs the quantized TinyML model to classify the current rhythm in approximately 200ms — entirely offline.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-left"><div class="step-circle">03</div><div class="step-vline"></div></div>
+        <div class="step-body">
+          <h4>Cloud Transmission & Storage</h4>
+          <p>Clean, classified data packets are transmitted via Wi-Fi to Firebase Realtime Database every 500ms. When offline, the SD card module logs all sessions locally and syncs automatically when connectivity is restored — ensuring zero data loss.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-left"><div class="step-circle">04</div><div class="step-vline"></div></div>
+        <div class="step-body">
+          <h4>Cloud Analysis & Threshold Checking</h4>
+          <p>Firebase Cloud Functions trigger on every database write. A secondary anomaly detection layer checks BPM against configurable thresholds (Tachycardia &gt;100 BPM, Bradycardia &lt;50 BPM), SpO2 drop, and cross-validates with the edge AI classification result.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-left"><div class="step-circle">05</div></div>
+        <div class="step-body">
+          <h4>Emergency Notification Dispatch</h4>
+          <p>Upon confirmed anomaly, the system simultaneously sends a Telegram bot message, a Twilio SMS, an automated phone call, and a Google Maps link with the patient's real-time GPS coordinates — reaching family, caretakers and doctors in under one second.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulated monitor widget -->
+    <div class="how-visual">
+      <div class="how-monitor-header">
+        <span class="monitor-dot"></span>
+        Heartlyf Monitor · Live Feed
+      </div>
+      <div class="how-vitals">
+        <div class="how-vital"><div class="how-vital-label">Heart Rate</div><div class="how-vital-val red">72 <span style="font-size:.9rem;color:var(--text-muted)">BPM</span></div></div>
+        <div class="how-vital"><div class="how-vital-label">SpO2</div><div class="how-vital-val blu">98 <span style="font-size:.9rem;color:var(--text-muted)">%</span></div></div>
+        <div class="how-vital"><div class="how-vital-label">HRV</div><div class="how-vital-val grn">42 <span style="font-size:.9rem;color:var(--text-muted)">ms</span></div></div>
+        <div class="how-vital"><div class="how-vital-label">AI Status</div><div class="how-vital-val grn" style="font-size:1.1rem;">Normal</div></div>
+      </div>
+      <div class="how-ecg-mini">
+        <svg viewBox="0 0 400 50" fill="none" style="width:100%;height:50px;">
+          <path d="M0,25 L40,25 L43,24 L46,26 L50,5 L54,45 L57,24 L80,25 L120,25 L123,24 L126,26 L130,5 L134,45 L137,24 L160,25 L200,25 L203,24 L206,26 L210,5 L214,45 L217,24 L240,25 L280,25 L283,24 L286,26 L290,5 L294,45 L297,24 L320,25 L360,25 L363,24 L366,26 L370,5 L374,45 L377,24 L400,25" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="how-status">
+        <span>✅</span>
+        Normal sinus rhythm — No anomalies detected
+      </div>
+      <!-- GPS pill -->
+      <div style="margin-top:14px;padding:12px 14px;background:var(--navy-mid);border:1px solid var(--navy-border);border-radius:8px;font-size:0.78rem;display:flex;align-items:center;gap:9px;color:var(--text-muted);">
+        <span>📍</span>
+        <span>GPS Active · <span style="font-family:'DM Mono',monospace;color:#60a5fa;">28.4744°N 77.5040°E</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HARDWARE ────────────────────────────────────────── -->
+<section id="hardware">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-eyebrow">Hardware Stack</div>
+    <h2 class="section-title">The physical layer</h2>
+    <p class="section-sub">Carefully selected components that balance clinical accuracy, low power consumption and wearable form factor.</p>
+  </div>
+  <div class="hw-grid" style="max-width:1100px;margin:56px auto 0;">
+    <div class="hw-card">
+      <div class="hw-card-header"><span class="hw-chip primary">MCU</span><span class="hw-icon">💻</span></div>
+      <div class="hw-name">ESP32 Dev Board</div>
+      <div class="hw-desc">Dual-core Xtensa LX6 at 240 MHz with integrated Wi-Fi and Bluetooth. Runs TensorFlow Lite models at 200ms inference. Central controller for all data acquisition, processing and transmission.</div>
+      <div class="hw-specs">
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Dual-core 240 MHz</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Wi-Fi 802.11 b/g/n + BLE 4.2</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>TensorFlow Lite inference</div>
+      </div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-card-header"><span class="hw-chip">ECG Sensor</span><span class="hw-icon">📟</span></div>
+      <div class="hw-name">AD8232</div>
+      <div class="hw-desc">Single-lead heart rate monitor with integrated instrumentation amplifier. Optimized for wearable biopotential measurement with extremely low power consumption and 3-lead electrode configuration.</div>
+      <div class="hw-specs">
+        <div class="hw-spec"><span class="hw-spec-dot"></span>3-lead: RA, LA, RL electrodes</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Lead-off detection circuitry</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>EMI-hardened analog front-end</div>
+      </div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-card-header"><span class="hw-chip">SpO2</span><span class="hw-icon">🩸</span></div>
+      <div class="hw-name">MAX30105</div>
+      <div class="hw-desc">High-sensitivity optical sensor measuring blood oxygen saturation (SpO2) and pulse rate via photoplethysmography. Provides a second independent vital sign that cross-validates ECG findings.</div>
+      <div class="hw-specs">
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Red + IR + Green LEDs</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>SpO2 accuracy ±2%</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>I2C interface</div>
+      </div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-card-header"><span class="hw-chip">GPS</span><span class="hw-icon">🛰️</span></div>
+      <div class="hw-name">NEO-6M GPS Module</div>
+      <div class="hw-desc">High-sensitivity GPS receiver with integrated patch antenna. Provides real-time coordinates embedded in emergency alerts as a Google Maps link. Sleep mode reduces power draw between location fixes.</div>
+      <div class="hw-specs">
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Position accuracy ±3m</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Cold start: 27s, Warm: 1s</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Sleep mode power saving</div>
+      </div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-card-header"><span class="hw-chip">Storage</span><span class="hw-icon">💾</span></div>
+      <div class="hw-name">SD Card Module</div>
+      <div class="hw-desc">MicroSD card interface for offline ECG session logging. Ensures no data loss when Wi-Fi is unavailable. Automatically syncs buffered sessions to Firebase when connectivity is restored.</div>
+      <div class="hw-specs">
+        <div class="hw-spec"><span class="hw-spec-dot"></span>SPI interface, FAT32</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Up to 72h offline logging</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Auto-sync on reconnection</div>
+      </div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-card-header"><span class="hw-chip">Power</span><span class="hw-icon">🔋</span></div>
+      <div class="hw-name">LiPo Battery</div>
+      <div class="hw-desc">Rechargeable lithium polymer cell powers the entire wearable system. Dynamic Wi-Fi and GPS sleep modes are managed by firmware to maximize runtime between charges.</div>
+      <div class="hw-specs">
+        <div class="hw-spec"><span class="hw-spec-dot"></span>3.7V nominal, USB-C charging</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>Dynamic power management</div>
+        <div class="hw-spec"><span class="hw-spec-dot"></span>~12h typical runtime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROJECT GALLERY ────────────────────────────────── -->
+<section id="gallery">
+  <div class="section-eyebrow">Project Gallery</div>
+  <h2 class="section-title">System diagrams &amp; results</h2>
+  <p class="section-sub">Visual overview of the hardware setup, data flow and proven detection results.</p>
+
+  <div class="gallery-grid">
+    <!-- Main feature: System block diagram -->
+    <div class="gallery-item tall">
+      <svg viewBox="0 0 520 500" fill="none" style="width:100%;height:100%;">
+        <rect width="520" height="500" fill="#071829"/>
+        <text x="26" y="38" fill="#c8102e" font-family="DM Mono,monospace" font-size="11" font-weight="700" letter-spacing="2">SYSTEM BLOCK DIAGRAM</text>
+        <!-- Boxes -->
+        <!-- Patient unit -->
+        <rect x="30" y="60" width="140" height="100" rx="10" fill="#0a2035" stroke="rgba(200,16,46,0.3)" stroke-width="1.5"/>
+        <text x="70" y="85" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">Patient Unit</text>
+        <rect x="44" y="98" width="112" height="20" rx="5" fill="rgba(200,16,46,0.08)" stroke="rgba(200,16,46,0.2)" stroke-width="1"/>
+        <text x="52" y="112" fill="#c8102e" font-family="DM Mono,monospace" font-size="9">AD8232 ECG Sensor</text>
+        <rect x="44" y="124" width="112" height="20" rx="5" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+        <text x="52" y="138" fill="#60a5fa" font-family="DM Mono,monospace" font-size="9">MAX30105 SpO2</text>
+        <!-- Arrow right -->
+        <line x1="170" y1="110" x2="200" y2="110" stroke="rgba(200,16,46,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="198,107 204,110 198,113" fill="rgba(200,16,46,0.7)"/>
+        <!-- ESP32 -->
+        <rect x="200" y="60" width="140" height="160" rx="10" fill="#0a2035" stroke="rgba(200,16,46,0.4)" stroke-width="2"/>
+        <text x="236" y="85" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">ESP32</text>
+        <text x="228" y="100" fill="#5f7d96" font-family="DM Mono,monospace" font-size="9">Edge AI Unit</text>
+        <rect x="214" y="112" width="112" height="18" rx="4" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+        <text x="222" y="125" fill="#10b981" font-family="DM Mono,monospace" font-size="8.5">TensorFlow Lite</text>
+        <rect x="214" y="136" width="112" height="18" rx="4" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+        <text x="222" y="149" fill="#fcd34d" font-family="DM Mono,monospace" font-size="8.5">Butterworth Filter</text>
+        <rect x="214" y="160" width="112" height="18" rx="4" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+        <text x="222" y="173" fill="#60a5fa" font-family="DM Mono,monospace" font-size="8.5">RR-Interval Extract</text>
+        <rect x="214" y="184" width="112" height="18" rx="4" fill="rgba(200,16,46,0.08)" stroke="rgba(200,16,46,0.2)" stroke-width="1"/>
+        <text x="222" y="197" fill="#c8102e" font-family="DM Mono,monospace" font-size="8.5">Wi-Fi Transmit</text>
+        <!-- Arrow right -->
+        <line x1="340" y1="140" x2="370" y2="140" stroke="rgba(200,16,46,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="368,137 374,140 368,143" fill="rgba(200,16,46,0.7)"/>
+        <!-- Firebase -->
+        <rect x="370" y="80" width="130" height="120" rx="10" fill="#0a2035" stroke="rgba(245,158,11,0.3)" stroke-width="1.5"/>
+        <text x="400" y="103" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">Firebase</text>
+        <text x="394" y="118" fill="#5f7d96" font-family="DM Mono,monospace" font-size="9">Cloud Backend</text>
+        <rect x="384" y="130" width="102" height="18" rx="4" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+        <text x="392" y="143" fill="#fcd34d" font-family="DM Mono,monospace" font-size="8.5">Realtime Database</text>
+        <rect x="384" y="154" width="102" height="18" rx="4" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+        <text x="392" y="167" fill="#10b981" font-family="DM Mono,monospace" font-size="8.5">Cloud Functions</text>
+        <!-- Arrow down from Firebase -->
+        <line x1="435" y1="200" x2="435" y2="230" stroke="rgba(200,16,46,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="432,228 435,234 438,228" fill="rgba(200,16,46,0.7)"/>
+        <!-- Alert -->
+        <rect x="370" y="234" width="130" height="90" rx="10" fill="#0a2035" stroke="rgba(200,16,46,0.3)" stroke-width="1.5"/>
+        <text x="398" y="256" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">Alerts</text>
+        <rect x="384" y="265" width="102" height="16" rx="4" fill="rgba(200,16,46,0.08)" stroke="rgba(200,16,46,0.2)" stroke-width="1"/>
+        <text x="392" y="277" fill="#c8102e" font-family="DM Mono,monospace" font-size="8.5">Telegram Bot</text>
+        <rect x="384" y="286" width="102" height="16" rx="4" fill="rgba(200,16,46,0.06)" stroke="rgba(200,16,46,0.15)" stroke-width="1"/>
+        <text x="392" y="298" fill="#c8102e" font-family="DM Mono,monospace" font-size="8.5">Twilio SMS + Call</text>
+        <rect x="384" y="307" width="102" height="16" rx="4" fill="rgba(59,130,246,0.06)" stroke="rgba(59,130,246,0.15)" stroke-width="1"/>
+        <text x="392" y="319" fill="#60a5fa" font-family="DM Mono,monospace" font-size="8.5">GPS Maps Link</text>
+        <!-- GPS module box -->
+        <rect x="30" y="200" width="140" height="70" rx="10" fill="#0a2035" stroke="rgba(59,130,246,0.3)" stroke-width="1.5"/>
+        <text x="72" y="222" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">GPS</text>
+        <text x="52" y="237" fill="#5f7d96" font-family="DM Mono,monospace" font-size="9">NEO-6M Module</text>
+        <rect x="44" y="248" width="112" height="16" rx="4" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+        <text x="52" y="260" fill="#60a5fa" font-family="DM Mono,monospace" font-size="8.5">Live Coordinates → Alert</text>
+        <!-- SD Card box -->
+        <rect x="30" y="300" width="140" height="60" rx="10" fill="#0a2035" stroke="rgba(16,185,129,0.25)" stroke-width="1.5"/>
+        <text x="68" y="322" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">SD Card</text>
+        <rect x="44" y="332" width="112" height="16" rx="4" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+        <text x="52" y="344" fill="#10b981" font-family="DM Mono,monospace" font-size="8.5">Offline ECG Logging</text>
+        <!-- Connect GPS + SD to ESP32 -->
+        <line x1="170" y1="235" x2="200" y2="180" stroke="rgba(59,130,246,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="170" y1="330" x2="200" y2="200" stroke="rgba(16,185,129,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Dashboard box -->
+        <rect x="150" y="390" width="220" height="80" rx="10" fill="#0a2035" stroke="rgba(200,16,46,0.25)" stroke-width="1.5"/>
+        <text x="218" y="415" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="11" font-weight="600">Web Dashboard</text>
+        <text x="184" y="430" fill="#5f7d96" font-family="DM Mono,monospace" font-size="9">Live ECG · BPM · SpO2 · AI Status</text>
+        <line x1="270" y1="390" x2="320" y2="200" stroke="rgba(200,16,46,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- MIT-BIH label -->
+        <rect x="30" y="395" width="108" height="32" rx="7" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+        <text x="40" y="408" fill="#fcd34d" font-family="DM Mono,monospace" font-size="8.5">MIT-BIH Dataset</text>
+        <text x="40" y="421" fill="#5f7d96" font-family="DM Mono,monospace" font-size="8">CNN + Random Forest</text>
+        <!-- GNIOT label -->
+        <text x="26" y="480" fill="#344e63" font-family="DM Mono,monospace" font-size="9">GNIOT · CSE-IoT · Session 2025-26</text>
+      </svg>
+      <div class="gallery-caption">Complete System Block Diagram</div>
+    </div>
+
+    <!-- BPM spike result -->
+    <div class="gallery-item">
+      <svg viewBox="0 0 300 200" fill="none" style="width:100%;height:100%;">
+        <rect width="300" height="200" fill="#071829"/>
+        <text x="16" y="28" fill="#c8102e" font-family="DM Mono,monospace" font-size="10" font-weight="700" letter-spacing="1.5">BPM ANOMALY · DETECTED</text>
+        <!-- Grid -->
+        <line x1="0" y1="80"  x2="300" y2="80"  stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="120" x2="300" y2="120" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="160" x2="300" y2="160" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <!-- Threshold line -->
+        <line x1="0" y1="75" x2="300" y2="75" stroke="rgba(245,158,11,0.5)" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="210" y="72" fill="#f59e0b" font-family="DM Mono,monospace" font-size="9">Threshold: 100 BPM</text>
+        <!-- BPM chart line - normal then spike -->
+        <path d="M10,140 L50,138 L70,135 L90,132 L110,130 L130,125 L150,115 L160,90 L170,48 L180,35 L190,48 L200,70 L210,90 L230,120 L260,130 L290,135" stroke="#c8102e" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M10,140 L50,138 L70,135 L90,132 L110,130 L130,125 L150,115 L160,90 L170,48 L180,35 L190,48 L200,70 L210,90 L230,120 L260,130 L290,135" stroke="rgba(200,16,46,0.18)" stroke-width="8" fill="none" filter="url(#b2)"/>
+        <defs><filter id="b2"><feGaussianBlur stdDeviation="3"/></filter></defs>
+        <!-- Peak marker -->
+        <circle cx="180" cy="35" r="6" fill="none" stroke="#c8102e" stroke-width="2"/>
+        <line x1="180" y1="29" x2="180" y2="10" stroke="#c8102e" stroke-width="1" stroke-dasharray="3,2"/>
+        <rect x="138" y="4" width="84" height="20" rx="5" fill="rgba(200,16,46,0.15)" stroke="rgba(200,16,46,0.4)" stroke-width="1"/>
+        <text x="148" y="17" fill="#c8102e" font-family="DM Mono,monospace" font-size="9" font-weight="700">PEAK: 138 BPM</text>
+        <!-- Y axis labels -->
+        <text x="4" y="83"  fill="#344e63" font-family="DM Mono,monospace" font-size="8">100</text>
+        <text x="4" y="123" fill="#344e63" font-family="DM Mono,monospace" font-size="8">80</text>
+        <text x="4" y="163" fill="#344e63" font-family="DM Mono,monospace" font-size="8">60</text>
+        <!-- Alert label bottom -->
+        <rect x="60" y="175" width="180" height="18" rx="5" fill="rgba(200,16,46,0.1)" stroke="rgba(200,16,46,0.25)" stroke-width="1"/>
+        <text x="74" y="187" fill="#c8102e" font-family="DM Mono,monospace" font-size="9">Alert dispatched · &lt;1s latency</text>
+      </svg>
+      <div class="gallery-caption">Peak BPM Detection — 138 BPM Tachycardia Event</div>
+    </div>
+
+    <!-- Alert flow -->
+    <div class="gallery-item">
+      <svg viewBox="0 0 300 200" fill="none" style="width:100%;height:100%;">
+        <rect width="300" height="200" fill="#071829"/>
+        <text x="16" y="28" fill="#c8102e" font-family="DM Mono,monospace" font-size="10" font-weight="700" letter-spacing="1.5">ALERT DISPATCH</text>
+        <!-- Timeline -->
+        <line x1="44" y1="50" x2="44" y2="175" stroke="rgba(200,16,46,0.2)" stroke-width="1.5"/>
+        <!-- Events -->
+        <circle cx="44" cy="60"  r="5" fill="#c8102e"/>
+        <text x="58" y="64"  fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="10" font-weight="600">Anomaly confirmed by AI</text>
+        <circle cx="44" cy="90"  r="5" fill="#f59e0b"/>
+        <text x="58" y="94"  fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="10" font-weight="600">GPS coordinates fetched</text>
+        <circle cx="44" cy="120" r="5" fill="#10b981"/>
+        <text x="58" y="124" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="10" font-weight="600">Telegram alert sent</text>
+        <circle cx="44" cy="145" r="5" fill="#10b981"/>
+        <text x="58" y="149" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="10" font-weight="600">Twilio SMS dispatched</text>
+        <circle cx="44" cy="168" r="5" fill="#10b981"/>
+        <text x="58" y="172" fill="#ddeeff" font-family="DM Sans,sans-serif" font-size="10" font-weight="600">Auto-call initiated</text>
+        <!-- Time labels -->
+        <text x="200" y="64"  fill="#344e63" font-family="DM Mono,monospace" font-size="8">t=0ms</text>
+        <text x="200" y="94"  fill="#344e63" font-family="DM Mono,monospace" font-size="8">t=120ms</text>
+        <text x="200" y="124" fill="#10b981" font-family="DM Mono,monospace" font-size="8">t=380ms</text>
+        <text x="200" y="149" fill="#10b981" font-family="DM Mono,monospace" font-size="8">t=620ms</text>
+        <text x="200" y="172" fill="#10b981" font-family="DM Mono,monospace" font-size="8">t=870ms</text>
+      </svg>
+      <div class="gallery-caption">Emergency Alert Timeline &lt;1s End-to-End</div>
+    </div>
+
+    <!-- ECG waveform classes -->
+    <div class="gallery-item">
+      <svg viewBox="0 0 300 200" fill="none" style="width:100%;height:100%;">
+        <rect width="300" height="200" fill="#071829"/>
+        <text x="16" y="22" fill="#c8102e" font-family="DM Mono,monospace" font-size="10" font-weight="700" letter-spacing="1.5">AI CLASSIFICATION</text>
+        <!-- MIT-BIH classes -->
+        <text x="16" y="42" fill="#5f7d96" font-family="DM Mono,monospace" font-size="8.5">Trained on MIT-BIH Arrhythmia Dataset</text>
+        <!-- Progress bars for 5 classes -->
+        <text x="16" y="65" fill="#10b981" font-family="DM Sans,sans-serif" font-size="9" font-weight="600">Normal Sinus Rhythm</text>
+        <rect x="16" y="69" width="238" height="8" rx="4" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+        <rect x="16" y="69" width="238" height="8" rx="4" fill="rgba(16,185,129,0.55)"/>
+        <text x="260" y="77" fill="#10b981" font-family="DM Mono,monospace" font-size="8">99.2%</text>
+
+        <text x="16" y="95" fill="#60a5fa" font-family="DM Sans,sans-serif" font-size="9" font-weight="600">Atrial Fibrillation</text>
+        <rect x="16" y="99" width="165" height="8" rx="4" fill="rgba(59,130,246,0.15)"/>
+        <rect x="16" y="99" width="165" height="8" rx="4" fill="rgba(59,130,246,0.5)"/>
+        <text x="186" y="107" fill="#60a5fa" font-family="DM Mono,monospace" font-size="8">69.1%</text>
+
+        <text x="16" y="125" fill="#c8102e" font-family="DM Sans,sans-serif" font-size="9" font-weight="600">Ventricular Tachycardia</text>
+        <rect x="16" y="129" width="192" height="8" rx="4" fill="rgba(200,16,46,0.15)"/>
+        <rect x="16" y="129" width="192" height="8" rx="4" fill="rgba(200,16,46,0.5)"/>
+        <text x="214" y="137" fill="#c8102e" font-family="DM Mono,monospace" font-size="8">80.4%</text>
+
+        <text x="16" y="155" fill="#fcd34d" font-family="DM Sans,sans-serif" font-size="9" font-weight="600">Premature Ventricular</text>
+        <rect x="16" y="159" width="148" height="8" rx="4" fill="rgba(245,158,11,0.15)"/>
+        <rect x="16" y="159" width="148" height="8" rx="4" fill="rgba(245,158,11,0.5)"/>
+        <text x="170" y="167" fill="#fcd34d" font-family="DM Mono,monospace" font-size="8">62.0%</text>
+
+        <text x="16" y="182" fill="#a78bfa" font-family="DM Sans,sans-serif" font-size="9" font-weight="600">Bundle Branch Block</text>
+        <rect x="16" y="186" width="176" height="8" rx="4" fill="rgba(167,139,250,0.15)"/>
+        <rect x="16" y="186" width="176" height="8" rx="4" fill="rgba(167,139,250,0.5)"/>
+        <text x="198" y="194" fill="#a78bfa" font-family="DM Mono,monospace" font-size="8">73.7%</text>
+      </svg>
+      <div class="gallery-caption">TinyML 5-Class Arrhythmia Detection Accuracy</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TEAM ───────────────────────────────────────────── -->
+<section id="team">
+  <div class="team-intro">
+    <div class="section-eyebrow">The Team</div>
+    <h2 class="section-title">Built at GNIOT, Greater Noida</h2>
+    <p class="section-sub">Department of Computer Science &amp; Engineering (Internet of Things) — Session 2025–2026, 7th Semester.</p>
+  </div>
+
+  <div class="team-grid" style="max-width:1100px;margin:56px auto 0;">
+    <!-- Supervisor -->
+    <div class="team-supervisor">
+      <span class="supervisor-label">Project Supervisor</span>
+      <div class="team-avatar">NS</div>
+      <div class="team-name">Dr. Neelaksh Sheel</div>
+      <div class="team-role">Professor</div>
+      <span class="team-dept">CSE-IoT Department</span>
+    </div>
+    <!-- Members -->
+    <div class="team-member">
+      <div class="team-avatar">AA</div>
+      <div class="team-name">Anand Asati</div>
+      <div class="team-role">B.Tech Student</div>
+      <span class="team-dept">CSE-IoT</span>
+    </div>
+    <div class="team-member">
+      <div class="team-avatar">DP</div>
+      <div class="team-name">Devant Pal</div>
+      <div class="team-role">B.Tech Student</div>
+      <span class="team-dept">CSE-IoT</span>
+    </div>
+    <div class="team-member">
+      <div class="team-avatar">GK</div>
+      <div class="team-name">Gajendra Kumar</div>
+      <div class="team-role">B.Tech Student</div>
+      <span class="team-dept">CSE-IoT</span>
+    </div>
+    <div class="team-member">
+      <div class="team-avatar">MM</div>
+      <div class="team-name">Md Maaz Yazdhani</div>
+      <div class="team-role">B.Tech Student</div>
+      <span class="team-dept">CSE-IoT</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────── -->
+<section id="cta">
+  <div class="cta-box">
+    <div class="section-eyebrow">Get Started</div>
+    <h2 class="section-title">Start monitoring your heart<br>health today</h2>
+    <p class="section-sub">Create a free account to access the live dashboard, review ECG history, configure alerts and connect your Heartlyf device.</p>
+    <div class="cta-row">
+      <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Create Free Account</button>
+      <a href="dashboard.html" class="btn btn-outline btn-lg">View Live Demo →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">
+        <svg class="nav-logo-icon" viewBox="0 0 36 36" fill="none" style="width:28px;height:28px;">
+          <rect width="36" height="36" rx="9" fill="rgba(200,16,46,0.12)"/>
+          <path d="M4 18 L9 18 L11 10 L15 26 L18 13 L21 20 L23 18 L32 18" stroke="#c8102e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Heartlyf
+      </a>
+      <p>AI-powered IoT cardiac monitoring system using TinyML, ESP32 edge AI, and real-time Firebase cloud for autonomous emergency response. Built at GNIOT, Greater Noida.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Project</h5>
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#hardware">Hardware</a>
+      <a href="#gallery">Gallery</a>
+    </div>
+    <div class="footer-col">
+      <h5>Platform</h5>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#" onclick="openModal('signup');return false;">Create Account</a>
+      <a href="#" onclick="openModal('login');return false;">Sign In</a>
+    </div>
+    <div class="footer-col">
+      <h5>Institution</h5>
+      <a href="#">GNIOT, Greater Noida</a>
+      <a href="#">CSE-IoT Department</a>
+      <a href="#">7th Semester, 2025-26</a>
+      <a href="#">Under: Dr. Neelaksh Sheel</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Heartlyf · GNIOT CSE-IoT · All rights reserved.</p>
+    <p>Built with care by Anand, Devant, Gajendra &amp; Maaz</p>
+  </div>
+</footer>
+
+<!-- ── AUTH MODAL ─────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-logo">
+      <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="9" fill="rgba(200,16,46,0.12)"/>
+        <path d="M4 18 L9 18 L11 10 L15 26 L18 13 L21 20 L23 18 L32 18" stroke="#c8102e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Heartlyf</span>
+    </div>
+    <h2 class="modal-title" id="modal-title">Welcome back</h2>
+    <p class="modal-sub" id="modal-sub">Sign in to access your cardiac monitoring dashboard.</p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login"  onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab"        id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="li-email" placeholder="doctor@hospital.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="li-pass" placeholder="••••••••"/>
+      </div>
+      <button class="btn-submit" id="li-btn" onclick="handleLogin()">Sign In</button>
+      <div class="or-divider">or continue with</div>
+      <button class="btn-google" onclick="handleGoogle()">
+        <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Sign in with Google
+      </button>
+      <div class="auth-msg error"   id="li-error"></div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="form-signup" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="su-name" placeholder="Your full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="su-email" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select class="form-select" id="su-role">
+          <option value="patient">Patient</option>
+          <option value="doctor">Doctor / Physician</option>
+          <option value="caretaker">Caretaker / Family</option>
+          <option value="researcher">Researcher</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="su-pass" placeholder="Minimum 8 characters"/>
+      </div>
+      <button class="btn-submit" id="su-btn" onclick="handleSignup()">Create Account</button>
+      <div class="or-divider">or continue with</div>
+      <button class="btn-google" onclick="handleGoogle()">
+        <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Sign up with Google
+      </button>
+      <div class="auth-msg error"   id="su-error"></div>
+      <div class="auth-msg success" id="su-success"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✅</span>
+  <span class="toast-text" id="toast-text"></span>
+</div>
+
+<!-- ── SCRIPTS ─────────────────────────────────────────── -->
+<script>
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Modal open/close
+  window.openModal = function(tab) {
+    document.getElementById('modal-backdrop').classList.add('open');
+    switchTab(tab);
+  };
+  window.closeModal = function() {
+    document.getElementById('modal-backdrop').classList.remove('open');
+  };
+  document.getElementById('modal-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-backdrop')) closeModal();
+  });
+  window.switchTab = function(tab) {
+    document.getElementById('form-login').style.display   = tab==='login'  ? 'block' : 'none';
+    document.getElementById('form-signup').style.display  = tab==='signup' ? 'block' : 'none';
+    document.getElementById('tab-login').classList.toggle('active',  tab==='login');
+    document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+    document.getElementById('modal-title').textContent = tab==='login' ? 'Welcome back' : 'Create your account';
+    document.getElementById('modal-sub').textContent   = tab==='login'
+      ? 'Sign in to access your cardiac monitoring dashboard.'
+      : 'Start monitoring your cardiac health today.';
+  };
+
+  // Toast helper
+  function showToast(icon, msg, type='success') {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-text').textContent  = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+  window.showToast = showToast;
+
+  // Auth button wrappers — delegate to firebase-auth.js module functions
+  window.handleLogin = async function() {
+    const email = document.getElementById('li-email').value.trim();
+    const pass  = document.getElementById('li-pass').value;
+    const errEl = document.getElementById('li-error');
+    const btn   = document.getElementById('li-btn');
+    errEl.style.display = 'none';
+    if (!email || !pass) { showMsg(errEl, 'Please fill in all fields.'); return; }
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    btn.disabled = true;
+    const { loginWithEmail } = await import('./firebase-auth.js');
+    const result = await loginWithEmail(email, pass);
+    if (result.error) { showMsg(errEl, result.error); btn.innerHTML='Sign In'; btn.disabled=false; return; }
+    closeModal(); showToast('✅', 'Signed in successfully!');
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  };
+
+  window.handleSignup = async function() {
+    const name  = document.getElementById('su-name').value.trim();
+    const email = document.getElementById('su-email').value.trim();
+    const pass  = document.getElementById('su-pass').value;
+    const role  = document.getElementById('su-role').value;
+    const errEl = document.getElementById('su-error');
+    const sucEl = document.getElementById('su-success');
+    const btn   = document.getElementById('su-btn');
+    errEl.style.display='none'; sucEl.style.display='none';
+    if (!name||!email||!pass) { showMsg(errEl,'Please fill in all fields.'); return; }
+    if (pass.length < 8)      { showMsg(errEl,'Password must be at least 8 characters.'); return; }
+    btn.innerHTML = '<span class="spinner"></span> Creating account...';
+    btn.disabled = true;
+    const { signUpWithEmail } = await import('./firebase-auth.js');
+    const result = await signUpWithEmail({ email, password: pass, displayName: name, role });
+    if (result.error) { showMsg(errEl, result.error); btn.innerHTML='Create Account'; btn.disabled=false; return; }
+    showMsg(sucEl, '✅ Account created! Redirecting to dashboard...', 'success');
+    setTimeout(() => { closeModal(); window.location.href='dashboard.html'; }, 1200);
+  };
+
+  window.handleGoogle = async function() {
+    const { loginWithGoogle } = await import('./firebase-auth.js');
+    const result = await loginWithGoogle();
+    if (result.error) { showToast('❌', result.error, 'error'); return; }
+    if (result.user)  { closeModal(); showToast('✅','Signed in with Google!'); setTimeout(()=>window.location.href='dashboard.html',800); }
+  };
+
+  window.handleLogout = async function() {
+    const { logout } = await import('./firebase-auth.js');
+    await logout();
+    showToast('👋','Signed out successfully.');
+  };
+
+  // Auth state — update nav buttons
+  (async function() {
+    const { onAuthChange } = await import('./firebase-auth.js');
+    onAuthChange(user => {
+      document.getElementById('nav-dashboard').style.display = user ? 'inline-flex' : 'none';
+      document.getElementById('nav-login').style.display     = user ? 'none' : 'inline-flex';
+      document.getElementById('nav-signup').style.display    = user ? 'none' : 'inline-flex';
+      document.getElementById('nav-logout').style.display    = user ? 'inline-flex' : 'none';
+    });
+  })();
+
+  function showMsg(el, msg, type='error') {
+    el.textContent = msg; el.className = `auth-msg ${type}`; el.style.display='block';
+  }
+</script>
+</body>
+</html>
