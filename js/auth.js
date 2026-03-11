@@ -1,5 +1,5 @@
 /**
- * HeartLyft Auth v2 — stores user info for dashboard display
+ * HeartLyf Auth v2 — stores user info for dashboard display
  */
 
 const DEMO_USERS = {

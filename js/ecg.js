@@ -1,5 +1,5 @@
 /**
- * HeartLyft ECG Engine v2 — Sharp PQRST waveform
+ * HeartLyf ECG Engine v2 — Sharp PQRST waveform
  */
 class ECGEngine {
   constructor(canvasId, options = {}) {

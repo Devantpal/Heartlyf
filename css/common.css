@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   HeartLyft – Common Stylesheet v2
+   HeartLyf – Common Stylesheet v2
    ═══════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{--navy:#0A1F44;--blue:#2E6CF6;--blue-dark:#1a4fd6;--blue-light:#4f8ef7;--teal:#00D1B2;--teal-dark:#00a693;--red:#FF4D4D;--orange:#ffa500;--purple:#8b5cf6;--bg-deep:#020617;--bg-mid:#0B1120;--bg-card:#0d1829;--bg-card2:#111e33;--border:rgba(46,108,246,0.16);--border-teal:rgba(0,209,178,0.2);--border-hi:rgba(46,108,246,0.42);--text:#e2e8f0;--text-muted:#64748b;--text-dim:#94a3b8;--glow-blue:0 0 32px rgba(46,108,246,0.45);--glow-teal:0 0 32px rgba(0,209,178,0.4);--glow-red:0 0 28px rgba(255,77,77,0.38);--transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}

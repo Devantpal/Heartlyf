@@ -1,9 +1,9 @@
 /**
- * HeartLyft AI Engine
+ * HeartLyf AI Engine
  * Real Claude API integration for cardiac analysis
  */
 
-class HeartLyftAI {
+class HeartLyfAI {
   constructor() {
     this.apiUrl = 'https://api.anthropic.com/v1/messages';
     this.model  = 'claude-sonnet-4-20250514';
@@ -19,7 +19,7 @@ class HeartLyftAI {
   async analyseVitals(vitals, outputEl, onDone) {
     const { bpm = 72, spo2 = 98, hrv = 42, ecgEvents = [], patientAge = 45 } = vitals;
 
-    const prompt = `You are HeartLyft's embedded AI cardiac analysis engine. 
+    const prompt = `You are HeartLyf's embedded AI cardiac analysis engine. 
 Analyse the following real-time ECG vitals and provide a concise medical assessment.
 
 CURRENT VITALS:
@@ -71,7 +71,7 @@ Provide your analysis in this exact JSON format only (no markdown, no extra text
       return result;
 
     } catch (err) {
-      console.error('HeartLyft AI error:', err);
+      console.error('HeartLyf AI error:', err);
 
       // Fallback local analysis
       const result = this._localAnalysis(vitals);
@@ -84,12 +84,12 @@ Provide your analysis in this exact JSON format only (no markdown, no extra text
   }
 
   /**
-   * Chat with HeartLyft AI about cardiac data
+   * Chat with HeartLyf AI about cardiac data
    */
   async chat(userMessage, contextVitals, outputEl) {
     this.history.push({ role: 'user', content: userMessage });
 
-    const systemPrompt = `You are HeartLyft AI, an intelligent cardiac monitoring assistant.
+    const systemPrompt = `You are HeartLyf AI, an intelligent cardiac monitoring assistant.
 Current patient vitals: HR ${contextVitals?.bpm || 72}BPM, SpO2 ${contextVitals?.spo2 || 98}%, HRV ${contextVitals?.hrv || 42}ms.
 Provide helpful, medically accurate, concise responses. Always remind that you are a monitoring assistant and not a replacement for professional medical care.`;
 
@@ -195,4 +195,4 @@ function riskBadge(risk) {
 }
 
 // Singleton
-const AI = new HeartLyftAI();
+const AI = new HeartLyfAI();

@@ -1,5 +1,5 @@
 /**
- * HeartLyft Charts
+ * HeartLyf Charts
  * Shared Chart.js helpers and live chart updaters
  */
 
