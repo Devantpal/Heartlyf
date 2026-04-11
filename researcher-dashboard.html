@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HeartLyf – Researcher Dashboard</title>
+<link rel="stylesheet" href="css/common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+.page-body{padding:20px 24px;}
+.tab-nav{display:flex;gap:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:20px;}
+.tab-btn{flex:1;padding:9px;text-align:center;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:9px;transition:var(--transition);color:var(--text-muted);border:none;background:transparent;font-family:'Poppins',sans-serif;}
+.tab-btn.active{background:var(--blue);color:#fff;box-shadow:var(--glow-blue);}
+.tab-btn:not(.active):hover{color:#fff;background:rgba(46,108,246,0.1);}
+.r-metric{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;align-items:center;gap:16px;transition:var(--transition);}
+.r-metric:hover{border-color:var(--teal);transform:translateY(-3px);}
+.r-icon{width:50px;height:50px;border-radius:13px;background:rgba(0,209,178,.1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;transition:var(--transition);}
+.r-metric:hover .r-icon{transform:scale(1.1) rotate(-5deg);}
+.r-val{font-size:1.7rem;font-weight:800;}
+.r-lab{font-size:.74rem;color:var(--text-muted);}
+.tool-btn{width:100%;padding:14px;border-radius:10px;margin-bottom:10px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;font-size:.85rem;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;border:none;}
+.tool-btn:hover{transform:translateY(-2px);}
+.tool-btn-teal{background:rgba(0,209,178,.1);color:var(--teal);border:1px solid rgba(0,209,178,.25)!important;}
+.tool-btn-teal:hover{background:rgba(0,209,178,.2);}
+.tool-btn-blue{background:var(--bg-mid);color:#fff;border:1px solid var(--border)!important;}
+.tool-btn-blue:hover{border-color:var(--blue)!important;color:var(--blue);}
+.profile-detail-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem;}
+.profile-detail-row:last-child{border-bottom:none;}
+.profile-detail-row .dk{color:var(--text-muted);font-size:.78rem;}
+.profile-detail-row .dv{font-weight:600;}
+.setting-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:var(--transition);}
+.setting-item:hover{border-color:var(--blue);}
+.setting-item .si-label{font-size:.85rem;font-weight:500;}
+.setting-item .si-sub{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div class="dash-mini-nav">
+  <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+    <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.7rem">💙</div>
+    <span class="brand"><span>Heart</span><em>Lyft</em></span>
+  </a>
+  <span class="sep">›</span>
+  <span class="page-name">Researcher Dashboard</span>
+  <div class="ml-auto">
+    <div class="live-badge"><span class="live-dot teal"></span>MIT-BIH</div>
+    <span id="topbar-name" style="font-size:.82rem;color:var(--text-dim);font-weight:600;padding:0 4px"></span>
+    <a href="auth.html" class="btn btn-danger" style="border-radius:8px">Sign Out</a>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('research',this)">🔬 Research</button>
+    <button class="tab-btn" onclick="showTab('profile',this)">👤 My Profile</button>
+    <button class="tab-btn" onclick="showTab('settings',this)">⚙️ Settings</button>
+  </div>
+
+  <!-- RESEARCH TAB -->
+  <div id="tab-research" class="section-page active-section">
+    <div class="metrics-row-3" style="margin-bottom:18px">
+      <div class="r-metric"><div class="r-icon">🗄️</div><div><div class="r-val">48,256</div><div class="r-lab">Total Samples</div></div></div>
+      <div class="r-metric"><div class="r-icon">📊</div><div><div class="r-val" style="color:var(--teal)">99.9%</div><div class="r-lab">Model Accuracy</div></div></div>
+      <div class="r-metric"><div class="r-icon">📈</div><div><div class="r-val" style="color:var(--blue)">5 Types</div><div class="r-lab">Classifications</div></div></div>
+    </div>
+
+    <div class="ecg-wrapper" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div><h3 style="font-size:.9rem;font-weight:600">ECG Pattern Visualization</h3><div style="font-size:.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:2px">MIT-BIH Arrhythmia Database · 360Hz · Hover to inspect mV values</div></div>
+        <span class="badge badge-blue">RESEARCH MODE</span>
+      </div>
+      <canvas id="researchEcg" height="120"></canvas>
+      <div id="researchTooltip" class="ecg-tooltip"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-panel">
+        <div class="chart-panel-header"><h3>AI Model Performance</h3><button class="btn btn-ghost" style="font-size:.75rem;padding:5px 12px">Full Report</button></div>
+        <div id="perf-bars">
+          <div class="perf-item"><div class="perf-header"><span>Normal Sinus</span><span class="perf-pct">99.8%</span></div><div class="perf-bar"><div class="perf-fill" style="width:0%" data-w="99.8"></div></div></div>
+          <div class="perf-item"><div class="perf-header"><span>Atrial Fibrillation</span><span class="perf-pct">98.5%</span></div><div class="perf-bar"><div class="perf-fill" style="width:0%" data-w="98.5"></div></div></div>
+          <div class="perf-item"><div class="perf-header"><span>Ventricular Tachycardia</span><span class="perf-pct">97.2%</span></div><div class="perf-bar"><div class="perf-fill" style="width:0%" data-w="97.2"></div></div></div>
+          <div class="perf-item"><div class="perf-header"><span>Premature Beat</span><span class="perf-pct">96.8%</span></div><div class="perf-bar"><div class="perf-fill" style="width:0%" data-w="96.8"></div></div></div>
+          <div class="perf-item"><div class="perf-header"><span>Bundle Branch Block</span><span class="perf-pct">95.4%</span></div><div class="perf-bar"><div class="perf-fill" style="width:0%" data-w="95.4"></div></div></div>
+        </div>
+        <div style="margin-top:16px"><canvas id="radarChart" height="160"></canvas></div>
+      </div>
+      <div>
+        <div class="chart-panel" style="margin-bottom:14px">
+          <div class="chart-panel-header"><h3>Classification Distribution</h3></div>
+          <canvas id="confChart" height="130"></canvas>
+        </div>
+        <div class="chart-panel">
+          <h3 style="font-size:.9rem;font-weight:600;margin-bottom:14px">🔬 Research Tools</h3>
+          <button class="tool-btn tool-btn-teal">⬇ Download Research Dataset</button>
+          <button class="tool-btn tool-btn-blue">📊 Export Model Metrics</button>
+          <button class="tool-btn tool-btn-blue">📈 Prediction Confidence Chart</button>
+          <button class="tool-btn tool-btn-blue">📄 Generate Research Report</button>
+          <p style="font-size:.73rem;color:var(--text-muted);text-align:center;margin-top:6px">All data anonymized · HIPAA &amp; GDPR compliant</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div id="tab-profile" class="section-page">
+    <div class="grid-2" style="align-items:start">
+      <div class="profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="prof-avatar">GK</div>
+          <div class="profile-status-dot"></div>
+        </div>
+        <div class="profile-name" id="prof-name">Gajendra Kumar</div>
+        <div class="profile-role">IoT Researcher · GNIOT</div>
+        <div class="profile-email" id="prof-email">gkumar@gniot.ac.in</div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="ps-val">3</div><div class="ps-lab">Publications</div></div>
+          <div class="profile-stat"><div class="ps-val">48K</div><div class="ps-lab">Samples</div></div>
+          <div class="profile-stat"><div class="ps-val">5</div><div class="ps-lab">Models</div></div>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px">🔬 Research Profile</h3>
+        <div class="profile-detail-row"><span class="dk">Full Name</span><span class="dv" id="pd-name">Gajendra Kumar</span></div>
+        <div class="profile-detail-row"><span class="dk">Institution</span><span class="dv">GNIOT, Greater Noida</span></div>
+        <div class="profile-detail-row"><span class="dk">Department</span><span class="dv">CSE – IoT / AI-ML</span></div>
+        <div class="profile-detail-row"><span class="dk">Research Area</span><span class="dv">Cardiac AI, Edge ML</span></div>
+        <div class="profile-detail-row"><span class="dk">Email</span><span class="dv">gkumar@gniot.ac.in</span></div>
+        <div class="profile-detail-row"><span class="dk">Publications</span><span class="dv">3 (IEEE, Springer)</span></div>
+        <div class="profile-detail-row"><span class="dk">Role</span><span class="dv"><span class="badge" style="background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)">Researcher</span></span></div>
+        <div class="profile-detail-row"><span class="dk">HeartLyf ID</span><span class="dv" style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--blue)">RES-0047</span></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-teal" style="border-radius:8px;font-size:.8rem">✏️ Edit Profile</button>
+          <button class="btn btn-ghost" style="font-size:.8rem">📄 Export CV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" class="section-page">
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px">📊 Data Access</h3>
+        <div class="setting-item"><div><div class="si-label">MIT-BIH Dataset Access</div><div class="si-sub">Full 48-record annotated dataset</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">Live Patient Data Access</div><div class="si-sub">Anonymized real-time ECG streams</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">Model Export Permission</div><div class="si-sub">Download trained TF Lite models</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">Auto Report Generation</div><div class="si-sub">Generate reports after each analysis</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <h3 style="font-size:.9rem;font-weight:700;margin:20px 0 14px">🔐 API Access</h3>
+        <div class="form-group"><label class="form-label">HeartLyf API Key</label><input class="form-input" value="hl_live_xk92mZpQ4TY..." style="font-family:'JetBrains Mono',monospace;font-size:.82rem"></div>
+        <div class="form-group"><label class="form-label">Rate Limit</label><input class="form-input" value="1000 req/hour" readonly style="opacity:.6"></div>
+      </div>
+      <div>
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px">🛡️ Privacy &amp; Compliance</h3>
+        <div class="setting-item"><div><div class="si-label">HIPAA Compliant Mode</div><div class="si-sub">Anonymize all exported data</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">GDPR Data Minimization</div><div class="si-sub">Store only necessary patient fields</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">Audit Log</div><div class="si-sub">Log all data access and exports</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <h3 style="font-size:.9rem;font-weight:700;margin:20px 0 14px">🔔 Notifications</h3>
+        <div class="setting-item"><div><div class="si-label">Model Accuracy Alerts</div><div class="si-sub">Alert if accuracy drops below 95%</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">New Dataset Updates</div><div class="si-sub">Notify on PhysioNet updates</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <button class="btn btn-primary btn-full" style="border-radius:10px;margin-top:16px">💾 Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/ecg.js"></script>
+<script src="js/charts.js"></script>
+<script>
+const user = (() => { try { return JSON.parse(sessionStorage.getItem('hl_user')) || {name:'Gajendra Kumar',initials:'GK',email:'gkumar@gniot.ac.in'}; } catch { return {name:'Gajendra Kumar',initials:'GK'}; } })();
+document.getElementById('topbar-name').textContent = user.name || 'Researcher';
+['prof-name','pd-name'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = user.name; });
+if (user.initials) { const a = document.getElementById('prof-avatar'); if(a) a.textContent = user.initials; }
+if (user.email)   { const e = document.getElementById('prof-email');  if(e) e.textContent = user.email; }
+
+function showTab(name, btn) {
+  document.querySelectorAll('.section-page').forEach(el => el.classList.remove('active-section'));
+  document.getElementById('tab-' + name)?.classList.add('active-section');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name === 'research') animateBars();
+}
+
+function animateBars() {
+  setTimeout(() => {
+    document.querySelectorAll('.perf-fill').forEach(el => { el.style.width = el.dataset.w + '%'; });
+  }, 200);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  createECG('researchEcg', { bpm:78, color:'#2E6CF6', glowColor:'rgba(46,108,246,0.4)', lineWidth:2.2, speed:1.8, amplitude:0.8, tooltipId:'researchTooltip', showGrid:true });
+  animateBars();
+  initConfidenceChart('radarChart');
+
+  const ctx = document.getElementById('confChart')?.getContext('2d');
+  if (ctx) {
+    new Chart(ctx, {
+      type:'doughnut',
+      data:{labels:['Normal Sinus','Atrial Fib','VT','PVC','BBB'],datasets:[{data:[78,13,4,3,2],backgroundColor:['#2E6CF6','#FF4D4D','#ffa500','#00D1B2','#8b5cf6'],borderWidth:0,hoverOffset:8}]},
+      options:{responsive:true,animation:{duration:800},cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}%`}}}}
+    });
+  }
+});
+</script>
+</body>
+</html>

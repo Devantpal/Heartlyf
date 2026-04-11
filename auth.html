@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeartLyf – Sign In</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+body { display: flex; min-height: 100vh; }
+.auth-page { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; width: 100%; }
+
+/* Left */
+.auth-left {
+  background: linear-gradient(145deg, var(--bg-mid) 0%, #0a1629 100%);
+  border-right: 1px solid var(--border);
+  padding: 44px 48px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.auth-left::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 30% 100%, rgba(0,209,178,0.06), transparent 60%),
+              radial-gradient(ellipse at 80% 0%, rgba(46,108,246,0.07), transparent 60%);
+  pointer-events: none;
+}
+.auth-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.auth-logo .icon {
+  width: 42px; height: 42px; background: linear-gradient(135deg, var(--blue), var(--teal));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; box-shadow: var(--glow-blue);
+}
+.auth-logo .name { font-size: 1.15rem; font-weight: 700; color: #fff; }
+.auth-logo .sub { font-size: 0.7rem; color: var(--teal); font-weight: 600; }
+
+.auth-left h2 { font-size: 2.1rem; font-weight: 700; line-height: 1.2; margin-top: 44px; margin-bottom: 14px; position: relative; z-index: 1; }
+.auth-left h2 .teal { color: var(--teal); }
+.auth-left .desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.75; margin-bottom: 32px; position: relative; z-index: 1; }
+
+.auth-steps { display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 1; }
+.auth-step { display: flex; align-items: flex-start; gap: 14px; }
+.auth-step .num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 1px;
+}
+.auth-step .info h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 3px; }
+.auth-step .info p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.55; }
+
+.disclaimer {
+  background: rgba(255,165,0,0.07); border: 1px solid rgba(255,165,0,0.2);
+  border-radius: 12px; padding: 16px 18px; font-size: 0.78rem; line-height: 1.65;
+  position: relative; z-index: 1;
+}
+.disclaimer strong { color: var(--orange); }
+
+/* Right */
+.auth-right {
+  background: var(--bg-deep);
+  display: flex; align-items: center; justify-content: center; padding: 48px;
+}
+.auth-form { width: 100%; max-width: 400px; }
+.auth-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 28px;
+}
+.auth-tab {
+  padding: 11px; text-align: center; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; border-radius: 9px; transition: all 0.2s; color: var(--text-muted);
+}
+.auth-tab.active { background: var(--blue); color: #fff; box-shadow: var(--glow-blue); }
+
+.input-group { position: relative; }
+.input-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 0.95rem; pointer-events: none;
+}
+.form-input.has-icon { padding-left: 40px; }
+.pw-toggle {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  cursor: pointer; font-size: 0.9rem; color: var(--text-muted);
+}
+.divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; font-size: 0.75rem; color: var(--text-muted); }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.google-btn {
+  width: 100%; background: var(--bg-card); border: 1px solid var(--border);
+  color: #fff; padding: 12px; border-radius: 10px; font-family: 'Poppins', sans-serif;
+  font-weight: 500; font-size: 0.88rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.2s;
+}
+.google-btn:hover { border-color: var(--blue); }
+.back-link { text-align: center; margin-top: 20px; font-size: 0.78rem; color: var(--text-muted); }
+.back-link a { color: var(--blue); text-decoration: none; }
+.forgot { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 12px; cursor: pointer; }
+.forgot:hover { color: var(--blue); }
+
+@media(max-width:768px){
+  .auth-page { grid-template-columns: 1fr; }
+  .auth-left { display: none; }
+  .auth-right { padding: 32px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- LEFT -->
+  <div class="auth-left">
+    <div>
+      <a href="index.html" class="auth-logo">
+        <div class="icon">💙</div>
+        <div><div class="name">HeartLyf</div><div class="sub">AI Heart Monitor</div></div>
+      </a>
+      <h2>Your Heart,<br>Monitored by <span class="teal">AI</span></h2>
+      <p class="desc">Continuous ECG monitoring powered by TinyML edge AI. Get real-time alerts before cardiac events occur.</p>
+      <div class="auth-steps">
+        <div class="auth-step">
+          <div class="num">1</div>
+          <div class="info">
+            <h4>Connect Your Device</h4>
+            <p>Pair your ESP32 HeartLyf device via WiFi from the dashboard settings</p>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="num">2</div>
+          <div class="info">
+            <h4>How Alerts Work</h4>
+            <p>AI detects arrhythmia → Telegram alert with GPS location sent to emergency contacts instantly</p>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="num">3</div>
+          <div class="info">
+            <h4>Data Privacy</h4>
+            <p>ECG data is encrypted end-to-end. Only you and authorized doctors can access your records</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      <strong>⚠ Medical Disclaimer:</strong> HeartLyf is a health monitoring assistant and does not replace professional medical diagnosis. Always consult a certified healthcare provider for medical decisions.
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="auth-right">
+    <div class="auth-form">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+        <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+      </div>
+
+      <!-- Login -->
+      <div id="login-fields">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-group">
+            <span class="input-icon">✉</span>
+            <input class="form-input has-icon" type="email" id="login-email" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input class="form-input has-icon" type="password" id="login-pass" placeholder="••••••••">
+            <span class="pw-toggle" onclick="togglePassword('login-pass')">👁</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="role-select">
+            <option value="patient">👤 Patient</option>
+            <option value="doctor">🩺 Doctor</option>
+            <option value="family">👨‍👩‍👧 Family / Caretaker</option>
+            <option value="researcher">🔬 Researcher</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="loginRoute(event)">Sign In</button>
+        <p class="forgot">Forgot password?</p>
+      </div>
+
+      <!-- Signup -->
+      <div id="signup-fields" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <div class="input-group">
+            <span class="input-icon">👤</span>
+            <input class="form-input has-icon" type="text" placeholder="John Doe">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-group">
+            <span class="input-icon">✉</span>
+            <input class="form-input has-icon" type="email" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input class="form-input has-icon" type="password" id="signup-pass" placeholder="••••••••">
+            <span class="pw-toggle" onclick="togglePassword('signup-pass')">👁</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="role-select">
+            <option value="patient">👤 Patient</option>
+            <option value="doctor">🩺 Doctor</option>
+            <option value="family">👨‍👩‍👧 Family / Caretaker</option>
+            <option value="researcher">🔬 Researcher</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="loginRoute(event)">Create Account</button>
+      </div>
+
+      <div class="divider">or</div>
+      <button class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285f4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34a853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#fbbc05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#ea4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+        Continue with Google
+      </button>
+      <p class="back-link"><a href="index.html">← Back to Home</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>

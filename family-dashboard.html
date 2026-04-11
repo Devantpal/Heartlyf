@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HeartLyf – Family / Caretaker Dashboard</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+.page-body{padding:20px 24px;max-width:1100px;margin:0 auto;}
+.tab-nav{display:flex;gap:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:20px;}
+.tab-btn{flex:1;padding:9px;text-align:center;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:9px;transition:var(--transition);color:var(--text-muted);border:none;background:transparent;font-family:'Poppins',sans-serif;}
+.tab-btn.active{background:var(--blue);color:#fff;box-shadow:var(--glow-blue);}
+.tab-btn:not(.active):hover{color:#fff;background:rgba(46,108,246,0.1);}
+.status-card{background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:44px;text-align:center;margin-bottom:20px;transition:var(--transition);}
+.status-card:hover{border-color:rgba(0,209,178,0.3);}
+.status-icon{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 18px;transition:var(--transition);}
+.status-icon.stable{background:rgba(0,209,178,.12);border:2px solid var(--teal);animation:float 3s ease-in-out infinite;}
+.status-icon.critical{background:rgba(255,77,77,.12);border:2px solid var(--red);animation:pulse-border 1.5s infinite;}
+@keyframes pulse-border{0%,100%{box-shadow:0 0 0 0 rgba(255,77,77,.4);}50%{box-shadow:0 0 0 12px rgba(255,77,77,0);}}
+.status-text{font-size:1.5rem;font-weight:700;margin-bottom:6px;}
+.vitals-strip{display:flex;justify-content:center;gap:52px;margin-top:28px;padding-top:24px;border-top:1px solid var(--border);}
+.vital-v{font-size:1.9rem;font-weight:700;}
+.vital-l{font-size:.74rem;color:var(--text-muted);margin-top:4px;}
+.alert-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:10px;margin-bottom:8px;transition:var(--transition);}
+.alert-item:hover{transform:translateX(4px);}
+.alert-ok{background:rgba(0,209,178,.07);border:1px solid rgba(0,209,178,.18);}
+.alert-warn{background:rgba(255,165,0,.07);border:1px solid rgba(255,165,0,.18);}
+.alert-crit{background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.2);}
+.map-box{background:var(--bg-mid);border:1px solid var(--border);border-radius:12px;height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--text-muted);font-size:.84rem;margin-top:12px;transition:var(--transition);}
+.map-box:hover{border-color:var(--blue);}
+.profile-detail-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem;}
+.profile-detail-row:last-child{border-bottom:none;}
+.profile-detail-row .dk{color:var(--text-muted);font-size:.78rem;}
+.profile-detail-row .dv{font-weight:600;}
+.setting-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:var(--transition);}
+.setting-item:hover{border-color:var(--blue);}
+.setting-item .si-label{font-size:.85rem;font-weight:500;}
+.setting-item .si-sub{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div class="dash-mini-nav">
+  <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+    <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.7rem">💙</div>
+    <span class="brand"><span>Heart</span><em>Lyft</em></span>
+  </a>
+  <span class="sep">›</span>
+  <span class="page-name">Family / Caretaker</span>
+  <div class="ml-auto">
+    <div class="live-badge"><span class="live-dot teal"></span>LIVE</div>
+    <span id="topbar-name" style="font-size:.82rem;color:var(--text-dim);font-weight:600;padding:0 4px"></span>
+    <a href="auth.html" class="btn btn-danger" style="border-radius:8px">Sign Out</a>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('monitor',this)">❤️ Monitor</button>
+    <button class="tab-btn" onclick="showTab('profile',this)">👤 My Profile</button>
+    <button class="tab-btn" onclick="showTab('settings',this)">⚙️ Settings</button>
+  </div>
+
+  <!-- MONITOR TAB -->
+  <div id="tab-monitor" class="section-page active-section">
+    <div class="status-card">
+      <div class="status-icon stable" id="status-icon">💚</div>
+      <div class="status-text">Patient is Stable</div>
+      <div style="font-size:.84rem;color:var(--text-muted)">Monitoring: <strong id="patient-label">Riya Sharma</strong> · Last updated: <span id="family-time">—</span></div>
+      <div class="vitals-strip">
+        <div><div class="vital-v" id="fam-bpm" style="color:var(--red)">72</div><div class="vital-l">Heart Rate BPM</div></div>
+        <div><div class="vital-v" id="fam-spo2" style="color:var(--blue)">98%</div><div class="vital-l">SpO2</div></div>
+        <div><div class="vital-v" id="fam-bp" style="color:var(--teal)">120/80</div><div class="vital-l">Blood Pressure</div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="chart-panel">
+        <h3 style="font-size:.9rem;font-weight:600;margin-bottom:14px">🔔 Recent Alerts</h3>
+        <div class="alert-item alert-ok"><span style="font-size:1.2rem">✅</span><div><div style="font-weight:600;font-size:.85rem">All vitals normal</div><div style="font-size:.73rem;color:var(--text-muted)">No recent alerts — monitoring active</div></div><span class="badge badge-normal">Normal</span></div>
+        <div class="alert-item alert-warn" style="opacity:.6"><span style="font-size:1.2rem">⚠️</span><div><div style="font-weight:600;font-size:.85rem">Elevated HR (88 BPM)</div><div style="font-size:.73rem;color:var(--text-muted)">Yesterday 14:32 — Auto-resolved</div></div><span class="badge badge-warn">Resolved</span></div>
+      </div>
+      <div class="chart-panel">
+        <h3 style="font-size:.9rem;font-weight:600;margin-bottom:4px">📍 Patient Location</h3>
+        <div class="map-box">
+          <span style="font-size:2rem">🗺️</span>
+          <span style="font-weight:600">Greater Noida, UP, India</span>
+          <span style="font-size:.72rem">28.4744° N, 77.5040° E · Accuracy ±3m</span>
+          <a href="https://maps.google.com/?q=28.4744,77.5040" target="_blank" style="color:var(--teal);font-size:.8rem;text-decoration:none;margin-top:4px">📍 Open in Google Maps ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div id="tab-profile" class="section-page">
+    <div class="grid-2" style="align-items:start">
+      <div class="profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="prof-avatar">PS</div>
+          <div class="profile-status-dot"></div>
+        </div>
+        <div class="profile-name" id="prof-name">Priya Sharma</div>
+        <div class="profile-role">Family Member / Caretaker</div>
+        <div class="profile-email" id="prof-email">priya.sharma@gmail.com</div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="ps-val">1</div><div class="ps-lab">Patient</div></div>
+          <div class="profile-stat"><div class="ps-val">24/7</div><div class="ps-lab">Monitoring</div></div>
+          <div class="profile-stat"><div class="ps-val">0</div><div class="ps-lab">Alerts Today</div></div>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px">👨‍👩‍👧 Caretaker Details</h3>
+        <div class="profile-detail-row"><span class="dk">Full Name</span><span class="dv" id="pd-name">Priya Sharma</span></div>
+        <div class="profile-detail-row"><span class="dk">Relation to Patient</span><span class="dv">Sister</span></div>
+        <div class="profile-detail-row"><span class="dk">Patient Name</span><span class="dv">Riya Sharma</span></div>
+        <div class="profile-detail-row"><span class="dk">Email</span><span class="dv">priya.sharma@gmail.com</span></div>
+        <div class="profile-detail-row"><span class="dk">Phone</span><span class="dv">+91 98765 43210</span></div>
+        <div class="profile-detail-row"><span class="dk">City</span><span class="dv">Greater Noida, UP</span></div>
+        <div class="profile-detail-row"><span class="dk">Role</span><span class="dv"><span class="badge" style="background:rgba(255,165,0,.12);color:var(--orange);border:1px solid rgba(255,165,0,.25)">Family</span></span></div>
+        <div class="profile-detail-row"><span class="dk">HeartLyf ID</span><span class="dv" style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--blue)">FAM-2831</span></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-teal" style="border-radius:8px;font-size:.8rem">✏️ Edit Profile</button>
+          <button class="btn btn-ghost" style="font-size:.8rem">🔒 Change Password</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" class="section-page">
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px">🔔 Notification Preferences</h3>
+        <div class="setting-item"><div><div class="si-label">Critical Alerts (Telegram)</div><div class="si-sub">Instant alert when patient is in danger</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">SMS Alerts</div><div class="si-sub">SMS backup when app is offline</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">GPS Location Sharing</div><div class="si-sub">Include patient GPS in emergency alerts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">Daily Health Summary</div><div class="si-sub">Receive daily vitals summary email</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div class="si-label">Auto Emergency Call</div><div class="si-sub">Call ambulance automatically if unresponsive</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div>
+        <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px">👤 Emergency Contact Info</h3>
+        <div class="form-group"><label class="form-label">Your Phone (Telegram-linked)</label><input class="form-input" value="+91 98765 43210"></div>
+        <div class="form-group"><label class="form-label">Second Emergency Contact</label><input class="form-input" placeholder="+91 XXXXX XXXXX"></div>
+        <div class="form-group"><label class="form-label">Telegram Chat ID</label><input class="form-input" placeholder="@YourTelegramUsername"></div>
+        <h3 style="font-size:.9rem;font-weight:700;margin:16px 0 12px">🚨 Alert Thresholds</h3>
+        <div class="chart-panel" style="padding:16px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">HR Alert Above: <strong id="fam-bpm-val">100</strong> BPM</label><input type="range" min="80" max="150" value="100" style="width:100%;accent-color:var(--blue)" oninput="document.getElementById('fam-bpm-val').textContent=this.value"></div>
+        </div>
+        <button class="btn btn-primary btn-full" style="border-radius:10px;margin-top:12px">💾 Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+const user = (() => { try { return JSON.parse(sessionStorage.getItem('hl_user')) || {name:'Priya Sharma',initials:'PS',email:'priya.sharma@gmail.com'}; } catch { return {name:'Priya Sharma',initials:'PS'}; } })();
+document.getElementById('topbar-name').textContent = user.name || 'Caretaker';
+['prof-name','pd-name'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = user.name; });
+if (user.initials) { const a = document.getElementById('prof-avatar'); if(a) a.textContent = user.initials; }
+if (user.email)   { const e = document.getElementById('prof-email');  if(e) e.textContent = user.email; }
+if (user.patient) { const p = document.getElementById('patient-label'); if(p) p.textContent = user.patient; }
+
+function showTab(name, btn) {
+  document.querySelectorAll('.section-page').forEach(el => el.classList.remove('active-section'));
+  document.getElementById('tab-' + name)?.classList.add('active-section');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function updateTime() {
+  const el = document.getElementById('family-time');
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US', {hour12:false});
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+setInterval(() => {
+  const bpm = Math.round(70 + Math.sin(Date.now()/8000)*6 + (Math.random()-0.5)*3);
+  const spo2 = (97 + Math.random()*2).toFixed(0);
+  document.getElementById('fam-bpm').textContent = bpm;
+  document.getElementById('fam-spo2').textContent = spo2 + '%';
+}, 2000);
+</script>
+</body>
+</html>

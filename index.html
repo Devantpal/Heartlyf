@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Heartlyf – AI Powered Heart Monitoring</title>
+<link rel="stylesheet" href="css/common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="main-nav" id="mainNav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+    <span>Heartlyf</span>
+  </a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#hardware">Hardware</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#team">Team</a>
+  </div>
+  <div class="nav-btns">
+    <a href="patient-dashboard.html" class="nav-login" style="font-weight:700">Dashboard</a>
+    <a href="auth.html" class="nav-login" style="color:var(--text-dim)">Sign Out</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="about">
+  <div class="hero-badge fade-up">
+    <span class="live-dot red"></span>
+    Live AI Cardiac Monitoring · GNIOT CSE-IoT · 2025-26
+  </div>
+  <h1 class="hero-h1 fade-up-delay-1">Predict Cardiac Events</h1>
+  <h2 class="hero-h2 fade-up-delay-1"><em>Before They Happen</em></h2>
+  <p class="hero-sub fade-up-delay-2">Heartlyf fuses TinyML edge intelligence, ESP32 wearable hardware and real-time Firebase cloud to continuously monitor ECG, detect arrhythmias and dispatch GPS-enabled emergency alerts in under one second.</p>
+  <div class="hero-btns fade-up-delay-2">
+    <a href="auth.html" class="btn-hero-primary">▶ Start Monitoring Free</a>
+    <a href="#architecture" class="btn-hero-outline">Explore the Project</a>
+  </div>
+
+  <!-- Live ECG strip -->
+  <div class="ecg-hero-strip fade-up-delay-3">
+    <canvas id="heroEcg" height="110"></canvas>
+    <div id="heroTooltip" class="ecg-tooltip"></div>
+    <div class="ecg-meta">
+      <span class="live-dot red"></span>
+      <span style="font-weight:700;letter-spacing:.08em;font-size:.7rem;color:var(--text-muted)">LIVE ECG</span>
+      <span class="bpm-val" id="heroBpm">72 BPM</span>
+      <span class="rhythm-val" id="heroRhythm">Normal Sinus Rhythm</span>
+      <span style="margin-left:auto;font-size:.69rem;color:var(--text-muted)">Hover to inspect mV values</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item reveal"><div class="stat-val">99.9%</div><div class="stat-lab">Monitoring Uptime</div></div>
+  <div class="stat-item reveal reveal-delay-1"><div class="stat-val">&lt;1s</div><div class="stat-lab">Alert Latency</div></div>
+  <div class="stat-item reveal reveal-delay-2"><div class="stat-val">5×</div><div class="stat-lab">AI Detection Layers</div></div>
+  <div class="stat-item reveal reveal-delay-3"><div class="stat-val">24/7</div><div class="stat-lab">Real-time Monitoring</div></div>
+</div>
+
+<!-- FEATURES -->
+<section id="features" style="background:#08091a">
+  <div class="section-wrap">
+    <span class="section-label reveal" style="color:var(--red)">Capabilities</span>
+    <h2 class="section-title reveal">Built for <em class="display-italic">Real-World</em> Medical Monitoring</h2>
+    <p class="section-sub reveal">8 cutting-edge features that make Heartlyf the most advanced IoT cardiac monitoring platform available.</p>
+    <div class="features-grid">
+      <div class="feat-card reveal"><div class="feat-icon" style="background:rgba(229,62,62,.1)">🧠</div><h3>AI Arrhythmia Detection</h3><p>TinyML model detects 5 types of cardiac arrhythmias with &gt;95% accuracy in real-time.</p></div>
+      <div class="feat-card reveal reveal-delay-1"><div class="feat-icon" style="background:rgba(229,62,62,.08)">⚙️</div><h3>Edge AI Processing</h3><p>On-device inference using ESP32 with quantized TensorFlow Lite — no cloud latency.</p></div>
+      <div class="feat-card reveal reveal-delay-2"><div class="feat-icon" style="background:rgba(229,62,62,.08)">📍</div><h3>GPS Emergency Location</h3><p>NEO-6M GPS sends precise coordinates with every emergency alert via Telegram.</p></div>
+      <div class="feat-card reveal reveal-delay-3"><div class="feat-icon" style="background:rgba(229,62,62,.08)">📈</div><h3>Real-time ECG Monitoring</h3><p>AD8232 sensor captures 250Hz ECG signals with 12-bit ADC precision continuously.</p></div>
+      <div class="feat-card reveal"><div class="feat-icon" style="background:rgba(229,62,62,.08)">📱</div><h3>Mobile App Integration</h3><p>Monitor vitals from any device via responsive PWA with full offline support.</p></div>
+      <div class="feat-card reveal reveal-delay-1"><div class="feat-icon" style="background:rgba(229,62,62,.08)">📋</div><h3>Doctor Reports</h3><p>Auto-generated PDF medical reports with ECG strips, HRV analysis and AI notes.</p></div>
+      <div class="feat-card reveal reveal-delay-2"><div class="feat-icon" style="background:rgba(229,62,62,.08)">🔔</div><h3>Family Alerts</h3><p>Instant Telegram, SMS and push notifications to family during cardiac events.</p></div>
+      <div class="feat-card reveal reveal-delay-3"><div class="feat-icon" style="background:rgba(229,62,62,.08)">📡</div><h3>Offline AI Mode</h3><p>Continues monitoring with local SD card logging even without internet connectivity.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="arch-section">
+  <div class="section-wrap">
+    <span class="section-label reveal" style="color:var(--red)">System Design</span>
+    <h2 class="section-title reveal">6-Layer <em class="display-italic">Architecture</em></h2>
+    <p class="section-sub reveal" style="margin-bottom:0">End-to-end pipeline from IoT sensor to emergency response.</p>
+
+    <div class="arch-pipeline">
+      <div class="arch-node reveal">
+        <div class="arch-node-card"><div class="arch-num-badge">01</div><span class="arch-node-icon">📡</span><div class="arch-node-label">Sensors</div><div class="arch-node-desc">AD8232 ECG<br>MAX30105 SpO2<br>NEO-6M GPS</div></div>
+      </div>
+      <div class="arch-connector"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="arch-node reveal reveal-delay-1">
+        <div class="arch-node-card"><div class="arch-num-badge">02</div><span class="arch-node-icon">⚡</span><div class="arch-node-label">Signal Processing</div><div class="arch-node-desc">Bandpass filter<br>Noise removal<br>250Hz sampling</div></div>
+      </div>
+      <div class="arch-connector"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="arch-node reveal reveal-delay-2">
+        <div class="arch-node-card"><div class="arch-num-badge">03</div><span class="arch-node-icon">🧠</span><div class="arch-node-label">TinyML Model</div><div class="arch-node-desc">TF Lite on ESP32<br>&lt;100ms inference<br>5-class classifier</div></div>
+      </div>
+      <div class="arch-connector"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="arch-node reveal reveal-delay-3">
+        <div class="arch-node-card"><div class="arch-num-badge">04</div><span class="arch-node-icon">🔲</span><div class="arch-node-label">Edge AI</div><div class="arch-node-desc">ESP32 240MHz<br>Local prediction<br>WiFi sync</div></div>
+      </div>
+      <div class="arch-connector"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="arch-node reveal reveal-delay-4">
+        <div class="arch-node-card"><div class="arch-num-badge">05</div><span class="arch-node-icon">☁️</span><div class="arch-node-label">Cloud Analytics</div><div class="arch-node-desc">Firebase RT DB<br>Deep Learning<br>Dashboard sync</div></div>
+      </div>
+      <div class="arch-connector"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="arch-node reveal reveal-delay-4">
+        <div class="arch-node-card" style="border-color:rgba(229,62,62,0.3)"><div class="arch-num-badge">06</div><span class="arch-node-icon">🚨</span><div class="arch-node-label" style="color:var(--red)">Emergency Response</div><div class="arch-node-desc">Telegram + SMS<br>GPS location<br>Auto call</div></div>
+      </div>
+    </div>
+
+    <!-- Data Flow -->
+    <div class="dataflow-wrap reveal">
+      <div class="df-title">📊 Real-time Data Flow Pipeline</div>
+      <div class="df-row">
+        <div class="df-step"><span class="step-icon">📉</span><div class="step-name">ECG Capture</div><div class="step-tech">AD8232 · 250Hz</div></div>
+        <div class="df-arrow"></div>
+        <div class="df-step"><span class="step-icon">🔊</span><div class="step-name">Filter &amp; Clean</div><div class="step-tech">0.5–40Hz BPF</div></div>
+        <div class="df-arrow"></div>
+        <div class="df-step"><span class="step-icon">📐</span><div class="step-name">Feature Extract</div><div class="step-tech">PQRST · HRV</div></div>
+        <div class="df-arrow"></div>
+        <div class="df-step"><span class="step-icon">🤖</span><div class="step-name">AI Classify</div><div class="step-tech">TF Lite · &lt;100ms</div></div>
+        <div class="df-arrow"></div>
+        <div class="df-step"><span class="step-icon">📤</span><div class="step-name">Cloud Sync</div><div class="step-tech">Firebase RTDB</div></div>
+        <div class="df-arrow"></div>
+        <div class="df-step"><span class="step-icon">📱</span><div class="step-name">Dashboard</div><div class="step-tech">Real-time UI</div></div>
+      </div>
+    </div>
+
+    <!-- Tech + Circuit -->
+    <div class="tech-diagram reveal">
+      <div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:18px">🔧 Software Stack</h3>
+        <div class="tech-block"><div class="tech-block-icon" style="background:rgba(229,62,62,.1)">🧠</div><div><h4>TensorFlow Lite</h4><p>Quantized INT8 model for ESP32 edge inference</p></div></div>
+        <div class="tech-block"><div class="tech-block-icon" style="background:rgba(255,165,0,.1)">🔥</div><div><h4>Firebase Realtime DB</h4><p>Sub-second cloud sync for ECG vitals and alerts</p></div></div>
+        <div class="tech-block"><div class="tech-block-icon" style="background:rgba(59,130,246,.1)">⚛️</div><div><h4>React + Chart.js</h4><p>Live ECG visualization and patient dashboards</p></div></div>
+        <div class="tech-block"><div class="tech-block-icon" style="background:rgba(229,62,62,.08)">📡</div><div><h4>Telegram Bot API</h4><p>Instant emergency notifications with GPS coordinates</p></div></div>
+        <div class="tech-block"><div class="tech-block-icon" style="background:rgba(139,92,246,.1)">🐍</div><div><h4>Python / Scikit-learn</h4><p>MIT-BIH training pipeline and model evaluation</p></div></div>
+      </div>
+      <!-- SVG Hardware Schematic -->
+      <div class="circuit-wrap">
+        <div style="font-family:var(--font-display);font-size:0.88rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+          🔌 IoT Hardware Schematic
+          <span class="badge badge-crit" style="margin-left:auto;font-size:0.62rem">ESP32 Core</span>
+        </div>
+        <svg viewBox="0 0 340 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
+          <defs>
+            <marker id="arr-r" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e53e3e" opacity="0.8"/></marker>
+            <marker id="arr-g" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#22c55e" opacity="0.8"/></marker>
+            <filter id="gsvg"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <pattern id="gp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0L0 0 0 20" fill="none" stroke="rgba(229,62,62,0.05)" stroke-width="0.5"/></pattern>
+          <rect width="340" height="280" fill="url(#gp)" rx="8"/>
+          <!-- ESP32 -->
+          <rect x="120" y="100" width="100" height="80" rx="8" fill="rgba(229,62,62,0.12)" stroke="#e53e3e" stroke-width="1.5" filter="url(#gsvg)"/>
+          <text x="170" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="JetBrains Mono">ESP32</text>
+          <text x="170" y="146" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-family="JetBrains Mono">240MHz · TinyML</text>
+          <text x="170" y="162" text-anchor="middle" fill="#e53e3e" font-size="8" font-family="JetBrains Mono">WiFi + BT</text>
+          <text x="170" y="174" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">12-bit ADC</text>
+          <!-- AD8232 -->
+          <rect x="8" y="40" width="80" height="50" rx="6" fill="rgba(229,62,62,0.08)" stroke="#e53e3e" stroke-width="1"/>
+          <text x="48" y="59" text-anchor="middle" fill="#e53e3e" font-size="9" font-weight="bold" font-family="JetBrains Mono">AD8232</text>
+          <text x="48" y="73" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">ECG Sensor</text>
+          <text x="48" y="83" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">250Hz · 12-bit</text>
+          <line x1="88" y1="65" x2="120" y2="128" stroke="#e53e3e" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-r)" opacity="0.7"/>
+          <!-- MAX30105 -->
+          <rect x="8" y="114" width="80" height="50" rx="6" fill="rgba(251,146,60,0.08)" stroke="#fb923c" stroke-width="1"/>
+          <text x="48" y="133" text-anchor="middle" fill="#fb923c" font-size="9" font-weight="bold" font-family="JetBrains Mono">MAX30105</text>
+          <text x="48" y="147" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">SpO2 + HR PPG</text>
+          <text x="48" y="157" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">I2C Interface</text>
+          <line x1="88" y1="139" x2="120" y2="148" stroke="#fb923c" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-r)" opacity="0.7"/>
+          <!-- NEO-6M -->
+          <rect x="8" y="188" width="80" height="50" rx="6" fill="rgba(34,197,94,0.08)" stroke="#22c55e" stroke-width="1"/>
+          <text x="48" y="207" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="bold" font-family="JetBrains Mono">NEO-6M</text>
+          <text x="48" y="221" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">GPS Module</text>
+          <text x="48" y="231" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">UART · ±3m</text>
+          <line x1="88" y1="213" x2="120" y2="168" stroke="#22c55e" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-g)" opacity="0.7"/>
+          <!-- SD Card -->
+          <rect x="252" y="40" width="80" height="50" rx="6" fill="rgba(139,92,246,0.08)" stroke="#8b5cf6" stroke-width="1"/>
+          <text x="292" y="59" text-anchor="middle" fill="#8b5cf6" font-size="9" font-weight="bold" font-family="JetBrains Mono">SD Card</text>
+          <text x="292" y="73" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">Local Storage</text>
+          <text x="292" y="83" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">SPI · 32GB</text>
+          <line x1="220" y1="128" x2="252" y2="65" stroke="#8b5cf6" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-r)" opacity="0.7"/>
+          <!-- Firebase -->
+          <rect x="252" y="114" width="80" height="50" rx="6" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" stroke-width="1"/>
+          <text x="292" y="133" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="bold" font-family="JetBrains Mono">Firebase</text>
+          <text x="292" y="147" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">RTDB Cloud</text>
+          <text x="292" y="157" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">WiFi 802.11</text>
+          <line x1="220" y1="148" x2="252" y2="139" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-r)" opacity="0.9"/>
+          <!-- LiPo -->
+          <rect x="252" y="190" width="80" height="50" rx="6" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1"/>
+          <text x="292" y="209" text-anchor="middle" fill="#10b981" font-size="9" font-weight="bold" font-family="JetBrains Mono">LiPo 2000mAh</text>
+          <text x="292" y="223" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">3.7V Battery</text>
+          <text x="292" y="233" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">USB-C Charge</text>
+          <line x1="220" y1="165" x2="252" y2="208" stroke="#10b981" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-r)" opacity="0.7"/>
+          <!-- Animated pulse -->
+          <circle r="3" fill="#e53e3e" opacity="0.9"><animateMotion dur="1.5s" repeatCount="indefinite" path="M220,148 L252,139"/></circle>
+          <circle r="2.5" fill="#fb923c" opacity="0.8"><animateMotion dur="2s" repeatCount="indefinite" begin="0.5s" path="M88,65 L120,128"/></circle>
+        </svg>
+      </div>
+    </div>
+
+    <!-- AI Model Accuracy -->
+    <div style="margin-top:48px">
+      <h3 class="reveal" style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px">
+        🤖 AI Classification Accuracy
+        <span style="font-size:0.73rem;color:var(--text-muted);font-weight:400">MIT-BIH Arrhythmia Database · 48 recordings</span>
+      </h3>
+      <div class="ai-model-grid">
+        <div class="ai-model-card reveal"><div class="ai-model-acc">99.8%</div><div class="ai-model-name">Normal Sinus</div><div class="ai-model-sub">Baseline rhythm</div><div class="ai-model-bar"><div class="ai-model-fill" style="width:0%" data-w="99.8"></div></div></div>
+        <div class="ai-model-card reveal reveal-delay-1"><div class="ai-model-acc">98.5%</div><div class="ai-model-name">Atrial Fibrillation</div><div class="ai-model-sub">Irregular rhythm</div><div class="ai-model-bar"><div class="ai-model-fill" style="width:0%" data-w="98.5"></div></div></div>
+        <div class="ai-model-card reveal reveal-delay-2"><div class="ai-model-acc">97.2%</div><div class="ai-model-name">Ventricular Tachy</div><div class="ai-model-sub">Rapid VT</div><div class="ai-model-bar"><div class="ai-model-fill" style="width:0%" data-w="97.2"></div></div></div>
+        <div class="ai-model-card reveal reveal-delay-3"><div class="ai-model-acc">96.8%</div><div class="ai-model-name">Premature Beat</div><div class="ai-model-sub">PVC / PAC</div><div class="ai-model-bar"><div class="ai-model-fill" style="width:0%" data-w="96.8"></div></div></div>
+        <div class="ai-model-card reveal reveal-delay-4"><div class="ai-model-acc">95.4%</div><div class="ai-model-name">Bundle Branch Block</div><div class="ai-model-sub">Conduction delay</div><div class="ai-model-bar"><div class="ai-model-fill" style="width:0%" data-w="95.4"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HARDWARE -->
+<section id="hardware" style="background:#08091a">
+  <div class="section-wrap">
+    <span class="section-label reveal" style="color:var(--red)">IoT Components</span>
+    <h2 class="section-title reveal">Physical <em class="display-italic">Hardware Stack</em></h2>
+    <div class="hw-grid">
+      <div class="hw-card reveal"><div class="hw-icon" style="background:rgba(229,62,62,.1)">🔲</div><h3>ESP32 Microcontroller</h3><p>Main controller with dual-core 240MHz CPU, WiFi &amp; Bluetooth. Runs TinyML edge AI model locally.</p></div>
+      <div class="hw-card reveal reveal-delay-1"><div class="hw-icon" style="background:rgba(229,62,62,.08)">📉</div><h3>AD8232 ECG Sensor</h3><p>Dedicated cardiac monitor IC with low-power op-amp. Captures clean ECG waveforms at 250Hz.</p></div>
+      <div class="hw-card reveal reveal-delay-2"><div class="hw-icon" style="background:rgba(229,62,62,.08)">❤️</div><h3>MAX30105 SpO2 Sensor</h3><p>Optical heart-rate and SpO2 sensor using PPG technology. Accuracy ±2% SpO2.</p></div>
+      <div class="hw-card reveal"><div class="hw-icon" style="background:rgba(34,197,94,.1)">🛰️</div><h3>NEO-6M GPS Module</h3><p>Ultra-precise GPS module providing location coordinates for emergency alerts.</p></div>
+      <div class="hw-card reveal reveal-delay-1"><div class="hw-icon" style="background:rgba(16,185,129,.1)">🔋</div><h3>LiPo Battery</h3><p>2000mAh rechargeable LiPo with USB-C charging. Up to 48h continuous monitoring.</p></div>
+      <div class="hw-card reveal reveal-delay-2"><div class="hw-icon" style="background:rgba(139,92,246,.1)">💾</div><h3>SD Card Module</h3><p>Local ECG data logging for offline operation. Stores up to 30 days of continuous data.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI PIPELINE -->
+<section style="background:#0d1224;border-top:1px solid rgba(255,255,255,0.05)">
+  <div class="section-wrap narrow">
+    <span class="section-label reveal" style="color:var(--red)">Pipeline</span>
+    <h2 class="section-title reveal">5-Stage <em class="display-italic">AI Pipeline</em></h2>
+    <div class="pipeline-list">
+      <div class="pipe-item reveal"><span class="pipe-num">01</span><div class="pipe-icon">📡</div><div><h3>Signal Acquisition</h3><p>AD8232 ECG + MAX30105 SpO2 capture physiological signals at 250Hz sampling rate</p></div></div>
+      <div class="pipe-item reveal reveal-delay-1"><span class="pipe-num">02</span><div class="pipe-icon">⚡</div><div><h3>Signal Preprocessing</h3><p>Bandpass filter (0.5–40Hz), baseline wander removal, noise reduction on ESP32</p></div></div>
+      <div class="pipe-item reveal reveal-delay-2"><span class="pipe-num">03</span><div class="pipe-icon">🧠</div><div><h3>AI Prediction</h3><p>TensorFlow Lite model classifies ECG rhythm in &lt;100ms on ESP32 edge device</p></div></div>
+      <div class="pipe-item reveal reveal-delay-3"><span class="pipe-num">04</span><div class="pipe-icon">☁️</div><div><h3>Cloud Analytics</h3><p>Data synced to Firebase Realtime DB. Deep learning model on cloud runs secondary analysis</p></div></div>
+      <div class="pipe-item reveal reveal-delay-4"><span class="pipe-num">05</span><div class="pipe-icon">🚨</div><div><h3>Emergency Response</h3><p>Telegram + SMS alerts with GPS coordinates sent instantly to emergency contacts</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS / GALLERY -->
+<section id="gallery" style="background:#08091a;border-top:1px solid rgba(255,255,255,0.05)">
+  <div class="section-wrap">
+    <span class="section-label reveal" style="color:var(--red)">Live Demo</span>
+    <h2 class="section-title reveal">Real-World <em class="display-italic">Performance</em></h2>
+    <div class="chart-row-3-1" style="margin-bottom:16px">
+      <div class="chart-panel reveal">
+        <div class="chart-panel-header">
+          <div><h3>ECG Waveform Sample</h3><div class="sub">Hover to inspect mV values · Normal Sinus</div></div>
+          <span class="badge badge-normal">Normal</span>
+        </div>
+        <div style="position:relative"><canvas id="landingEcg" height="110"></canvas><div id="landingTooltip" class="ecg-tooltip"></div></div>
+      </div>
+      <div class="chart-panel reveal reveal-delay-1">
+        <div class="chart-panel-header"><div><h3>Rhythm Classification</h3><div class="sub">AI Model Predictions (%)</div></div></div>
+        <canvas id="rhythmChart" height="110"></canvas>
+      </div>
+    </div>
+    <div class="chart-panel reveal">
+      <div class="chart-panel-header">
+        <div><h3>24-Hour BPM Trend</h3><div class="sub">Heart Rate Variability Over Day</div></div>
+        <div style="display:flex;gap:12px;font-size:.72rem;align-items:center"><span style="color:var(--red)">● Heart Rate</span></div>
+      </div>
+      <canvas id="bpmTrendChart" height="75"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- DATASET -->
+<section style="background:#0d1224;border-top:1px solid rgba(229,62,62,0.1)">
+  <div class="section-wrap narrow" style="text-align:center">
+    <span class="section-label reveal" style="color:var(--red)">Research Dataset</span>
+    <h2 class="section-title reveal">MIT-BIH <em class="display-italic">Training Data</em></h2>
+    <p class="section-sub reveal" style="margin:0 auto 36px">Cardiac analysis engine trained using the MIT-BIH Arrhythmia Database — gold-standard ECG dataset provided by PhysioNet.</p>
+    <div class="dataset-grid" style="text-align:left">
+      <div class="ds-card reveal">
+        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:16px">Dataset Details</h3>
+        <div class="ds-row"><span class="ds-key">Source</span><span class="ds-val">PhysioNet</span></div>
+        <div class="ds-row"><span class="ds-key">Dataset</span><span class="ds-val">MIT-BIH Arrhythmia Database</span></div>
+        <div class="ds-row"><span class="ds-key">Publication</span><span class="ds-val">Moody &amp; Mark, IEEE EMB, 2001</span></div>
+        <div class="ds-row"><span class="ds-key">Sampling Rate</span><span class="ds-val">360 Hz</span></div>
+        <div class="ds-row"><span class="ds-key">Records</span><span class="ds-val">48 annotated ECG recordings</span></div>
+      </div>
+      <div class="ds-card reveal reveal-delay-1">
+        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:16px">Key Features</h3>
+        <ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:10px">
+          <li style="font-size:.82rem;color:var(--text-dim)">48 half-hour ECG recordings from 47 subjects</li>
+          <li style="font-size:.82rem;color:var(--text-dim)">360 Hz sampling with 11-bit resolution</li>
+          <li style="font-size:.82rem;color:var(--text-dim)">Expert-annotated arrhythmia beat classifications</li>
+          <li style="font-size:.82rem;color:var(--text-dim)">Clinical-grade ECG signals for deep learning</li>
+        </ul>
+      </div>
+    </div>
+    <div class="citation reveal" style="text-align:left">
+      <em>Moody GB, Mark RG. "The impact of the MIT-BIH Arrhythmia Database." <strong>IEEE Engineering in Medicine and Biology Magazine, 2001.</strong></em><br>
+      <a href="https://physionet.org/content/mitdb/1.0.0/" target="_blank" style="color:var(--red);display:inline-flex;align-items:center;gap:4px;margin-top:8px;text-decoration:none;font-weight:600">View on PhysioNet ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team" style="background:#08091a;border-top:1px solid rgba(255,255,255,0.05)">
+  <div class="section-wrap" style="text-align:center">
+    <span class="section-label reveal" style="color:var(--red)">Our Team</span>
+    <h2 class="section-title reveal">Built by <em class="display-italic">Innovators</em></h2>
+    <p class="section-sub reveal" style="margin:0 auto 36px">AI-Powered Cardiac Monitoring System — Senior Capstone Project, GNIOT 2025-26</p>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="team-avatar">A</div><h3>Anand Asati</h3><div class="team-role">Frontend Developer</div><div class="team-deg">B.Tech IoT, Final Year</div></div>
+      <div class="team-card reveal reveal-delay-1"><div class="team-avatar">D</div><h3>Devant Pal</h3><div class="team-role">Cloud, Database &amp; AI/ML</div><div class="team-deg">B.Tech IoT, Final Year</div></div>
+      <div class="team-card reveal reveal-delay-2"><div class="team-avatar">G</div><h3>Gajendra Kumar</h3><div class="team-role">Backend Developer</div><div class="team-deg">B.Tech IoT, Final Year</div></div>
+      <div class="team-card reveal reveal-delay-3"><div class="team-avatar">M</div><h3>Md Maaz Yazdani</h3><div class="team-role">IoT &amp; Hardware</div><div class="team-deg">B.Tech IoT, Final Year</div></div>
+    </div>
+    <div class="team-meta reveal">
+      <div class="tm-item"><div class="tm-label">Project</div><div class="tm-val">AI-Powered IoT-Based Autonomous Cardiac Arrest Prediction System</div></div>
+      <div class="tm-item"><div class="tm-label">Supervisor</div><div class="tm-val">Mr. Neelash Shell</div></div>
+      <div class="tm-item"><div class="tm-label">Department</div><div class="tm-val">Computer Science &amp; Engineering – IoT</div></div>
+      <div class="tm-item"><div class="tm-label">Academic Year</div><div class="tm-val">2025–2026</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-col">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+      <div style="width:28px;height:28px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <span style="font-family:var(--font-display);font-weight:700;font-size:1rem">Heartlyf</span>
+    </div>
+    <p>AI-powered IoT cardiac monitoring. Real-time ECG analysis, arrhythmia detection, and emergency alerts.</p>
+  </div>
+  <div class="footer-col"><h4>College</h4><p>GNIOT Institute of Engineering<br>Greater Noida, UP, India</p></div>
+  <div class="footer-col"><h4>Team</h4><a href="#">Mr. Neelash Shell</a><a href="#">Anand Asati</a><a href="#">Devant Pal</a><a href="#">Gajendra Kumar</a><a href="#">Md Maaz Yazdani</a></div>
+  <div class="footer-col"><h4>Links</h4><a href="#">⌥ Github</a><a href="#">📄 Docs</a><a href="auth.html">🔑 Login</a><a href="#">✉ Contact</a></div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2025 Heartlyf – GNIOT, Greater Noida</span>
+  <span>Health monitoring assistant — not a replacement for professional medical diagnosis.</span>
+</div>
+
+<script src="js/ecg.js"></script>
+<script src="js/charts.js"></script>
+<script>
+let heroECG, landingECG;
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold:0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Nav scroll
+  window.addEventListener('scroll', () => document.getElementById('mainNav')?.classList.toggle('scrolled', window.scrollY > 60));
+
+  // Hero ECG – red
+  heroECG = createECG('heroEcg', { bpm:72, color:'#e53e3e', glowColor:'rgba(229,62,62,0.5)', lineWidth:2.5, speed:2, amplitude:0.82, tooltipId:'heroTooltip', showGrid:true });
+
+  // Landing ECG
+  landingECG = createECG('landingEcg', { bpm:72, color:'#e53e3e', glowColor:'rgba(229,62,62,0.45)', lineWidth:2.2, speed:1.8, amplitude:0.78, tooltipId:'landingTooltip', showGrid:true });
+
+  // Charts
+  setTimeout(() => { initRhythmChart('rhythmChart'); initBPMTrendLanding(); }, 200);
+
+  // AI model bar animate on scroll
+  const barObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.querySelectorAll('.ai-model-fill').forEach(b => b.style.width = b.dataset.w + '%'); });
+  }, { threshold:0.3 });
+  document.querySelector('.ai-model-grid') && barObs.observe(document.querySelector('.ai-model-grid'));
+
+  // Live BPM
+  setInterval(() => {
+    const bpm = Math.round(70 + Math.random() * 5);
+    const el = document.getElementById('heroBpm');
+    if (el) el.textContent = bpm + ' BPM';
+    heroECG?.setBPM(bpm);
+    landingECG?.setBPM(bpm);
+  }, 2000);
+});
+
+function initBPMTrendLanding() {
+  const ctx = document.getElementById('bpmTrendChart')?.getContext('2d');
+  if (!ctx) return;
+  const hours = Array.from({length:24}, (_,i) => `${i}:00`);
+  const vals  = [63,61,60,62,66,70,74,79,77,75,73,72,74,77,75,73,81,84,79,75,72,69,66,64];
+  new Chart(ctx, {
+    type:'line',
+    data:{labels:hours,datasets:[{data:vals,borderColor:'#e53e3e',borderWidth:2.2,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:'#e53e3e',fill:true,backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height);g.addColorStop(0,'rgba(229,62,62,0.2)');g.addColorStop(1,'rgba(229,62,62,0.01)');return g;},tension:0.42}]},
+    options:{responsive:true,animation:{duration:800},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(8,9,26,0.95)',borderColor:'rgba(229,62,62,0.3)',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#f1f5f9',padding:10,callbacks:{label:c=>` ${c.raw} BPM`}}},scales:{x:{ticks:{color:'#64748b',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#64748b'},grid:{color:'rgba(255,255,255,0.03)'},min:55,max:95}}}
+  });
+}
+
+// Override rhythm chart colors to red theme
+function initRhythmChart(canvasId) {
+  const ctx = document.getElementById(canvasId)?.getContext('2d');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type:'bar',
+    data:{labels:['Normal','Arrhythmia','SVT','VT','PVC'],datasets:[{data:[78,13,4,3,2],backgroundColor:['rgba(229,62,62,0.75)','rgba(251,146,60,0.7)','rgba(59,130,246,0.7)','rgba(139,92,246,0.7)','rgba(34,197,94,0.7)'],borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,animation:{duration:800},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(8,9,26,0.95)',borderColor:'rgba(229,62,62,0.3)',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#f1f5f9',padding:10,callbacks:{label:c=>` ${c.raw}%`}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#64748b'},grid:{color:'rgba(255,255,255,0.03)'},max:100}}}
+  });
+}
+</script>
+</body>
+</html>
