@@ -2,233 +2,368 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HeartLyf – Sign In</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Heartlyf – Sign In</title>
 <link rel="stylesheet" href="css/common.css">
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 <style>
-body { display: flex; min-height: 100vh; }
-.auth-page { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; width: 100%; }
+body{display:flex;min-height:100vh;}
+.auth-page{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;width:100%;}
+.auth-left{
+  background:linear-gradient(160deg,#0d1224 0%,#08091a 100%);
+  border-right:1px solid rgba(229,62,62,0.12);
+  padding:40px 44px;display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.auth-left::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(229,62,62,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(229,62,62,0.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;}
+.auth-left::after{content:'';position:absolute;bottom:-80px;left:-60px;width:380px;height:380px;background:radial-gradient(ellipse,rgba(229,62,62,0.1) 0%,transparent 65%);pointer-events:none;}
+.auth-logo{display:flex;align-items:center;gap:12px;text-decoration:none;position:relative;z-index:1;}
+.auth-logo .icon{width:40px;height:40px;background:var(--red);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-red);transition:var(--transition);}
+.auth-logo:hover .icon{transform:scale(1.08) rotate(-5deg);}
+.auth-logo .brand-name{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#fff;}
+.auth-hero{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 0 20px;}
+.auth-hero h2{font-family:var(--font-display);font-size:2rem;font-weight:800;line-height:1.18;margin-bottom:14px;color:#fff;}
+.auth-hero h2 em{font-style:italic;color:var(--red);}
+.auth-hero .desc{font-size:0.88rem;color:var(--text-dim);line-height:1.72;margin-bottom:28px;max-width:340px;}
+.auth-ecg-strip{background:rgba(229,62,62,0.04);border:1px solid rgba(229,62,62,0.14);border-radius:10px;padding:14px 16px;margin-bottom:24px;}
+.auth-ecg-meta{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:0.73rem;color:var(--text-dim);}
+.auth-ecg-meta .bval{color:#fff;font-weight:800;font-family:var(--font-mono);font-size:0.88rem;}
+.auth-steps{display:flex;flex-direction:column;gap:14px;}
+.auth-step{display:flex;align-items:flex-start;gap:12px;}
+.auth-step .num{width:24px;height:24px;border-radius:5px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:#fff;flex-shrink:0;margin-top:2px;box-shadow:var(--glow-red);}
+.auth-step .info h4{font-size:0.84rem;font-weight:700;margin-bottom:2px;}
+.auth-step .info p{font-size:0.74rem;color:var(--text-dim);line-height:1.5;}
+.disclaimer{background:rgba(229,62,62,0.04);border:1px solid rgba(229,62,62,0.15);border-left:2px solid var(--red);border-radius:6px;padding:14px 16px;font-size:0.74rem;line-height:1.65;position:relative;z-index:1;}
+.disclaimer strong{color:var(--red);}
 
-/* Left */
-.auth-left {
-  background: linear-gradient(145deg, var(--bg-mid) 0%, #0a1629 100%);
-  border-right: 1px solid var(--border);
-  padding: 44px 48px;
-  display: flex; flex-direction: column; justify-content: space-between;
-  position: relative; overflow: hidden;
-}
-.auth-left::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse at 30% 100%, rgba(0,209,178,0.06), transparent 60%),
-              radial-gradient(ellipse at 80% 0%, rgba(46,108,246,0.07), transparent 60%);
-  pointer-events: none;
-}
-.auth-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
-.auth-logo .icon {
-  width: 42px; height: 42px; background: linear-gradient(135deg, var(--blue), var(--teal));
-  border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; box-shadow: var(--glow-blue);
-}
-.auth-logo .name { font-size: 1.15rem; font-weight: 700; color: #fff; }
-.auth-logo .sub { font-size: 0.7rem; color: var(--teal); font-weight: 600; }
+/* RIGHT PANEL */
+.auth-right{background:var(--bg-deep);display:flex;align-items:center;justify-content:center;padding:44px 48px;overflow-y:auto;}
+.auth-form{width:100%;max-width:420px;}
+.auth-form-title{font-family:var(--font-display);font-size:1.9rem;font-weight:800;margin-bottom:4px;color:#fff;}
+.auth-form-sub{font-size:0.84rem;color:var(--text-dim);margin-bottom:24px;}
 
-.auth-left h2 { font-size: 2.1rem; font-weight: 700; line-height: 1.2; margin-top: 44px; margin-bottom: 14px; position: relative; z-index: 1; }
-.auth-left h2 .teal { color: var(--teal); }
-.auth-left .desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.75; margin-bottom: 32px; position: relative; z-index: 1; }
+/* Tabs */
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg-card);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:4px;gap:4px;margin-bottom:24px;}
+.auth-tab{padding:10px;text-align:center;font-size:0.84rem;font-weight:700;cursor:pointer;border-radius:6px;transition:var(--transition);color:var(--text-muted);font-family:var(--font-body);border:none;background:transparent;letter-spacing:0.02em;}
+.auth-tab.active{background:var(--red);color:#fff;box-shadow:var(--glow-red);}
+.auth-tab:not(.active):hover{background:var(--red-soft);color:var(--red);}
 
-.auth-steps { display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 1; }
-.auth-step { display: flex; align-items: flex-start; gap: 14px; }
-.auth-step .num {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 1px;
-}
-.auth-step .info h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 3px; }
-.auth-step .info p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.55; }
+/* Input */
+.input-group{position:relative;}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.9rem;pointer-events:none;z-index:1;}
+.form-input.has-icon{padding-left:40px;}
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:0.88rem;color:var(--text-muted);transition:var(--transition);}
+.pw-toggle:hover{color:var(--red);}
 
-.disclaimer {
-  background: rgba(255,165,0,0.07); border: 1px solid rgba(255,165,0,0.2);
-  border-radius: 12px; padding: 16px 18px; font-size: 0.78rem; line-height: 1.65;
-  position: relative; z-index: 1;
-}
-.disclaimer strong { color: var(--orange); }
+/* Role pills */
+.role-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.role-pill{padding:11px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);background:var(--bg-card);text-align:center;cursor:pointer;transition:var(--transition);font-size:0.78rem;font-weight:600;color:var(--text-dim);font-family:var(--font-body);}
+.role-pill.selected{border-color:var(--red);background:var(--red-soft);color:#fff;}
+.role-pill:hover:not(.selected){border-color:rgba(229,62,62,0.25);color:var(--text);}
+.role-pill .ri{font-size:1.1rem;display:block;margin-bottom:4px;}
 
-/* Right */
-.auth-right {
-  background: var(--bg-deep);
-  display: flex; align-items: center; justify-content: center; padding: 48px;
-}
-.auth-form { width: 100%; max-width: 400px; }
-.auth-tabs {
-  display: grid; grid-template-columns: 1fr 1fr;
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 28px;
-}
-.auth-tab {
-  padding: 11px; text-align: center; font-size: 0.88rem; font-weight: 600;
-  cursor: pointer; border-radius: 9px; transition: all 0.2s; color: var(--text-muted);
-}
-.auth-tab.active { background: var(--blue); color: #fff; box-shadow: var(--glow-blue); }
+/* Divider */
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:0.73rem;color:var(--text-muted);}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.07);}
 
-.input-group { position: relative; }
-.input-icon {
-  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-  font-size: 0.95rem; pointer-events: none;
-}
-.form-input.has-icon { padding-left: 40px; }
-.pw-toggle {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  cursor: pointer; font-size: 0.9rem; color: var(--text-muted);
-}
-.divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; font-size: 0.75rem; color: var(--text-muted); }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-.google-btn {
-  width: 100%; background: var(--bg-card); border: 1px solid var(--border);
-  color: #fff; padding: 12px; border-radius: 10px; font-family: 'Poppins', sans-serif;
-  font-weight: 500; font-size: 0.88rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  transition: all 0.2s;
-}
-.google-btn:hover { border-color: var(--blue); }
-.back-link { text-align: center; margin-top: 20px; font-size: 0.78rem; color: var(--text-muted); }
-.back-link a { color: var(--blue); text-decoration: none; }
-.forgot { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 12px; cursor: pointer; }
-.forgot:hover { color: var(--blue); }
+/* Google btn */
+.google-btn{width:100%;background:var(--bg-card);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:12px;border-radius:8px;font-family:var(--font-body);font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:var(--transition);}
+.google-btn:hover{border-color:var(--red-border);background:var(--red-soft);}
+
+/* Links */
+.back-link{text-align:center;margin-top:16px;font-size:0.76rem;color:var(--text-muted);}
+.back-link a{color:var(--red);text-decoration:none;font-weight:600;}
+.forgot{text-align:center;font-size:0.73rem;color:var(--text-muted);margin-top:10px;cursor:pointer;transition:var(--transition);}
+.forgot:hover{color:var(--red);}
+
+/* Success state (post-signup) */
+.verify-notice{display:none;text-align:center;padding:28px 16px;}
+.verify-icon{font-size:3rem;margin-bottom:14px;}
+.verify-notice h3{font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:8px;color:#fff;}
+.verify-notice p{font-size:0.84rem;color:var(--text-dim);line-height:1.7;margin-bottom:20px;}
+.verify-email-addr{color:var(--red);font-weight:700;}
 
 @media(max-width:768px){
-  .auth-page { grid-template-columns: 1fr; }
-  .auth-left { display: none; }
-  .auth-right { padding: 32px 20px; }
+  .auth-page{grid-template-columns:1fr;}
+  .auth-left{display:none;}
+  .auth-right{padding:28px 20px;}
 }
 </style>
 </head>
 <body>
-<div class="auth-page">
 
-  <!-- LEFT -->
+<div class="auth-page">
+  <!-- LEFT PANEL -->
   <div class="auth-left">
-    <div>
-      <a href="index.html" class="auth-logo">
-        <div class="icon">💙</div>
-        <div><div class="name">HeartLyf</div><div class="sub">AI Heart Monitor</div></div>
-      </a>
-      <h2>Your Heart,<br>Monitored by <span class="teal">AI</span></h2>
+    <a href="index.html" class="auth-logo">
+      <div class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <span class="brand-name">Heartlyf</span>
+    </a>
+    <div class="auth-hero">
+      <h2>Your Heart,<br>Monitored by <em>AI</em></h2>
       <p class="desc">Continuous ECG monitoring powered by TinyML edge AI. Get real-time alerts before cardiac events occur.</p>
+      <div class="auth-ecg-strip">
+        <canvas id="authEcg" height="70"></canvas>
+        <div class="auth-ecg-meta">
+          <span class="live-dot red"></span>
+          <span style="font-size:.68rem;font-weight:700;letter-spacing:.08em">LIVE ECG</span>
+          <span class="bval" id="authBpm">72 BPM</span>
+          <span style="color:var(--red);font-weight:700">Normal Sinus</span>
+        </div>
+      </div>
       <div class="auth-steps">
-        <div class="auth-step">
-          <div class="num">1</div>
-          <div class="info">
-            <h4>Connect Your Device</h4>
-            <p>Pair your ESP32 HeartLyf device via WiFi from the dashboard settings</p>
-          </div>
-        </div>
-        <div class="auth-step">
-          <div class="num">2</div>
-          <div class="info">
-            <h4>How Alerts Work</h4>
-            <p>AI detects arrhythmia → Telegram alert with GPS location sent to emergency contacts instantly</p>
-          </div>
-        </div>
-        <div class="auth-step">
-          <div class="num">3</div>
-          <div class="info">
-            <h4>Data Privacy</h4>
-            <p>ECG data is encrypted end-to-end. Only you and authorized doctors can access your records</p>
-          </div>
-        </div>
+        <div class="auth-step"><div class="num">1</div><div class="info"><h4>Connect Your Device</h4><p>Pair your ESP32 Heartlyf device via WiFi from the dashboard settings</p></div></div>
+        <div class="auth-step"><div class="num">2</div><div class="info"><h4>AI Detects & Alerts</h4><p>AI detects arrhythmia → Telegram + SMS alert with GPS sent to contacts</p></div></div>
+        <div class="auth-step"><div class="num">3</div><div class="info"><h4>Data Privacy</h4><p>ECG data encrypted end-to-end. Only you and authorized doctors can access records</p></div></div>
       </div>
     </div>
     <div class="disclaimer">
-      <strong>⚠ Medical Disclaimer:</strong> HeartLyf is a health monitoring assistant and does not replace professional medical diagnosis. Always consult a certified healthcare provider for medical decisions.
+      <strong>⚠ Medical Disclaimer:</strong> Heartlyf is a health monitoring assistant and does not replace professional medical diagnosis. Always consult a certified healthcare provider.
     </div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- RIGHT PANEL -->
   <div class="auth-right">
     <div class="auth-form">
+
+      <!-- TABS -->
+      <div class="auth-form-title" id="form-title">Welcome Back</div>
+      <p class="auth-form-sub" id="form-sub">Sign in to your Heartlyf dashboard</p>
+
       <div class="auth-tabs">
-        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
-        <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
       </div>
 
-      <!-- Login -->
-      <div id="login-fields">
+      <!-- ── LOGIN FORM ── -->
+      <div id="login-form">
         <div class="form-group">
           <label class="form-label">Email Address</label>
           <div class="input-group">
             <span class="input-icon">✉</span>
-            <input class="form-input has-icon" type="email" id="login-email" placeholder="you@example.com">
+            <input class="form-input has-icon" type="email" id="l-email" placeholder="you@example.com" autocomplete="email">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
           <div class="input-group">
             <span class="input-icon">🔒</span>
-            <input class="form-input has-icon" type="password" id="login-pass" placeholder="••••••••">
-            <span class="pw-toggle" onclick="togglePassword('login-pass')">👁</span>
+            <input class="form-input has-icon" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"
+              onkeydown="if(event.key==='Enter')doLogin()">
+            <span class="pw-toggle" onclick="togglePw('l-pass',this)">👁</span>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Role</label>
-          <select class="form-select" id="role-select">
-            <option value="patient">👤 Patient</option>
-            <option value="doctor">🩺 Doctor</option>
-            <option value="family">👨‍👩‍👧 Family / Caretaker</option>
-            <option value="researcher">🔬 Researcher</option>
-          </select>
-        </div>
-        <button class="btn btn-primary btn-full" onclick="loginRoute(event)">Sign In</button>
-        <p class="forgot">Forgot password?</p>
+        <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()" style="padding:15px;font-size:.95rem;border-radius:7px;margin-top:4px">
+          ▶ Sign In
+        </button>
+        <p class="forgot" onclick="doForgotPassword()">Forgot password? Reset via email</p>
+        <div class="divider">or</div>
+        <button class="google-btn" onclick="doGoogleSignIn()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285f4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34a853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#fbbc05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#ea4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+          Continue with Google
+        </button>
       </div>
 
-      <!-- Signup -->
-      <div id="signup-fields" style="display:none">
+      <!-- ── SIGNUP FORM ── -->
+      <div id="signup-form" style="display:none">
         <div class="form-group">
           <label class="form-label">Full Name</label>
           <div class="input-group">
             <span class="input-icon">👤</span>
-            <input class="form-input has-icon" type="text" placeholder="John Doe">
+            <input class="form-input has-icon" type="text" id="s-name" placeholder="Your full name" autocomplete="name">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Email Address</label>
           <div class="input-group">
             <span class="input-icon">✉</span>
-            <input class="form-input has-icon" type="email" placeholder="you@example.com">
+            <input class="form-input has-icon" type="email" id="s-email" placeholder="you@example.com" autocomplete="email">
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Password</label>
+          <label class="form-label">Password <span style="color:var(--text-muted);font-size:.7rem">(min 6 characters)</span></label>
           <div class="input-group">
             <span class="input-icon">🔒</span>
-            <input class="form-input has-icon" type="password" id="signup-pass" placeholder="••••••••">
-            <span class="pw-toggle" onclick="togglePassword('signup-pass')">👁</span>
+            <input class="form-input has-icon" type="password" id="s-pass" placeholder="Create a strong password" autocomplete="new-password"
+              onkeydown="if(event.key==='Enter')doSignup()">
+            <span class="pw-toggle" onclick="togglePw('s-pass',this)">👁</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Role</label>
-          <select class="form-select" id="role-select">
-            <option value="patient">👤 Patient</option>
-            <option value="doctor">🩺 Doctor</option>
-            <option value="family">👨‍👩‍👧 Family / Caretaker</option>
-            <option value="researcher">🔬 Researcher</option>
-          </select>
+          <label class="form-label" style="margin-bottom:8px">Your Role</label>
+          <div class="role-pills" id="role-pills">
+            <div class="role-pill selected" data-role="patient" onclick="selectRole(this)"><span class="ri">🫀</span>Patient</div>
+            <div class="role-pill" data-role="doctor" onclick="selectRole(this)"><span class="ri">🩺</span>Doctor</div>
+            <div class="role-pill" data-role="family" onclick="selectRole(this)"><span class="ri">👨‍👩‍👧</span>Family</div>
+            <div class="role-pill" data-role="researcher" onclick="selectRole(this)"><span class="ri">🔬</span>Researcher</div>
+          </div>
         </div>
-        <button class="btn btn-primary btn-full" onclick="loginRoute(event)">Create Account</button>
+        <button class="btn btn-primary btn-full" id="signup-btn" onclick="doSignup()" style="padding:15px;font-size:.95rem;border-radius:7px">
+          ✓ Create Account
+        </button>
+        <div class="divider">or</div>
+        <button class="google-btn" onclick="doGoogleSignIn()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285f4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34a853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#fbbc05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#ea4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+          Sign up with Google (role: Patient)
+        </button>
       </div>
 
-      <div class="divider">or</div>
-      <button class="google-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285f4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34a853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#fbbc05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#ea4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
-        Continue with Google
-      </button>
-      <p class="back-link"><a href="index.html">← Back to Home</a></p>
+      <!-- ── VERIFY NOTICE (shown after signup) ── -->
+      <div class="verify-notice" id="verify-notice">
+        <div class="verify-icon">📧</div>
+        <h3>Verify Your Email</h3>
+        <p>We've sent a verification link to<br><span class="verify-email-addr" id="verify-addr">your email</span></p>
+        <p style="font-size:.8rem;margin-top:6px">Click the link in your email to activate your account, then come back to sign in.</p>
+        <button class="btn btn-ghost btn-full" style="margin-top:12px" onclick="doResendVerification()">🔄 Resend Verification Email</button>
+        <button class="btn btn-primary btn-full" style="margin-top:8px;background:transparent;border:1px solid var(--red-border);color:var(--red);box-shadow:none" onclick="backToLogin()">← Back to Sign In</button>
+      </div>
+
+      <p class="back-link"><a href="index.html">← Back to Heartlyf Home</a></p>
     </div>
   </div>
 </div>
 
-<script src="js/auth.js"></script>
+<!-- Firebase scripts (must be before our scripts) -->
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-auth.js"></script>
+<script src="js/ecg.js"></script>
+<script>
+/* ── Selected role ── */
+let _selectedRole = 'patient';
+let _signupEmail  = '';
+
+function selectRole(pill) {
+  document.querySelectorAll('#role-pills .role-pill').forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  _selectedRole = pill.dataset.role;
+}
+
+function togglePw(id, icon) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  icon.textContent = el.type === 'password' ? '👁' : '🙈';
+}
+
+function switchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tab-login').classList.toggle('active', isLogin);
+  document.getElementById('tab-signup').classList.toggle('active', !isLogin);
+  document.getElementById('login-form').style.display  = isLogin ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = isLogin ? 'none'  : 'block';
+  document.getElementById('verify-notice').style.display = 'none';
+  document.getElementById('form-title').textContent = isLogin ? 'Welcome Back' : 'Create Account';
+  document.getElementById('form-sub').textContent   = isLogin ? 'Sign in to your Heartlyf dashboard' : 'Join the cardiac monitoring network';
+}
+
+/* ── Sign Up ── */
+async function doSignup() {
+  const name  = document.getElementById('s-name').value.trim();
+  const email = document.getElementById('s-email').value.trim();
+  const pass  = document.getElementById('s-pass').value;
+  const btn   = document.getElementById('signup-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Creating account…';
+  const result = await signUpWithEmail(name, email, pass, _selectedRole);
+  btn.disabled = false;
+  btn.textContent = '✓ Create Account';
+  if (result?.success) {
+    _signupEmail = email;
+    showVerifyNotice(email);
+  }
+}
+
+/* ── Login ── */
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const btn   = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Signing in…';
+  const result = await signInWithEmail(email, pass);
+  btn.disabled = false;
+  btn.textContent = '▶ Sign In';
+}
+
+/* ── Google ── */
+async function doGoogleSignIn() { await signInWithGoogle(_selectedRole); }
+
+/* ── Forgot Password ── */
+async function doForgotPassword() {
+  const email = document.getElementById('l-email').value.trim();
+  if (!email) { showToast('Please enter your email address first.', 'warning'); return; }
+  showLoading('Sending reset email…');
+  try {
+    await auth.sendPasswordResetEmail(email);
+    hideLoading();
+    showToast(`📧 Password reset link sent to <strong>${email}</strong>. Check your inbox.`, 'success', 7000);
+  } catch (err) {
+    hideLoading();
+    showToast(getFirebaseErrorMessage(err.code), 'error');
+  }
+}
+
+/* ── Show verify notice ── */
+function showVerifyNotice(email) {
+  document.getElementById('login-form').style.display  = 'none';
+  document.getElementById('signup-form').style.display = 'none';
+  document.getElementById('verify-notice').style.display = 'block';
+  document.getElementById('verify-addr').textContent = email;
+  document.getElementById('form-title').textContent = 'Check Your Email';
+  document.getElementById('form-sub').textContent   = 'One step left to activate your account';
+}
+
+function backToLogin() { switchTab('login'); }
+
+async function doResendVerification() {
+  const user = auth.currentUser;
+  if (user) {
+    await resendVerificationEmail();
+  } else {
+    showToast('Sign in with your email and password first, then resend verification.', 'info', 5000);
+  }
+}
+
+/* ── Check if already logged in ── */
+auth.onAuthStateChanged(async (user) => {
+  if (user && user.emailVerified) {
+    // Already logged in — check for ?redirect param or go to dashboard
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get('logout')) {
+      const role = await getUserRole(user.uid);
+      redirectToDashboard(role);
+    }
+  }
+});
+
+/* ── ECG animation on left panel ── */
+let authECG;
+window.addEventListener('DOMContentLoaded', () => {
+  authECG = createECG('authEcg', {
+    bpm: 72, color: '#e53e3e', glowColor: 'rgba(229,62,62,0.45)',
+    lineWidth: 2.2, speed: 1.6, amplitude: 0.78, showGrid: true
+  });
+  setInterval(() => {
+    const bpm = Math.round(70 + Math.random() * 5);
+    const el = document.getElementById('authBpm');
+    if (el) el.textContent = bpm + ' BPM';
+    authECG?.setBPM(bpm);
+  }, 2000);
+
+  // Check URL params
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('verified') === '1') {
+    showToast('🎉 Email verified! You can now sign in.', 'success', 7000);
+  }
+  if (params.get('logout') === '1') {
+    showToast('You have been signed out.', 'info', 3000);
+  }
+});
+</script>
 </body>
 </html>

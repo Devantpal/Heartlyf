@@ -1,5 +1,5 @@
 /**
- * HeartLyf ECG Engine v2 — Sharp PQRST waveform
+ * HeartLyft ECG Engine v2 — Sharp PQRST waveform
  */
 class ECGEngine {
   constructor(canvasId, options = {}) {
@@ -7,9 +7,9 @@ class ECGEngine {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
     this.bpm        = options.bpm        || 72;
-    this.color      = options.color      || '#00D1B2';
-    this.glowColor  = options.glowColor  || 'rgba(0,209,178,0.5)';
-    this.gridColor  = options.gridColor  || 'rgba(46,108,246,0.07)';
+    this.color      = options.color      || '#e53e3e';
+    this.glowColor  = options.glowColor  || 'rgba(229,62,62,0.5)';
+    this.gridColor  = options.gridColor  || 'rgba(229,62,62,0.06)';
     this.lineWidth  = options.lineWidth  || 2;
     this.noiseLevel = options.noiseLevel || 0.006;
     this.amplitude  = options.amplitude  || 0.82;

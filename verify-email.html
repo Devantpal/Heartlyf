@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Heartlyf – Verify Your Email</title>
+<link rel="stylesheet" href="css/common.css">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(229,62,62,0.07) 0%,transparent 60%);pointer-events:none;}
+.verify-card{
+  background:var(--bg-card);border:1px solid var(--border-dim);
+  border-radius:18px;padding:48px 44px;max-width:480px;width:100%;
+  text-align:center;position:relative;
+  box-shadow:0 16px 60px rgba(0,0,0,0.5);
+}
+.verify-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),rgba(229,62,62,0.3));border-radius:18px 18px 0 0;}
+.email-icon-wrap{width:80px;height:80px;background:var(--red-soft);border:2px solid var(--red-border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 24px;animation:float 3s ease-in-out infinite;}
+.verify-card h1{font-family:var(--font-display);font-size:1.7rem;font-weight:800;color:#fff;margin-bottom:8px;}
+.verify-card .subtitle{font-size:0.88rem;color:var(--text-dim);line-height:1.7;margin-bottom:8px;}
+.email-badge{display:inline-block;background:rgba(229,62,62,0.08);border:1px solid var(--red-border);border-radius:6px;padding:6px 16px;color:var(--red);font-weight:700;font-family:var(--font-mono);font-size:0.9rem;margin-bottom:24px;}
+.steps-list{text-align:left;margin:20px 0 28px;display:flex;flex-direction:column;gap:12px;}
+.vstep{display:flex;align-items:flex-start;gap:12px;font-size:0.84rem;color:var(--text-dim);}
+.vstep .vnum{width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:0.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.status-bar{height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin:20px 0;overflow:hidden;}
+.status-fill{height:100%;background:var(--red);border-radius:2px;width:30%;animation:checking 2s ease-in-out infinite;}
+@keyframes checking{0%,100%{width:30%}50%{width:70%}}
+.timer-text{font-size:0.76rem;color:var(--text-muted);margin-bottom:20px;}
+.actions{display:flex;flex-direction:column;gap:10px;}
+.btn-resend{background:var(--red);color:#fff;padding:13px;border-radius:7px;border:none;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:0.9rem;transition:var(--transition);width:100%;}
+.btn-resend:hover{background:var(--red-dark);transform:translateY(-2px);}
+.btn-resend:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.btn-logout{background:transparent;color:var(--text-muted);padding:12px;border-radius:7px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-family:var(--font-body);font-weight:600;font-size:0.86rem;transition:var(--transition);width:100%;}
+.btn-logout:hover{border-color:var(--red-border);color:var(--red);}
+</style>
+</head>
+<body>
+<div class="verify-card">
+  <div class="email-icon-wrap">📧</div>
+  <h1>Verify Your Email</h1>
+  <p class="subtitle">We sent a verification link to:</p>
+  <div class="email-badge" id="user-email">your@email.com</div>
+
+  <div class="steps-list">
+    <div class="vstep"><div class="vnum">1</div><span>Open the email from <strong>Heartlyf / Firebase</strong></span></div>
+    <div class="vstep"><div class="vnum">2</div><span>Click the <strong>"Verify email address"</strong> link</span></div>
+    <div class="vstep"><div class="vnum">3</div><span>Return here — the page auto-refreshes when verified</span></div>
+  </div>
+
+  <div class="status-bar"><div class="status-fill"></div></div>
+  <p class="timer-text" id="check-status">🔍 Checking verification status every 5 seconds…</p>
+
+  <div class="actions">
+    <button class="btn-resend" id="resend-btn" onclick="doResend()">📨 Resend Verification Email</button>
+    <button class="btn-logout" onclick="doLogout()">← Use a Different Account</button>
+  </div>
+</div>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-auth.js"></script>
+<script>
+let _resendCooldown = 0;
+let _checkInterval  = null;
+
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    // Not logged in — go to auth
+    window.location.href = 'auth.html?logout=1';
+    return;
+  }
+
+  // Show email
+  document.getElementById('user-email').textContent = user.email;
+
+  if (user.emailVerified) {
+    handleVerified(user);
+    return;
+  }
+
+  // Poll for verification
+  _checkInterval = setInterval(async () => {
+    await user.reload();
+    if (user.emailVerified) {
+      clearInterval(_checkInterval);
+      handleVerified(user);
+    }
+  }, 5000);
+});
+
+async function handleVerified(user) {
+  clearInterval(_checkInterval);
+  document.getElementById('check-status').textContent = '✅ Email verified! Redirecting to dashboard…';
+  document.getElementById('check-status').style.color = '#4ade80';
+  await db.ref(`/users/${user.uid}/emailVerified`).set(true);
+  showToast('🎉 Email verified! Welcome to Heartlyf!', 'success', 4000);
+  const role = await getUserRole(user.uid);
+  setTimeout(() => redirectToDashboard(role), 1800);
+}
+
+async function doResend() {
+  if (_resendCooldown > 0) {
+    showToast(`⏳ Please wait ${_resendCooldown} seconds before resending.`, 'warning');
+    return;
+  }
+  const user = auth.currentUser;
+  if (!user) return;
+  showLoading('Sending verification email…');
+  try {
+    await user.sendEmailVerification({ url: window.location.origin + '/auth.html?verified=1' });
+    hideLoading();
+    showToast('📧 Verification email resent! Check your inbox.', 'success', 6000);
+    // 60 second cooldown
+    _resendCooldown = 60;
+    const btn = document.getElementById('resend-btn');
+    const timer = setInterval(() => {
+      _resendCooldown--;
+      btn.textContent = `⏳ Resend in ${_resendCooldown}s`;
+      if (_resendCooldown <= 0) {
+        clearInterval(timer);
+        btn.textContent = '📨 Resend Verification Email';
+        btn.disabled = false;
+      }
+    }, 1000);
+    btn.disabled = true;
+  } catch (err) {
+    hideLoading();
+    showToast(getFirebaseErrorMessage(err.code), 'error');
+  }
+}
+
+async function doLogout() {
+  clearInterval(_checkInterval);
+  await auth.signOut();
+  window.location.href = 'auth.html?logout=1';
+}
+</script>
+</body>
+</html>
