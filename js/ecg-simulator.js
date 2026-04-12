@@ -102,7 +102,7 @@ class ESP32Simulator {
     const adcValue = Math.round(2048 + ecgNorm * 600);
     const clamped  = Math.max(0, Math.min(4095, adcValue));
 
-    DB.writeEcgSample(clamped);
+    // DB.writeEcgSample(clamped);
     this._t += 0.016; // small phase advance each ECG tick
   }
 
@@ -117,7 +117,7 @@ let _simulator = null;
 function startSimulator() {
   if (_simulator) _simulator.stop();
   _simulator = new ESP32Simulator();
-  _simulator.start();
+  // _simulator.start();     ❌ DISABLED
   return _simulator;
 }
 

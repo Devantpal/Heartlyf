@@ -1,24 +1,39 @@
 fetch("https://heartlyf-ai-api.onrender.com");
 
-function generateDummyECG(){
 
-let signal=[];
+firebase.database()
+  .ref("ecg_data")
+  .limitToLast(50)
+  .on("value", (snapshot) => {
 
-for(let i=0;i<720;i++){
+    let signalArray = [];
 
-signal.push((Math.sin(i/10)+Math.random()*0.2).toFixed(3));
+    snapshot.forEach((child) => {
+      const val = child.val().value;
+      if(val !== undefined){
+        signalArray.push(val);
+      }
+    });
 
-}
+    if(signalArray.length === 0) return;
 
-return signal.join(",");
+    const signal = signalArray.join(",");
 
-}
+    drawECG(signal);
+
+    analyzeSignal(signal);
+
+});
 
 function drawECG(signal){
 
 const values = signal.split(",").map(Number);
 
-new Chart(document.getElementById("ecgChart"),{
+if(window.ecgChartInstance){
+  window.ecgChartInstance.destroy();
+}
+
+window.ecgChartInstance = new Chart(document.getElementById("ecgChart"),{
 
 type:"line",
 
@@ -54,14 +69,9 @@ confidenceElement.innerText = (data.confidence*100).toFixed(2)+"%";
 
 }
 
-async function analyzeSignal(){
-
-const signal = generateDummyECG();
-
+async function analyzeSignal(signal){
 drawECG(signal);
-
 const result = await predictECG(signal);
-
 updatePredictionUI(result);
 
 }
