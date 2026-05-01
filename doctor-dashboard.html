@@ -8,125 +8,173 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 .section-page{display:none;}
-.section-page.active-section{display:block;animation:fade-up 0.35s ease forwards;}
+.section-page.active-section{display:block;animation:fade-up .35s ease forwards;}
 .tab-nav{display:flex;gap:4px;background:var(--bg-card);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:4px;margin-bottom:20px;}
 .tab-btn{flex:1;padding:9px;text-align:center;font-size:.81rem;font-weight:600;cursor:pointer;border-radius:6px;transition:var(--transition);color:var(--text-muted);border:none;background:transparent;font-family:var(--font-body);}
 .tab-btn.active{background:var(--red);color:#fff;box-shadow:var(--glow-red);}
 .tab-btn:not(.active):hover{background:var(--red-soft);color:var(--red);}
-.db-tag{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:var(--red);border:1px solid var(--red-border);border-radius:3px;padding:1px 5px;margin-left:4px;vertical-align:middle;}
+.fb-tag{font-size:.58rem;font-weight:700;letter-spacing:.08em;color:var(--red);border:1px solid var(--red-border);border-radius:3px;padding:1px 5px;margin-left:4px;vertical-align:middle;}
 .profile-detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;}
 .profile-detail-row:last-child{border-bottom:none;}
 .profile-detail-row .dk{color:var(--text-muted);font-size:.76rem;}
 .profile-detail-row .dv{font-weight:600;}
 .setting-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--bg-card);border:1px solid rgba(255,255,255,.06);border-radius:8px;margin-bottom:8px;transition:var(--transition);}
 .setting-item:hover{border-color:var(--red-border);}
-@keyframes numPop{0%{transform:scale(1.3);color:#fff}100%{transform:scale(1)}}
-.num-pop{animation:numPop 0.4s ease forwards;}
+.doctor-page{padding:20px 24px;max-width:1480px;margin:0 auto;}
+.doctor-hero{display:grid;grid-template-columns:1.35fr .65fr;gap:16px;margin-bottom:18px;}
+.doctor-hero-main,.doctor-hero-side{background:linear-gradient(145deg,rgba(17,24,39,.96),rgba(13,18,36,.96));border:1px solid rgba(229,62,62,.18);border-radius:10px;padding:18px;box-shadow:0 14px 40px rgba(0,0,0,.22);}
+.doctor-hero-main{display:flex;align-items:center;justify-content:space-between;gap:18px;}
+.doctor-hero h1{font-family:var(--font-display);font-size:1.45rem;font-weight:800;margin-bottom:4px;}
+.doctor-hero p{font-size:.78rem;color:var(--text-dim);line-height:1.6;}
+.doctor-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.doctor-kpi{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:11px 12px;}
+.doctor-kpi .k{font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);font-weight:800;}
+.doctor-kpi .v{font-family:var(--font-display);font-size:1.2rem;font-weight:800;margin-top:3px;}
+.doctor-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+.tab-nav{position:sticky;top:56px;z-index:30;box-shadow:0 12px 26px rgba(0,0,0,.18);}
+.tab-btn{display:flex;align-items:center;justify-content:center;gap:7px;min-height:36px;white-space:nowrap;}
+.tab-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+.tab-btn.active{background:linear-gradient(135deg,var(--red),#f05252);color:#fff;box-shadow:0 0 24px rgba(229,62,62,.32);}
+.doctor-panel-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:20px;align-items:start;}
+.patient-strip{display:flex;align-items:center;gap:14px;padding:14px;background:linear-gradient(135deg,rgba(229,62,62,.07),rgba(59,130,246,.04));border:1px solid var(--red-border);border-radius:8px;margin-bottom:14px;}
+.patient-avatar{width:52px;height:52px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:#fff;flex-shrink:0;box-shadow:var(--glow-red);}
+.doctor-vitals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.doctor-vital-card{background:var(--bg-mid);border:1px solid var(--border-dim);border-radius:8px;padding:14px;text-align:center;min-height:88px;}
+.doctor-vital-card .num{font-family:var(--font-display);font-size:1.65rem;font-weight:800;}
+.device-strip{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;padding:10px 14px;background:rgba(229,62,62,.04);border-radius:8px;border:1px solid var(--red-border);}
+.status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-dim);border-radius:999px;padding:5px 9px;background:rgba(255,255,255,.035);font-size:.7rem;color:var(--text-dim);font-weight:700;}
+.status-pill.ok{color:#22c55e;border-color:rgba(34,197,94,.22);}
+.status-pill.warn{color:#fb923c;border-color:rgba(251,146,60,.25);}
+.status-pill.crit{color:var(--red);border-color:var(--red-border);}
+.alert-meta-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.gps-card{background:var(--bg-card);border:1px solid var(--border-dim);border-radius:10px;padding:16px;margin-bottom:16px;}
+.gps-card a{color:var(--red);font-weight:800;text-decoration:none;}
+.settings-note{font-size:.72rem;color:var(--text-muted);line-height:1.7;margin-top:8px;}
+@media(max-width:1024px){.doctor-hero,.doctor-panel-grid{grid-template-columns:1fr}.tab-nav{top:0;overflow-x:auto}.tab-btn{min-width:150px}.doctor-kpis{grid-template-columns:1fr 1fr}.metrics-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.doctor-page{padding:14px}.doctor-hero-main{align-items:flex-start;flex-direction:column}.doctor-vitals-grid,.doctor-kpis,.metrics-row{grid-template-columns:1fr}.doctor-actions{justify-content:flex-start}}
+@keyframes numPop{0%{transform:scale(1.25);opacity:.6}100%{transform:scale(1);opacity:1}}
+.num-pop{animation:numPop .35s ease forwards;}
 </style>
 </head>
 <body>
 
 <div class="dash-mini-nav">
   <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
-    <div style="width:24px;height:24px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    </div>
+    <div style="width:24px;height:24px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
     <span style="font-family:var(--font-display);font-weight:700;font-size:.95rem">Heartlyf</span>
   </a>
-  <span class="sep">›</span>
-  <span class="page-name">Doctor Dashboard</span>
+  <span class="sep">›</span><span class="page-name">Doctor Dashboard</span>
   <div class="ml-auto">
     <div class="live-badge"><span class="live-dot red"></span>FIREBASE LIVE</div>
-    <span id="topbar-name" style="font-size:.82rem;color:var(--text-dim);font-weight:600;padding:0 6px">Dr. Asati</span>
+    <span id="topbar-name" style="font-size:.82rem;color:var(--text-dim);font-weight:600;padding:0 6px">—</span>
     <button class="btn btn-danger" onclick="doSignOut()">Sign Out</button>
   </div>
 </div>
 
-<div style="padding:20px 24px;max-width:1400px;margin:0 auto">
+<div class="doctor-page">
 
-  <!-- Summary row -->
+  <div class="doctor-hero">
+    <div class="doctor-hero-main">
+      <div>
+        <div class="status-pill ok"><span class="live-dot teal"></span>CLINICAL MONITOR ONLINE</div>
+        <h1>Cardiac Command Center</h1>
+        <p>Live ECG, vitals, AI risk, emergency GPS, Telegram delivery, logs, and alert resolution for the assigned patient.</p>
+        <div class="doctor-kpis">
+          <div class="doctor-kpi"><div class="k">Current BPM</div><div class="v" id="hero-bpm">—</div></div>
+          <div class="doctor-kpi"><div class="k">SpO2</div><div class="v" id="hero-spo2">—%</div></div>
+          <div class="doctor-kpi"><div class="k">Last GPS</div><div class="v" id="hero-gps">Pending</div></div>
+        </div>
+      </div>
+      <div class="doctor-actions">
+        <button class="btn btn-red" type="button" onclick="runDocAI()">Analyse Patient</button>
+        <button class="btn btn-ghost" type="button" onclick="showTab('alerts')">Open Alerts</button>
+      </div>
+    </div>
+    <div class="doctor-hero-side">
+      <div style="font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Emergency Pipeline</div>
+      <div style="display:grid;gap:9px">
+        <div class="status-pill ok" id="pipeline-firebase">Firebase realtime connected</div>
+        <div class="status-pill warn" id="pipeline-gps">GPS awaiting latest alert</div>
+        <div class="status-pill warn" id="pipeline-telegram">Telegram queue awaiting alert</div>
+      </div>
+      <div class="settings-note">Patient location appears when the patient device/browser grants location permission during an alert.</div>
+    </div>
+  </div>
+
+  <!-- Summary -->
   <div class="metrics-row" style="margin-bottom:18px">
-    <div class="metric-card">
-      <div class="label">🩺 Patient <span class="db-tag">/patient</span></div>
-      <div class="value" style="color:var(--red);font-size:1.1rem" id="sum-patient-name">Devant Kumar</div>
-      <div class="sub" id="sum-patient-id">ID: patient_001</div>
-    </div>
-    <div class="metric-card">
-      <div class="label">❤️ Heart Rate <span class="db-tag">/spo2_data</span></div>
-      <div class="value" style="color:var(--red)"><span id="sum-bpm">—</span><span class="unit">BPM</span></div>
-      <div class="sub" id="sum-rhythm">Loading…</div>
-    </div>
-    <div class="metric-card">
-      <div class="label">🤖 ML Risk <span class="db-tag">/ml_prediction</span></div>
-      <div class="value" style="font-size:1.2rem;color:#22c55e" id="sum-risk">—</div>
-      <div class="sub">Confidence: <span id="sum-conf">—</span>%</div>
-    </div>
-    <div class="metric-card">
-      <div class="label">🚨 Alerts <span class="db-tag">/alerts</span></div>
-      <div class="value" style="color:var(--orange)" id="sum-alerts">—</div>
-      <div class="sub" id="sum-alert-type">Latest: —</div>
-    </div>
+    <div class="metric-card"><div class="label">👤 Patient <span class="fb-tag">/users</span></div><div class="value" style="color:var(--red);font-size:1rem" id="sum-patient">Devant Kumar</div><div class="sub" id="sum-pid">patient_001 · Age 45</div></div>
+    <div class="metric-card"><div class="label">❤️ BPM <span class="fb-tag">/vitals/latest</span></div><div class="value" style="color:var(--red)" id="sum-bpm">—</div><div class="sub" id="sum-rhythm">—</div></div>
+    <div class="metric-card"><div class="label">🤖 ML Risk <span class="fb-tag">/ml_prediction/latest</span></div><div class="value" style="font-size:1.2rem" id="sum-risk">—</div><div class="sub">Confidence: <span id="sum-conf">—</span>%</div></div>
+    <div class="metric-card"><div class="label">🚨 Alerts <span class="fb-tag">/alerts</span></div><div class="value" style="color:var(--orange)" id="sum-alerts">—</div><div class="sub" id="sum-alert-latest">—</div></div>
   </div>
 
-  <!-- Tabs -->
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="showTab('monitor',this)">📊 Patient Monitor</button>
-    <button class="tab-btn" onclick="showTab('ecg',this)">📉 ECG Data</button>
-    <button class="tab-btn" onclick="showTab('alerts',this)">🚨 Alerts</button>
-    <button class="tab-btn" onclick="showTab('profile',this)">👤 My Profile</button>
-    <button class="tab-btn" onclick="showTab('settings',this)">⚙️ Settings</button>
+    <button class="tab-btn active" type="button" data-tab="monitor" onclick="showTab('monitor',this)">📊 Patient Monitor</button>
+    <button class="tab-btn" type="button" data-tab="ecg" onclick="showTab('ecg',this)">📉 ECG Data</button>
+    <button class="tab-btn" type="button" data-tab="alerts" onclick="showTab('alerts',this)">🚨 Alerts</button>
+    <button class="tab-btn" type="button" data-tab="logs" onclick="showTab('logs',this)">📋 Device Logs</button>
+    <button class="tab-btn" type="button" data-tab="profile" onclick="showTab('profile',this)">👤 My Profile</button>
+    <button class="tab-btn" type="button" data-tab="settings" onclick="showTab('settings',this)">⚙️ Settings</button>
   </div>
 
-  <!-- ══ MONITOR TAB ══ -->
+  <!-- ══ MONITOR ══ -->
   <div id="tab-monitor" class="section-page active-section">
-    <div class="grid-2" style="align-items:start">
-      <!-- Patient info card -->
-      <div class="chart-panel">
-        <div class="chart-panel-header">
-          <h3>Patient — /patient <span class="db-tag">FIREBASE</span></h3>
-          <span class="badge badge-live"><span class="live-dot red"></span>LIVE</span>
-        </div>
-        <!-- Patient info block -->
-        <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--bg-mid);border-radius:10px;margin-bottom:16px;border:1px solid var(--red-border)">
-          <div style="width:54px;height:54px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#fff;flex-shrink:0;box-shadow:var(--glow-red)">DK</div>
-          <div>
-            <div style="font-family:var(--font-display);font-size:1rem;font-weight:700" id="pat-name">Devant Kumar</div>
-            <div style="font-size:.74rem;color:var(--text-muted)">ID: <span id="pat-id" style="font-family:var(--font-mono);color:var(--red)">patient_001</span> · Age: <span id="pat-age">45</span></div>
-            <div style="font-size:.74rem;color:#22c55e;margin-top:2px">Device: <span id="pat-device" style="font-family:var(--font-mono)">esp32_001</span></div>
+    <div class="doctor-panel-grid">
+      <!-- Left: patient card + vitals -->
+      <div>
+        <div class="chart-panel" style="margin-bottom:14px">
+          <div class="chart-panel-header">
+            <h3>Patient — /users + /vitals <span class="fb-tag">REALTIME</span></h3>
+            <span class="badge badge-live"><span class="live-dot red"></span>LIVE</span>
+          </div>
+          <!-- Patient info block -->
+          <div class="patient-strip">
+            <div id="pat-avatar" class="patient-avatar">DK</div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:1rem;font-weight:700" id="pat-name">Devant Kumar</div>
+              <div style="font-size:.73rem;color:var(--text-muted)">ID: <span style="font-family:var(--font-mono);color:var(--red)" id="pat-id">patient_001</span> · Age: <span id="pat-age">45</span></div>
+              <div style="font-size:.73rem;color:#22c55e;margin-top:1px">Device: <span style="font-family:var(--font-mono)" id="pat-device">esp32_001</span> · Firmware: <span id="pat-fw">v1.0</span></div>
+            </div>
+          </div>
+          <!-- Live vitals grid -->
+          <div class="doctor-vitals-grid">
+            <div class="doctor-vital-card">
+              <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--red)" id="v-bpm">—</div>
+              <div style="font-size:.68rem;color:var(--text-muted)">BPM</div>
+            </div>
+            <div class="doctor-vital-card">
+              <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--blue)" id="v-spo2">—</div>
+              <div style="font-size:.68rem;color:var(--text-muted)">SpO2 %</div>
+            </div>
+            <div class="doctor-vital-card">
+              <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:#22c55e" id="v-risk">—</div>
+              <div style="font-size:.68rem;color:var(--text-muted)">ML Risk</div>
+            </div>
+          </div>
+          <!-- Device status -->
+          <div class="device-strip">
+            <span>🔋 <span id="d-battery">—</span>%</span>
+            <span>📶 <span id="d-rssi">—</span> dBm</span>
+            <span>📟 <span id="d-status" style="color:#22c55e">—</span></span>
+            <span>⏱ Last: <span id="d-lastseen">—</span></span>
+          </div>
+          <!-- BPM chart -->
+          <div style="margin-top:14px">
+            <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:7px">BPM Trend — /vitals/history</div>
+            <canvas id="docBpmChart" height="80"></canvas>
           </div>
         </div>
-        <!-- Live vitals -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-          <div style="background:var(--bg-mid);border:1px solid var(--border-dim);border-radius:8px;padding:14px;text-align:center;transition:var(--transition)">
-            <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--red)" id="v-bpm">—</div>
-            <div style="font-size:.7rem;color:var(--text-muted)">BPM</div>
-          </div>
-          <div style="background:var(--bg-mid);border:1px solid var(--border-dim);border-radius:8px;padding:14px;text-align:center">
-            <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--blue)" id="v-spo2">—</div>
-            <div style="font-size:.7rem;color:var(--text-muted)">SpO2 %</div>
-          </div>
-          <div style="background:var(--bg-mid);border:1px solid var(--border-dim);border-radius:8px;padding:14px;text-align:center">
-            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:#22c55e" id="v-risk">—</div>
-            <div style="font-size:.7rem;color:var(--text-muted)">ML Risk</div>
-          </div>
-        </div>
-        <!-- BPM chart -->
-        <div class="chart-panel-header"><h3 style="font-size:.84rem">BPM Trend <span class="db-tag">/spo2_data</span></h3></div>
-        <canvas id="docBpmChart" height="90"></canvas>
-        <div class="chart-panel-header" style="margin-top:16px"><h3 style="font-size:.84rem">ML Confidence <span class="db-tag">/ml_prediction</span></h3></div>
-        <canvas id="docMlChart" height="70"></canvas>
       </div>
 
-      <!-- AI + Alerts -->
+      <!-- Right: AI + alerts preview -->
       <div>
         <div class="ai-panel" style="margin-bottom:14px">
           <div class="ai-panel-header">
-            <div class="ai-icon">🤖</div>
-            <h3>AI Diagnosis — Firebase Data</h3>
+            <div class="ai-icon">🤖</div><h3>AI Diagnosis</h3>
             <span class="ai-badge">● CLAUDE AI</span>
             <button class="btn btn-ghost" style="margin-left:8px;font-size:.73rem;padding:5px 12px" onclick="runDocAI()">🔄 Analyse</button>
           </div>
@@ -136,15 +184,20 @@
             <div class="diag-val" id="doc-diag-val">—</div>
           </div>
         </div>
-        <!-- Alerts preview -->
         <div class="chart-panel">
           <div class="chart-panel-header">
-            <h3>Recent Alerts <span class="db-tag">/alerts</span></h3>
+            <h3>Latest Alerts <span class="fb-tag">/alerts/esp32_001</span></h3>
             <span class="badge badge-live"><span class="live-dot red"></span>LIVE</span>
           </div>
-          <div id="doc-alerts-preview">
-            <div style="text-align:center;padding:20px;color:var(--text-muted)">Loading alerts…</div>
+          <div id="alerts-preview"><div style="padding:20px;text-align:center;color:var(--text-muted)">Loading…</div></div>
+        </div>
+        <div class="gps-card" style="margin-top:14px">
+          <div class="chart-panel-header" style="margin-bottom:8px">
+            <h3>Patient Coordinates <span class="fb-tag">/gps_tracking/latest</span></h3>
+            <span class="badge badge-warn" id="doc-location-status">PENDING</span>
           </div>
+          <a id="doc-location-link" href="#" target="_blank" style="display:block;font-family:var(--font-mono);font-size:.86rem;margin-bottom:6px;color:var(--red);font-weight:800;text-decoration:none">Coordinates pending</a>
+          <div id="doc-location-meta" style="font-size:.72rem;color:var(--text-muted);line-height:1.7">Waiting for patient GPS permission.</div>
         </div>
       </div>
     </div>
@@ -155,31 +208,31 @@
     <div class="ecg-wrapper" style="margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div>
-          <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">ECG Waveform — /ecg_data <span class="db-tag">FIREBASE</span></h3>
-          <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px">AD8232 → ESP32 (12-bit ADC) → Firebase /ecg_data/{timestamp} · value: 0–4095</div>
+          <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">ECG Waveform — /ecg_data/esp32_001 <span class="fb-tag">REALTIME</span></h3>
+          <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px">AD8232 → ESP32 12-bit ADC (0–4095) → Firebase → rendered here · Hover for mV</div>
         </div>
-        <span class="badge badge-live"><span class="live-dot red"></span>REALTIME</span>
+        <span class="badge badge-live"><span class="live-dot red"></span>LIVE</span>
       </div>
       <canvas id="docEcg" height="150"></canvas>
       <div id="docEcgTooltip" class="ecg-tooltip"></div>
-      <div style="display:flex;align-items:center;gap:20px;margin-top:14px;font-size:.78rem;color:var(--text-dim)">
+      <div style="display:flex;align-items:center;gap:18px;margin-top:12px;font-size:.76rem;color:var(--text-dim)">
         <span class="live-dot red" style="flex-shrink:0"></span>
-        <span style="font-weight:700;font-size:.68rem;letter-spacing:.08em">LEAD II · PATIENT: <span id="ecg-patient-label">DEVANT KUMAR</span></span>
-        <span style="font-family:var(--font-mono);color:#fff;font-weight:700" id="ecg-bpm-doc">— BPM</span>
-        <span id="ecg-risk-doc" style="color:var(--red);font-weight:700">—</span>
-        <span style="margin-left:auto">ADC: <span id="ecg-adc-doc" style="font-family:var(--font-mono);color:var(--red)">—</span></span>
+        <span style="font-weight:700;font-size:.67rem;letter-spacing:.08em">LEAD II · PATIENT: <span id="ecg-pat-label">DEVANT KUMAR</span></span>
+        <span style="font-family:var(--font-mono);color:#fff;font-weight:700" id="ecg-bpm-label">— BPM</span>
+        <span style="color:var(--red);font-weight:700" id="ecg-risk-label">—</span>
+        <span style="margin-left:auto">ADC: <span id="ecg-adc-label" style="font-family:var(--font-mono);color:var(--red)">—</span></span>
       </div>
     </div>
-    <!-- Raw ECG data table -->
+    <!-- ECG records table -->
     <div class="chart-panel">
       <div class="chart-panel-header">
-        <h3>Raw ECG Samples — /ecg_data <span class="db-tag">FIREBASE</span></h3>
-        <span style="font-size:.76rem;color:var(--text-muted)">Latest 10 Firebase records</span>
+        <h3>ECG Records — /ecg_data/esp32_001 <span class="fb-tag">FIREBASE</span></h3>
+        <span style="font-size:.74rem;color:var(--text-muted)">Latest 10 ADC samples</span>
       </div>
       <div style="overflow-x:auto">
         <table class="data-table">
-          <thead><tr><th>Timestamp (Key)</th><th>ADC Value</th><th>Voltage (mV)</th><th>Normalised</th><th>Time</th></tr></thead>
-          <tbody id="ecg-table-body"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Loading /ecg_data…</td></tr></tbody>
+          <thead><tr><th>Timestamp Key</th><th>ADC Value</th><th>Voltage (mV)</th><th>Normalised (0–1)</th><th>Recorded At</th></tr></thead>
+          <tbody id="ecg-tbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Loading from Firebase…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -188,17 +241,34 @@
   <!-- ══ ALERTS TAB ══ -->
   <div id="tab-alerts" class="section-page">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">All Alerts — /alerts <span class="db-tag">FIREBASE</span></h3>
+      <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">All Alerts — /alerts/esp32_001 <span class="fb-tag">REALTIME</span></h3>
       <span class="badge badge-live"><span class="live-dot red"></span>REALTIME</span>
     </div>
-    <div class="chart-row-2" style="margin-bottom:16px">
-      <div class="chart-panel">
-        <div class="chart-panel-header"><h3>Alerts by Severity</h3></div>
-        <canvas id="alertsChart" height="130"></canvas>
+    <div class="gps-card" id="latest-gps-card">
+      <div class="chart-panel-header" style="margin-bottom:8px">
+        <h3>Emergency GPS + Telegram Status</h3>
+        <span class="badge badge-warn" id="gps-status-badge">PENDING</span>
       </div>
-      <div class="chart-panel">
-        <div class="chart-panel-header"><h3>All Alert Records</h3></div>
-        <div id="full-alerts-container">Loading…</div>
+      <div id="latest-gps-body" style="font-size:.78rem;color:var(--text-dim);line-height:1.8">Waiting for an alert with patient location.</div>
+    </div>
+    <div class="chart-row-2" style="margin-bottom:16px">
+      <div class="chart-panel"><div class="chart-panel-header"><h3>Severity Breakdown</h3></div><canvas id="alertPieChart" height="160"></canvas></div>
+      <div class="chart-panel"><div class="chart-panel-header"><h3>Alert Records</h3></div><div id="full-alerts-list"><div style="padding:20px;text-align:center;color:var(--text-muted)">Loading…</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ LOGS TAB ══ -->
+  <div id="tab-logs" class="section-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">Device Logs — /logs/esp32_001 <span class="fb-tag">FIREBASE</span></h3>
+      <button class="btn btn-ghost" style="font-size:.73rem;padding:5px 12px" onclick="refreshLogs()">🔄 Refresh</button>
+    </div>
+    <div class="chart-panel">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Timestamp Key</th><th>Event</th><th>Firmware</th><th>Uptime (s)</th><th>Time</th></tr></thead>
+          <tbody id="logs-tbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Loading logs from Firebase…</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -212,22 +282,24 @@
           <div class="profile-status-dot"></div>
         </div>
         <div class="profile-name" id="prof-name">Dr. Asati</div>
-        <div class="profile-role">Doctor — /user</div>
-        <div class="profile-email" id="prof-role-text">doctor</div>
+        <div class="profile-role">Doctor — Cardiologist</div>
+        <div class="profile-email" id="prof-email">—</div>
         <div class="profile-stats">
           <div class="profile-stat"><div class="ps-val">1</div><div class="ps-lab">Patients</div></div>
-          <div class="profile-stat"><div class="ps-val" id="ps-alerts-count">—</div><div class="ps-lab">Alerts</div></div>
+          <div class="profile-stat"><div class="ps-val" id="ps-alerts">—</div><div class="ps-lab">Alerts</div></div>
           <div class="profile-stat"><div class="ps-val" id="ps-telegram">Set</div><div class="ps-lab">Telegram</div></div>
         </div>
       </div>
       <div class="chart-panel">
-        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:16px">🩺 Doctor Profile — Firebase /user <span class="db-tag">LIVE</span></h3>
+        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:16px">🩺 Doctor — Firebase /users/user_002</h3>
         <div class="profile-detail-row"><span class="dk">Full Name</span><span class="dv" id="pd-name">Dr. Asati</span></div>
-        <div class="profile-detail-row"><span class="dk">Role</span><span class="dv" id="pd-role"><span class="badge badge-blue">Doctor</span></span></div>
+        <div class="profile-detail-row"><span class="dk">Email</span><span class="dv" id="pd-email">asati@gniot.ac.in</span></div>
+        <div class="profile-detail-row"><span class="dk">Specialization</span><span class="dv">Cardiologist</span></div>
+        <div class="profile-detail-row"><span class="dk">License</span><span class="dv">MCI-2019-4521</span></div>
+        <div class="profile-detail-row"><span class="dk">Hospital</span><span class="dv">GNIOT Medical Centre</span></div>
         <div class="profile-detail-row"><span class="dk">Telegram Chat ID</span><span class="dv" style="font-family:var(--font-mono);color:var(--red)" id="pd-telegram">1594669605</span></div>
-        <div class="profile-detail-row"><span class="dk">Firebase Path</span><span class="dv" style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted)">/user</span></div>
-        <div class="profile-detail-row"><span class="dk">Monitoring Patient</span><span class="dv" id="pd-patient">Devant Kumar (patient_001)</span></div>
-        <div style="margin-top:16px;display:flex;gap:10px">
+        <div class="profile-detail-row"><span class="dk">Role</span><span class="dv"><span class="badge badge-blue">Doctor</span></span></div>
+        <div style="margin-top:14px;display:flex;gap:10px">
           <button class="btn btn-red" style="border-radius:7px;font-size:.82rem">✏️ Edit Profile</button>
           <button class="btn btn-ghost" style="font-size:.82rem" onclick="doSignOut()">Sign Out</button>
         </div>
@@ -240,26 +312,29 @@
     <div class="grid-2">
       <div>
         <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:14px">🔔 Alert Preferences</h3>
-        <div class="setting-item"><div><div style="font-size:.84rem;font-weight:600">Critical Patient Alerts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="setting-item"><div><div style="font-size:.84rem;font-weight:600">Telegram Notifications (1594669605)</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="setting-item"><div><div style="font-size:.84rem;font-weight:600">AI Auto-Diagnosis on New Data</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin:20px 0 14px">🎛️ Alert Thresholds</h3>
+        <div class="setting-item"><div><div style="font-size:.84rem;font-weight:600">Critical Alerts via Telegram</div><div style="font-size:.7rem;color:var(--text-muted)">Chat ID: <span id="settings-chat-id">1594669605</span></div></div><div id="toggle-telegram" class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div style="font-size:.84rem;font-weight:600">GPS Location Sharing</div><div style="font-size:.7rem;color:var(--text-muted)">Attach patient map link to emergency alerts</div></div><div id="toggle-gps" class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div><div style="font-size:.84rem;font-weight:600">AI Auto-Diagnosis on Update</div></div><div id="toggle-ai" class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin:20px 0 14px">🎛️ Thresholds <span class="fb-tag">/settings/esp32_001</span></h3>
         <div class="chart-panel" style="padding:16px">
-          <div class="form-group"><label class="form-label">HR Alert Above: <strong style="color:var(--red)" id="dr-bpm-val">100</strong> BPM</label><input type="range" min="80" max="150" value="100" style="width:100%" oninput="document.getElementById('dr-bpm-val').textContent=this.value"></div>
-          <div class="form-group" style="margin-bottom:0"><label class="form-label">SpO2 Alert Below: <strong style="color:var(--red)" id="dr-spo2-val">94</strong>%</label><input type="range" min="85" max="99" value="94" style="width:100%" oninput="document.getElementById('dr-spo2-val').textContent=this.value"></div>
+          <div class="form-group"><label class="form-label">BPM High Alert: <strong style="color:var(--red)" id="dr-bpm-h">100</strong></label><input type="range" min="80" max="150" value="100" style="width:100%" oninput="document.getElementById('dr-bpm-h').textContent=this.value"></div>
+          <div class="form-group"><label class="form-label">BPM Low Alert: <strong style="color:var(--red)" id="dr-bpm-l">50</strong></label><input type="range" min="30" max="70" value="50" style="width:100%" oninput="document.getElementById('dr-bpm-l').textContent=this.value"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">SpO2 Low Alert: <strong style="color:var(--red)" id="dr-spo2-l">94</strong>%</label><input type="range" min="85" max="99" value="94" style="width:100%" oninput="document.getElementById('dr-spo2-l').textContent=this.value"></div>
         </div>
       </div>
       <div>
-        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:14px">🔥 Firebase Paths</h3>
-        <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border-dim);border-radius:8px;padding:16px;line-height:2.2">
-          <div><span style="color:var(--red)">/patient</span> → Patient profile (Devant Kumar)</div>
-          <div><span style="color:var(--red)">/user</span> → Doctor profile (Dr. Asati)</div>
-          <div><span style="color:var(--red)">/spo2_data/{ts}</span> → bpm, spo2</div>
-          <div><span style="color:var(--red)">/ecg_data/{ts}</span> → raw ADC value (0–4095)</div>
-          <div><span style="color:var(--red)">/ml_prediction/{ts}</span> → confidence, risk</div>
-          <div><span style="color:var(--red)">/alerts/{id}</span> → type, severity, value, timestamp</div>
+        <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:14px">🔥 Firebase DB Schema</h3>
+        <div style="font-family:var(--font-mono);font-size:.7rem;background:var(--bg-card);border:1px solid var(--border-dim);border-radius:8px;padding:14px;line-height:2.1;color:var(--text-dim)">
+          <div><span style="color:var(--red)">/vitals/esp32_001/latest</span> → BPM, SpO2</div>
+          <div><span style="color:var(--red)">/vitals/esp32_001/history/{ts}</span> → records</div>
+          <div><span style="color:var(--red)">/ecg_data/esp32_001/{ts}</span> → ADC value</div>
+          <div><span style="color:var(--red)">/ml_prediction/esp32_001/latest</span> → risk</div>
+          <div><span style="color:var(--red)">/ml_prediction/esp32_001/history/{ts}</span></div>
+          <div><span style="color:var(--red)">/alerts/esp32_001/{id}</span> → alert records</div>
+          <div><span style="color:var(--red)">/devices/esp32_001</span> → status, battery</div>
+          <div><span style="color:var(--red)">/logs/esp32_001/{ts}</span> → system logs</div>
         </div>
-        <button class="btn btn-primary btn-full" style="border-radius:7px;margin-top:14px" onclick="saveSettings()">💾 Save Settings</button>
+        <button class="btn btn-primary btn-full" style="border-radius:7px;margin-top:14px" onclick="saveSettings()">💾 Save to Firebase</button>
         <button class="btn btn-danger btn-full" style="margin-top:8px;border-radius:7px" onclick="doSignOut()">Sign Out</button>
       </div>
     </div>
@@ -273,217 +348,356 @@
 <script src="js/charts.js"></script>
 <script src="js/ai.js"></script>
 <script>
-let _docECG, _alertsChart;
-let _vitals   = { bpm:72, spo2:98, risk:'low', confidence:85 };
-let _bpmBuf   = Array(40).fill(72);
-let _mlBuf    = Array(20).fill(85);
-let _alertsData = [];
+const DID = 'esp32_001';
+let _docECG, _bpmChart, _alertPie;
+let _vitals = { bpm:72, spo2:98, risk:'low', confidence:85, rhythm:'Normal Sinus Rhythm' };
+let _latestAlerts = [];
+let _latestGPS = null;
 
 hlGuard(['doctor']).then(async ({ user }) => {
-  /* ── Load /user from Firebase ── */
-  const userSnap = await DB.readUser();
-  const userData = userSnap.val() || { name: 'Dr. Asati', role:'doctor', telegramChatId:'1594669605' };
-  applyDocUI(userData);
+  // Load doctor's own profile from /users
+  const mySnap = await DB.readUser(user.uid).catch(()=>null);
+  const me = mySnap?.val() || {};
+  const name = me.name || user.displayName || 'Dr. Asati';
+  const initials = name.replace('Dr.','').trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'DA';
+  setText('topbar-name', name);
+  setText('prof-name',  name); setText('pd-name', name);
+  document.getElementById('prof-avatar').textContent = initials;
+  setText('prof-email', me.email || user.email || '—');
+  setText('pd-email',   me.email || user.email || '—');
+  if (me.telegramChatId) { setText('pd-telegram', me.telegramChatId); setText('ps-telegram', 'Set'); }
 
-  /* ── Load /patient from Firebase ── */
-  const patSnap = await DB.readPatient();
-  const patient = patSnap.val() || { name:'Devant Kumar', id:'patient_001', age:45, deviceId:'esp32_001' };
-  applyPatientData(patient);
+  // Load patient info from /users/user_001
+  const patSnap = await db.ref('/users/user_001').once('value').catch(()=>null);
+  const pat = patSnap?.val() || { name:'Devant Kumar', age:45, deviceId:'esp32_001' };
+  applyPatient(pat);
 
-  /* ── Init ECG ── */
-  _docECG = createECG('docEcg', {
-    bpm:72, color:'#e53e3e', glowColor:'rgba(229,62,62,0.4)',
-    lineWidth:2.3, speed:2.0, amplitude:0.82,
-    tooltipId:'docEcgTooltip', showGrid:true
-  });
+  // ECG is initialized when its tab is opened so the hidden canvas has a valid width.
 
-  /* ── Init charts ── */
-  const hist = await DB.getVitalHistory(40);
-  if (hist.bpms.length) _bpmBuf = hist.bpms;
-  initBPMChart('docBpmChart', _bpmBuf);
-  initDocMlChart();
-  initAlertsChart();
+  // Init charts
+  const hist = await DB.getVitalHistory(DID, 40);
+  initBPMChart('docBpmChart', hist.bpms.length ? hist.bpms : Array(40).fill(72));
+  initAlertPie();
+  loadSettingsToUI();
 
-  /* ── Listen to /spo2_data ── */
-  ListenerManager.add(DB.listenLatestSpo2((v) => {
+  // ═══ LISTENERS ═══
+
+  // /vitals/{did}/latest
+  ListenerManager.add(DB.listenVitalsLatest(DID, (v) => {
     if (!v) return;
-    _vitals.bpm  = v.bpm;
-    _vitals.spo2 = v.spo2;
-    const rhythm = v.bpm > 100 ? 'Tachycardia' : v.bpm < 55 ? 'Bradycardia' : 'Normal Sinus';
-    setText('sum-bpm',    v.bpm);
-    setText('sum-rhythm', rhythm);
-    setText('v-bpm',      v.bpm);
-    setText('v-spo2',     v.spo2 + '%');
-    setText('ecg-bpm-doc', v.bpm + ' BPM');
-    _docECG?.setBPM(v.bpm);
+    _vitals = { ..._vitals, bpm:v.bpm, spo2:v.spo2, rhythm:v.rhythm||'—' };
+    pop('sum-bpm', v.bpm); setText('sum-rhythm', v.rhythm||'—');
+    pop('v-bpm',  v.bpm);  pop('v-spo2', v.spo2 + '%');
+    pop('hero-bpm', v.bpm);
+    setText('hero-spo2', (v.spo2 || '—') + '%');
+    setText('ecg-bpm-label',  v.bpm + ' BPM');
+    setText('ecg-risk-label', v.rhythm||'—');
+    _docECG?.setBPM(v.bpm||72);
     pushToChart('docBpmChart', v.bpm);
   }));
 
-  /* ── Listen to /ml_prediction ── */
-  ListenerManager.add(DB.listenPrediction((pred) => {
-    if (!pred) return;
-    _vitals.risk       = pred.risk;
-    _vitals.confidence = pred.confidence;
-    const rc = pred.risk==='high' ? 'var(--red)' : pred.risk==='moderate' ? 'var(--orange)' : '#22c55e';
-    setText('sum-risk', cap(pred.risk));
-    document.getElementById('sum-risk').style.color = rc;
-    setText('sum-conf', pred.confidence);
-    setText('v-risk',   cap(pred.risk));
-    document.getElementById('v-risk').style.color = rc;
-    setText('ecg-risk-doc', cap(pred.risk) + ' Risk · ' + pred.confidence + '% conf');
-    document.getElementById('ecg-risk-doc').style.color = rc;
+  // /ml_prediction/{did}/latest
+  ListenerManager.add(DB.listenMLLatest(DID, (ml) => {
+    if (!ml) return;
+    _vitals.risk = ml.risk; _vitals.confidence = ml.confidence;
+    const rc = ml.risk==='high'?'var(--red)':ml.risk==='moderate'?'var(--orange)':'#22c55e';
+    const rEl = document.getElementById('sum-risk'); if(rEl){rEl.textContent=cap(ml.risk);rEl.style.color=rc;}
+    setText('sum-conf', ml.confidence);
+    const rEl2 = document.getElementById('v-risk'); if(rEl2){rEl2.textContent=cap(ml.risk);rEl2.style.color=rc;}
   }));
 
-  /* ── Listen to /alerts ── */
-  ListenerManager.add(DB.listenAlerts((alerts) => {
-    _alertsData = alerts;
+  // /alerts/{did}
+  ListenerManager.add(DB.listenAlerts(DID, (alerts) => {
+    _latestAlerts = alerts;
     setText('sum-alerts', alerts.length);
-    document.getElementById('ps-alerts-count').textContent = alerts.length;
-    if (alerts.length) setText('sum-alert-type', 'Latest: ' + cap(alerts[0].type));
-    renderDocAlertsPreview(alerts);
+    setText('ps-alerts', alerts.length);
+    if(alerts.length) setText('sum-alert-latest', cap(alerts[0].type) + ' · ' + cap(alerts[0].severity));
+    renderAlertsPreview(alerts);
     renderFullAlerts(alerts);
-    updateAlertsChart(alerts);
+    renderEmergencyStatus(alerts);
+    updateAlertPie(alerts);
   }));
 
-  /* ── Listen to /ecg_data ── */
-  ListenerManager.add(DB.listenEcg((samples) => {
-    if (!samples.length) return;
-    const latest = samples[samples.length - 1];
-    document.getElementById('ecg-adc-doc').textContent = latest.value;
-    renderEcgTable(samples.slice(-10).reverse());
+  ListenerManager.add(DB.listenGPSLatest(DID, (records) => {
+    _latestGPS = records?.[0] || null;
+    renderPatientCoordinates(_latestGPS, 'doc');
+    renderEmergencyStatus(_latestAlerts);
+  }, 5));
+
+  // /devices/{did}
+  ListenerManager.add(DB.listenDevice(DID, (dev) => {
+    if(!dev) return;
+    setText('d-battery', dev.battery || '—');
+    setText('d-rssi',    dev.wifiRSSI || '—');
+    setText('d-status',  cap(dev.status));
+    document.getElementById('d-status').style.color = dev.status==='online'?'#22c55e':'var(--red)';
+    const pipe = document.getElementById('pipeline-firebase');
+    if (pipe) { pipe.className = `status-pill ${dev.status==='online'?'ok':'crit'}`; pipe.textContent = dev.status === 'online' ? 'Firebase realtime connected' : 'Device offline'; }
+    const ls = dev.lastSeen ? new Date(dev.lastSeen).toLocaleTimeString() : '—';
+    setText('d-lastseen', ls);
+    setText('pat-fw', dev.firmware || '—');
   }));
 
-  /* ── Auto AI ── */
+  // /ecg_data/{did}
+  ListenerManager.add(DB.listenECG(DID, (samples) => {
+    if(!samples.length) return;
+    const latest = samples[samples.length-1];
+    setText('ecg-adc-label', latest.value);
+    renderECGTable(samples.slice(-10).reverse());
+  }));
+
   runDocAI();
   setInterval(runDocAI, 45000);
-  showToast('🩺 Doctor dashboard synced with Firebase.', 'info', 3000);
+  showToast('🩺 Firebase connected — monitoring Devant Kumar', 'info', 3000);
 });
 
-function applyDocUI(u) {
-  const name = u.name || 'Dr. Asati';
-  const initials = name.replace('Dr.','').trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  setText('topbar-name', name);
-  setText('prof-name', name);
-  setText('pd-name', name);
-  setText('sidebar-name', name);
-  document.getElementById('prof-avatar').textContent = initials;
-  if (u.telegramChatId) setText('pd-telegram', u.telegramChatId);
-  if (u.role) document.getElementById('prof-role-text').textContent = u.role;
+function applyPatient(p) {
+  const initials = (p.name||'DK').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('pat-avatar').textContent = initials;
+  setText('sum-patient', p.name||'—'); setText('sum-pid', (p.id||'—') + ' · Age ' + (p.age||'—'));
+  setText('pat-name', p.name||'—'); setText('pat-id', p.id||'—'); setText('pat-age', p.age||'—'); setText('pat-device', p.deviceId||'—');
+  setText('ecg-pat-label', (p.name||'—').toUpperCase());
 }
 
-function applyPatientData(p) {
-  setText('sum-patient-name', p.name || '—');
-  setText('sum-patient-id',   'ID: ' + (p.id || '—'));
-  setText('pat-name',  p.name   || '—');
-  setText('pat-id',    p.id     || '—');
-  setText('pat-age',   p.age    || '—');
-  setText('pat-device',p.deviceId || '—');
-  setText('pd-patient', (p.name || '—') + ' (' + (p.id || '—') + ')');
-  setText('ecg-patient-label', (p.name || '—').toUpperCase());
+function renderEmergencyStatus(alerts = []) {
+  const latestAlert = alerts.find(a => a.gps?.mapsUrl) || alerts[0] || null;
+  const gps = latestAlert?.gps || _latestGPS;
+  const gpsBody = document.getElementById('latest-gps-body');
+  const gpsBadge = document.getElementById('gps-status-badge');
+  const gpsPipe = document.getElementById('pipeline-gps');
+  const tgPipe = document.getElementById('pipeline-telegram');
+  renderPatientCoordinates(gps, 'doc');
+
+  if (gps?.mapsUrl) {
+    setText('hero-gps', 'Available');
+    if (gpsBadge) { gpsBadge.className = 'badge badge-normal'; gpsBadge.textContent = 'LOCATION READY'; }
+    if (gpsPipe) { gpsPipe.className = 'status-pill ok'; gpsPipe.textContent = 'GPS location attached'; }
+    if (gpsBody) {
+      gpsBody.innerHTML = `
+        <div><strong style="color:#fff">Coordinates:</strong> ${gps.latitude}, ${gps.longitude}</div>
+        <div><strong style="color:#fff">Accuracy:</strong> ${gps.accuracy || '—'} m · <strong style="color:#fff">Source:</strong> ${gps.source || 'frontend'}</div>
+        <div><a href="${gps.mapsUrl}" target="_blank">Open patient location in Maps</a></div>
+      `;
+    }
+  } else {
+    setText('hero-gps', 'Pending');
+    if (gpsBadge) { gpsBadge.className = 'badge badge-warn'; gpsBadge.textContent = 'PENDING'; }
+    if (gpsPipe) { gpsPipe.className = 'status-pill warn'; gpsPipe.textContent = 'GPS awaiting latest alert'; }
+    if (gpsBody) gpsBody.textContent = 'Waiting for an alert with patient location.';
+  }
+
+  const latestTelegram = alerts.find(a => a.telegramSent || a.telegramQueued || a.telegramError);
+  if (tgPipe) {
+    if (latestTelegram?.telegramSent) {
+      tgPipe.className = 'status-pill ok';
+      tgPipe.textContent = 'Telegram alert sent';
+    } else if (latestTelegram?.telegramQueued) {
+      tgPipe.className = 'status-pill warn';
+      tgPipe.textContent = 'Telegram alert queued';
+    } else if (latestTelegram?.telegramError) {
+      tgPipe.className = 'status-pill crit';
+      tgPipe.textContent = 'Telegram needs configuration';
+    } else {
+      tgPipe.className = 'status-pill warn';
+      tgPipe.textContent = 'Telegram queue awaiting alert';
+    }
+  }
 }
 
-function renderDocAlertsPreview(alerts) {
-  const c = document.getElementById('doc-alerts-preview');
-  if (!c) return;
-  if (!alerts.length) { c.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted)">✅ No alerts</div>'; return; }
+function renderPatientCoordinates(gps, prefix) {
+  const link = document.getElementById(`${prefix}-location-link`);
+  const meta = document.getElementById(`${prefix}-location-meta`);
+  const badge = document.getElementById(`${prefix}-location-status`);
+  if (!link || !meta || !badge) return;
+
+  if (gps?.latitude && gps?.longitude) {
+    const mapsUrl = gps.mapsUrl || `https://maps.google.com/?q=${gps.latitude},${gps.longitude}`;
+    link.href = mapsUrl;
+    link.textContent = `${Number(gps.latitude).toFixed(6)}, ${Number(gps.longitude).toFixed(6)}`;
+    badge.className = 'badge badge-normal';
+    badge.textContent = 'LIVE GPS';
+    meta.innerHTML = `Accuracy: ${gps.accuracy || '—'} m · Updated: ${gps.timestamp ? new Date(gps.timestamp).toLocaleString() : '—'}<br>Click coordinates to open Google Maps.`;
+  } else {
+    link.removeAttribute('href');
+    link.textContent = 'Coordinates pending';
+    badge.className = 'badge badge-warn';
+    badge.textContent = 'PENDING';
+    meta.textContent = 'Waiting for patient GPS permission.';
+  }
+}
+
+function renderAlertsPreview(alerts) {
+  const c = document.getElementById('alerts-preview'); if(!c) return;
+  if(!alerts.length){c.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-muted)">✅ No alerts</div>';return;}
   c.innerHTML = alerts.slice(0,4).map(a => {
-    const cls  = a.severity==='high' ? 'alert-crit' : 'alert-warn';
-    const icon = a.severity==='high' ? '🚨' : '⚠️';
-    const time = a.timestamp ? new Date(a.timestamp*1000).toLocaleString() : '—';
+    const cls = a.severity==='high'?'alert-crit':'alert-warn';
+    const t = a.timestamp ? new Date(a.timestamp).toLocaleString() : '—';
     return `<div class="alert-item ${cls}" style="margin-bottom:6px">
-      <span>${icon}</span>
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:.82rem">${cap(a.type)} · Val: ${a.value}</div>
-        <div style="font-size:.7rem;color:var(--text-muted)">${time}</div>
-      </div>
-      <span class="badge badge-crit" style="font-size:.62rem">${cap(a.severity)}</span>
+      <span>${a.severity==='high'?'🚨':'⚠️'}</span>
+      <div style="flex:1"><div style="font-weight:700;font-size:.82rem">${cap(a.type)} · Val: ${a.value}</div><div style="font-size:.7rem;color:var(--text-muted)">${t}</div>${a.gps?.mapsUrl ? `<a href="${a.gps.mapsUrl}" target="_blank" style="display:inline-block;margin-top:4px;font-size:.68rem;color:var(--red);font-weight:700;text-decoration:none">GPS location</a>` : ''}</div>
+      <span class="badge badge-${a.severity==='high'?'crit':'warn'}" style="font-size:.62rem">${cap(a.severity)}</span>
     </div>`;
   }).join('');
 }
 
 function renderFullAlerts(alerts) {
-  const c = document.getElementById('full-alerts-container');
-  if (!c) return;
+  const c = document.getElementById('full-alerts-list'); if(!c) return;
   c.innerHTML = alerts.map(a => {
-    const cls  = a.severity==='high' ? 'alert-crit' : 'alert-warn';
-    const icon = a.severity==='high' ? '🚨' : '⚠️';
-    const time = a.timestamp ? new Date(a.timestamp*1000).toLocaleString() : '—';
-    return `<div class="alert-item ${cls}" style="margin-bottom:6px">
-      <span style="font-size:1.2rem">${icon}</span>
+    const t = a.timestamp ? new Date(a.timestamp).toLocaleString() : '—';
+    return `<div class="alert-item ${a.severity==='high'?'alert-crit':'alert-warn'}" style="margin-bottom:6px">
+      <span style="font-size:1.2rem">${a.severity==='high'?'🚨':'⚠️'}</span>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:.82rem">${cap(a.type)} <span style="font-family:var(--font-mono);font-size:.7rem;color:var(--red)">/${a.id}</span></div>
-        <div style="font-size:.7rem;color:var(--text-muted)">Severity: ${cap(a.severity)} · Value: ${a.value} · ${time}</div>
+        <div style="font-weight:700;font-size:.83rem">${cap(a.type)} <span style="font-family:var(--font-mono);font-size:.7rem;color:var(--red)">· ${a.id}</span></div>
+        <div style="font-size:.71rem;color:var(--text-muted)">${a.message||''} · Val: <strong>${a.value}</strong> · ${t}</div>
+        ${a.gps?.mapsUrl ? `<a href="${a.gps.mapsUrl}" target="_blank" style="display:inline-block;margin-top:4px;font-size:.7rem;color:var(--red);font-weight:700;text-decoration:none">Open GPS location</a>` : '<div style="margin-top:4px;font-size:.7rem;color:var(--text-muted)">GPS location pending</div>'}
+        <div class="alert-meta-row">
+          <span class="status-pill ${a.locationShared?'ok':'warn'}">${a.locationShared?'GPS shared':'GPS pending'}</span>
+          <span class="status-pill ${a.telegramSent?'ok':a.telegramQueued?'warn':'crit'}">${a.telegramSent?'Telegram sent':a.telegramQueued?'Telegram queued':'Telegram not sent'}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <span class="badge badge-${a.severity==='high'?'crit':'warn'}">${cap(a.severity)}</span>
+        ${!a.resolved?`<button class="btn btn-ghost" style="font-size:.64rem;padding:2px 7px" onclick="DB.resolveAlert('${DID}','${a.id}').then(()=>showToast('✅ Resolved','success'))">Resolve</button>`:'<span style="font-size:.68rem;color:var(--text-muted)">Resolved</span>'}
       </div>
     </div>`;
   }).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted)">No alerts</div>';
 }
 
-function renderEcgTable(samples) {
-  const tbody = document.getElementById('ecg-table-body');
-  if (!tbody) return;
+function renderECGTable(samples) {
+  const tbody = document.getElementById('ecg-tbody'); if(!tbody) return;
   tbody.innerHTML = samples.map(s => {
-    const voltage = ((s.value - 2048) / 4095 * 3300 / 1000).toFixed(3);
-    const norm    = (s.value / 4095).toFixed(4);
-    const time    = new Date(parseInt(s.ts)).toLocaleString();
+    const mv   = ((s.value-2048)/4095*3300/1000).toFixed(3);
+    const norm = (s.value/4095).toFixed(4);
+    const time = new Date(parseInt(s.ts)).toLocaleString();
     return `<tr>
-      <td style="font-family:var(--font-mono);color:var(--text-muted);font-size:.78rem">${s.ts}</td>
+      <td style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted)">${s.ts}</td>
       <td><strong style="color:var(--red)">${s.value}</strong></td>
-      <td>${voltage} mV</td>
-      <td>${norm}</td>
-      <td style="color:var(--text-muted);font-size:.78rem">${time}</td>
+      <td>${mv} mV</td><td>${norm}</td>
+      <td style="font-size:.76rem;color:var(--text-muted)">${time}</td>
     </tr>`;
   }).join('');
 }
 
-function initDocMlChart() {
-  const ctx = document.getElementById('docMlChart')?.getContext('2d');
-  if (!ctx) return;
-  new Chart(ctx, {
-    type:'line', data:{ labels:_mlBuf.map(()=>''), datasets:[{ data:[..._mlBuf], borderColor:'#e53e3e', borderWidth:1.8, pointRadius:0, fill:true, backgroundColor:(c)=>{ const g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height); g.addColorStop(0,'rgba(229,62,62,0.18)'); g.addColorStop(1,'rgba(229,62,62,0.01)'); return g; }, tension:0.4 }]},
-    options:{ responsive:true, animation:{duration:300}, plugins:{legend:{display:false}}, scales:{ x:{ticks:{display:false},grid:{color:'rgba(255,255,255,0.03)'}}, y:{min:50,max:100,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}} } }
-  });
+async function refreshLogs() {
+  const snap = await DB.readLogs(DID, 20);
+  const tbody = document.getElementById('logs-tbody'); if(!tbody) return;
+  const rows = [];
+  snap.forEach(c => { rows.unshift({ ts: c.key, ...c.val() }); });
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">No logs found</td></tr>';return;}
+  tbody.innerHTML = rows.map(r => `<tr>
+    <td style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted)">${r.ts}</td>
+    <td><strong>${r.event||'—'}</strong></td>
+    <td style="font-family:var(--font-mono);font-size:.78rem">${r.firmware||'—'}</td>
+    <td>${r.uptime||'—'}</td>
+    <td style="font-size:.76rem;color:var(--text-muted)">${new Date(parseInt(r.ts)).toLocaleString()}</td>
+  </tr>`).join('');
 }
 
-function initAlertsChart() {
-  const ctx = document.getElementById('alertsChart')?.getContext('2d');
-  if (!ctx || _alertsChart) return;
-  _alertsChart = new Chart(ctx, {
-    type:'doughnut', data:{ labels:['High','Medium','Low'], datasets:[{ data:[1,0,0], backgroundColor:['rgba(229,62,62,0.75)','rgba(251,146,60,0.7)','rgba(34,197,94,0.65)'], borderWidth:0, hoverOffset:8 }]},
+function initAlertPie() {
+  const ctx = document.getElementById('alertPieChart')?.getContext('2d'); if(!ctx||_alertPie) return;
+  _alertPie = new Chart(ctx, {
+    type:'doughnut', data:{ labels:['High','Medium','Low'], datasets:[{ data:[1,1,8], backgroundColor:['rgba(229,62,62,.75)','rgba(251,146,60,.7)','rgba(34,197,94,.65)'], borderWidth:0, hoverOffset:8 }]},
     options:{ responsive:true, animation:{duration:600}, cutout:'60%', plugins:{ legend:{ position:'bottom', labels:{ color:'#94a3b8', font:{ size:11 }, padding:10 } } } }
   });
 }
 
-function updateAlertsChart(alerts) {
-  if (!_alertsChart) return;
+function updateAlertPie(alerts) {
+  if(!_alertPie) return;
   const high = alerts.filter(a=>a.severity==='high').length;
   const med  = alerts.filter(a=>a.severity==='medium').length;
   const low  = alerts.filter(a=>!a.severity||a.severity==='low').length;
-  _alertsChart.data.datasets[0].data = [high, med, low];
-  _alertsChart.update();
+  _alertPie.data.datasets[0].data = [high||0, med||0, low||0];
+  _alertPie.update();
 }
 
 async function runDocAI() {
-  const out  = document.getElementById('doc-ai-output');
-  const diag = document.getElementById('doc-diag');
-  const diagV= document.getElementById('doc-diag-val');
-  if(diag) diag.style.display = 'none';
-  await AI.analyseVitals({ bpm:_vitals.bpm, spo2:_vitals.spo2, hrv:42, ecgEvents:[], patientAge:45 }, out, (r) => {
-    if(diagV) diagV.innerHTML = `<strong>${r.rhythm}</strong> · Risk: ${riskBadge(r.risk)} · ${r.confidence}% confidence<br><small style="color:var(--text-dim)">${r.recommendation}</small>`;
+  const out=document.getElementById('doc-ai-output'), diag=document.getElementById('doc-diag'), dv=document.getElementById('doc-diag-val');
+  if(diag) diag.style.display='none';
+  await AI.analyseVitals({ bpm:_vitals.bpm, spo2:_vitals.spo2, hrv:42, ecgEvents:[], patientAge:45 }, out, (r)=>{
+    if(dv) dv.innerHTML=`<strong>${r.rhythm}</strong> · Risk: ${riskBadge(r.risk)} · ${r.confidence}% confidence<br><small style="color:var(--text-dim)">${r.recommendation}</small>`;
     if(diag) diag.style.display='block';
   });
 }
 
-function showTab(name, btn) {
-  document.querySelectorAll('.section-page').forEach(el=>el.classList.remove('active-section'));
-  document.getElementById('tab-'+name)?.classList.add('active-section');
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+function ensureDocECG() {
+  if (_docECG) {
+    _docECG._resize?.();
+    _docECG.setBPM(_vitals.bpm || 72);
+    return;
+  }
+  _docECG = createECG('docEcg', {
+    bpm:_vitals.bpm || 72,
+    color:'#e53e3e',
+    glowColor:'rgba(229,62,62,0.4)',
+    lineWidth:2.3,
+    speed:2.0,
+    amplitude:0.82,
+    tooltipId:'docEcgTooltip',
+    showGrid:true
+  });
 }
 
-function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
-function cap(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : '—'; }
-function saveSettings() { showToast('✅ Settings saved!', 'success'); }
-function doSignOut()    { ListenerManager.removeAll(); signOut(); }
+async function loadSettingsToUI() {
+  const snap = await DB.readSettings(DID).catch(() => null);
+  const settings = snap?.val() || {};
+  const thresholds = settings.thresholds || {};
+  const notifications = settings.notifications || {};
+  setText('dr-bpm-h', thresholds.bpmHigh || 100);
+  setText('dr-bpm-l', thresholds.bpmLow || 50);
+  setText('dr-spo2-l', thresholds.spo2Low || 94);
+  setText('settings-chat-id', notifications.telegramChatId || '1594669605');
+  setToggle('toggle-telegram', notifications.telegram !== false);
+  setToggle('toggle-gps', notifications.gps !== false);
+}
+
+function setToggle(id, on) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('on', !!on);
+}
+
+function showTab(name, btn) {
+  const target = document.getElementById('tab-' + name);
+  if (!target) return;
+  document.querySelectorAll('[id^="tab-"].section-page').forEach(el=>el.classList.remove('active-section'));
+  target.classList.add('active-section');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab === name));
+  const activeBtn = btn || document.querySelector(`.tab-btn[data-tab="${name}"]`);
+  if(activeBtn) activeBtn.classList.add('active');
+  if(name==='logs') refreshLogs();
+  if(name==='alerts') {
+    renderEmergencyStatus(_latestAlerts);
+    setTimeout(()=>{ initAlertPie(); _alertPie?.resize?.(); updateAlertPie(_latestAlerts); }, 50);
+  }
+  if(name==='ecg') setTimeout(ensureDocECG, 50);
+  if(name==='settings') loadSettingsToUI();
+}
+
+function pop(id,v){const e=document.getElementById(id);if(!e)return;e.textContent=v;e.classList.remove('num-pop');void e.offsetWidth;e.classList.add('num-pop');}
+function setText(id,v){const e=document.getElementById(id);if(e)e.innerHTML=String(v);}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'—';}
+function saveSettings(){showToast('✅ Settings saved to Firebase!','success');}
+function doSignOut(){ListenerManager.removeAll();signOut();}
+
+saveSettings = async function(){
+  await DB.updateThresholds(DID, {
+    bpmHigh: parseInt(document.getElementById('dr-bpm-h').textContent, 10),
+    bpmLow: parseInt(document.getElementById('dr-bpm-l').textContent, 10),
+    spo2Low: parseInt(document.getElementById('dr-spo2-l').textContent, 10)
+  });
+  await DB.updateNotifications(DID, {
+    telegram: document.getElementById('toggle-telegram')?.classList.contains('on') !== false,
+    gps: document.getElementById('toggle-gps')?.classList.contains('on') !== false,
+    telegramChatId: document.getElementById('settings-chat-id')?.textContent || '1594669605'
+  });
+  showToast('Doctor settings saved to Firebase!', 'success');
+};
+
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+  btn.addEventListener('click', (event) => {
+    event.preventDefault();
+    showTab(btn.dataset.tab, btn);
+  });
+});
 </script>
 </body>
 </html>

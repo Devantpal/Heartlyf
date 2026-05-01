@@ -1,0 +1,284 @@
+{
+  "users": {
+    "user_001": {
+      "name": "Devant Kumar",
+      "role": "patient",
+      "age": 45,
+      "email": "devant@email.com",
+      "deviceId": "esp32_001",
+      "telegramChatId": "1594669605",
+      "bloodGroup": "B+",
+      "emergencyContact": "+91 9876543210",
+      "createdAt": 1710000000000,
+      "emailVerified": true,
+      "active": true
+    },
+    "user_002": {
+      "name": "Dr. Asati",
+      "role": "doctor",
+      "email": "asati@gniot.ac.in",
+      "specialization": "Cardiologist",
+      "license": "MCI-2019-4521",
+      "hospital": "GNIOT Medical Centre",
+      "telegramChatId": "1594669605",
+      "createdAt": 1710000000000,
+      "emailVerified": true,
+      "active": true
+    },
+    "user_003": {
+      "name": "Family Member",
+      "role": "family",
+      "email": "family@email.com",
+      "patientId": "user_001",
+      "createdAt": 1710000000000,
+      "emailVerified": true,
+      "active": true
+    }
+  },
+  "devices": {
+    "esp32_001": {
+      "status": "online",
+      "patientId": "user_001",
+      "patientName": "Devant Kumar",
+      "lastSeen": 1710000000000,
+      "battery": 82,
+      "firmware": "v1.0",
+      "wifiRSSI": -60,
+      "wifiSSID": "HomeNetwork",
+      "ipAddress": "192.168.1.100",
+      "macAddress": "AA:BB:CC:DD:EE:FF",
+      "chipRevision": 1,
+      "flashSize": 4194304,
+      "model": "ESP32-WROOM-32",
+      "freeHeap": 200000,
+      "uptime": 0,
+      "sensors": {
+        "max30102": true,
+        "ad8232": true,
+        "oled": true,
+        "gps": true
+      }
+    }
+  },
+  "vitals": {
+    "esp32_001": {
+      "latest": {
+        "bpm": 72,
+        "spo2": 98,
+        "ecg": 512,
+        "hrv": 42,
+        "temperature": 36.6,
+        "bp_sys": 120,
+        "bp_dia": 80,
+        "rhythm": "Normal Sinus Rhythm",
+        "leadOff": false,
+        "timestamp": 1710000000000
+      },
+      "history": {
+        "1710000000000": {
+          "bpm": 72,
+          "spo2": 98,
+          "ecg": 512,
+          "hrv": 42,
+          "rhythm": "Normal Sinus Rhythm",
+          "timestamp": 1710000000000
+        },
+        "1710000005000": {
+          "bpm": 75,
+          "spo2": 97,
+          "ecg": 530,
+          "hrv": 40,
+          "rhythm": "Normal Sinus Rhythm",
+          "timestamp": 1710000005000
+        }
+      }
+    }
+  },
+  "ecg_data": {
+    "esp32_001": {
+      "1710000000000": {
+        "value": 512,
+        "timestamp": 1710000000000
+      },
+      "1710000000010": {
+        "value": 530,
+        "timestamp": 1710000000010
+      },
+      "1710000000020": {
+        "value": 548,
+        "timestamp": 1710000000020
+      }
+    }
+  },
+  "ml_prediction": {
+    "esp32_001": {
+      "latest": {
+        "risk": "low",
+        "confidence": 85,
+        "classification": "Normal Sinus Rhythm",
+        "modelVersion": "TinyML-v2.4",
+        "timestamp": 1710000000000
+      },
+      "history": {
+        "1710000000000": {
+          "risk": "low",
+          "confidence": 85,
+          "classification": "Normal Sinus Rhythm",
+          "timestamp": 1710000000000
+        }
+      }
+    }
+  },
+  "alerts": {
+    "esp32_001": {
+      "alert_001": {
+        "id": "alert_001",
+        "deviceId": "esp32_001",
+        "type": "tachycardia",
+        "severity": "high",
+        "value": 130,
+        "message": "High heart rate detected - BPM: 130",
+        "source": "firebase_database_trigger",
+        "timestamp": 1710000001000,
+        "resolved": false,
+        "resolvedAt": null,
+        "notificationSent": true,
+        "telegramQueued": true,
+        "telegramSent": false,
+        "telegramError": null,
+        "locationShared": true,
+        "locationUpdatedAt": 1710000001000,
+        "gps": {
+          "deviceId": "esp32_001",
+          "alertId": "alert_001",
+          "source": "frontend_geolocation",
+          "latitude": 28.6139,
+          "longitude": 77.209,
+          "accuracy": 35,
+          "altitude": null,
+          "heading": null,
+          "speed": null,
+          "mapsUrl": "https://maps.google.com/?q=28.6139,77.209",
+          "error": null,
+          "timestamp": 1710000001000
+        }
+      }
+    }
+  },
+  "gps_tracking": {
+    "esp32_001": {
+      "latest": {
+        "deviceId": "esp32_001",
+        "source": "frontend_geolocation",
+        "latitude": 28.6139,
+        "longitude": 77.209,
+        "accuracy": 35,
+        "altitude": null,
+        "heading": null,
+        "speed": null,
+        "mapsUrl": "https://maps.google.com/?q=28.6139,77.209",
+        "timestamp": 1710000001000
+      },
+      "history": {
+        "1710000001000": {
+          "deviceId": "esp32_001",
+          "source": "frontend_geolocation",
+          "latitude": 28.6139,
+          "longitude": 77.209,
+          "accuracy": 35,
+          "altitude": null,
+          "heading": null,
+          "speed": null,
+          "mapsUrl": "https://maps.google.com/?q=28.6139,77.209",
+          "timestamp": 1710000001000
+        }
+      },
+      "alert_001": {
+        "deviceId": "esp32_001",
+        "alertId": "alert_001",
+        "alertType": "tachycardia",
+        "severity": "high",
+        "source": "frontend_geolocation",
+        "latitude": 28.6139,
+        "longitude": 77.209,
+        "accuracy": 35,
+        "altitude": null,
+        "heading": null,
+        "speed": null,
+        "mapsUrl": "https://maps.google.com/?q=28.6139,77.209",
+        "error": null,
+        "timestamp": 1710000001000
+      }
+    }
+  },
+  "telegram_alerts": {
+    "esp32_001": {
+      "alert_001": {
+        "deviceId": "esp32_001",
+        "alertId": "alert_001",
+        "chatIds": [
+          "1594669605"
+        ],
+        "text": "Heartlyf emergency alert\nPatient: Devant Kumar\nDevice: esp32_001\nType: tachycardia\nSeverity: high\nValue: 130\nGPS: 28.6139, 77.209\nMap: https://maps.google.com/?q=28.6139,77.209",
+        "gps": {
+          "latitude": 28.6139,
+          "longitude": 77.209,
+          "mapsUrl": "https://maps.google.com/?q=28.6139,77.209",
+          "timestamp": 1710000001000
+        },
+        "provider": "telegram",
+        "status": "queued",
+        "queuedAt": 1710000001000,
+        "sentAt": null,
+        "error": null
+      }
+    }
+  },
+  "settings": {
+    "esp32_001": {
+      "thresholds": {
+        "bpmHigh": 100,
+        "bpmLow": 50,
+        "spo2Low": 94,
+        "hrvLow": 20
+      },
+      "notifications": {
+        "telegram": true,
+        "telegramChatId": "1594669605",
+        "sms": false,
+        "gps": true,
+        "emailAlert": true
+      },
+      "sampling": {
+        "vitalsIntervalMs": 2000,
+        "ecgIntervalMs": 10,
+        "uploadIntervalMs": 2000
+      },
+      "display": {
+        "brightness": 255,
+        "showECG": true,
+        "showBPM": true,
+        "showSpO2": true
+      }
+    }
+  },
+  "logs": {
+    "esp32_001": {
+      "1710000000000": {
+        "event": "device_started",
+        "firmware": "v1.0",
+        "uptime": 0,
+        "ipAddress": "192.168.1.100",
+        "battery": 100,
+        "timestamp": 1710000000000
+      },
+      "1710000001000": {
+        "event": "database_alert_created",
+        "alertId": "alert_001",
+        "type": "tachycardia",
+        "value": 130,
+        "timestamp": 1710000001000
+      }
+    }
+  }
+}

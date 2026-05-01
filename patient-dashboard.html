@@ -8,36 +8,36 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 .section-page{display:none;}
 .section-page.active-section{display:block;animation:fade-up 0.35s ease forwards;}
-/* number pop animation when value changes */
-@keyframes numPop{0%{transform:scale(1.3);color:#fff}100%{transform:scale(1)}}
-.num-pop{animation:numPop 0.4s ease forwards;}
-.firebase-tag{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:var(--red);border:1px solid var(--red-border);border-radius:3px;padding:1px 5px;margin-left:5px;vertical-align:middle;}
+@keyframes numPop{0%{transform:scale(1.25);opacity:.6}100%{transform:scale(1);opacity:1}}
+.num-pop{animation:numPop .35s ease forwards;}
+.fb-tag{font-size:.58rem;font-weight:700;letter-spacing:.08em;color:var(--red);border:1px solid var(--red-border);border-radius:3px;padding:1px 5px;margin-left:4px;vertical-align:middle;}
+.device-online{color:#22c55e;} .device-offline{color:var(--red);}
+.device-offline-mode .reading-gated{opacity:.46;filter:grayscale(.65);}
+.offline-note{display:none;margin-bottom:16px;padding:13px 16px;border:1px solid var(--red-border);border-radius:8px;background:rgba(229,62,62,.08);color:#fecaca;font-size:.84rem;font-weight:700;}
+.device-offline-mode .offline-note{display:block;}
 </style>
 </head>
 <body>
 <div class="dash-shell">
-
   <!-- ── SIDEBAR ── -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <div class="icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      </div>
-      <div><div class="name">Heartlyf</div><div class="role-tag">Patient</div></div>
+      <div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div><div class="name">Heartlyf</div><div class="role-tag" id="sidebar-role">Patient</div></div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-sec-label">Monitoring</div>
-      <button class="sidebar-link active" onclick="showSection('overview',this)">📊 Overview</button>
+      <button class="sidebar-link active"  onclick="showSection('overview',this)">📊 Overview</button>
       <button class="sidebar-link" onclick="showSection('live-ecg',this)">📉 Live ECG</button>
       <button class="sidebar-link" onclick="showSection('alerts',this)">🚨 Alerts <span class="badge-count" id="alert-badge">0</span></button>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-sec-label">Tools</div>
+      <div class="sidebar-sec-label">Data</div>
+      <button class="sidebar-link" onclick="showSection('vitals-history',this)">📈 Vitals History</button>
       <button class="sidebar-link" onclick="showSection('ml',this)">🤖 ML Predictions</button>
       <button class="sidebar-link" onclick="showSection('ai-chat',this)">💬 AI Assistant</button>
     </div>
@@ -49,10 +49,7 @@
     </div>
     <div class="sidebar-user">
       <div class="avatar" id="sidebar-avatar">DK</div>
-      <div>
-        <div class="u-name" id="sidebar-name">Devant Kumar</div>
-        <div class="u-role" id="sidebar-uid">patient_001</div>
-      </div>
+      <div><div class="u-name" id="sidebar-name">Devant Kumar</div><div class="u-role" id="sidebar-sub">patient_001</div></div>
     </div>
   </aside>
 
@@ -61,10 +58,12 @@
     <div class="dash-topbar">
       <div>
         <h1 id="topbar-title">Overview</h1>
-        <p>Live cardiac monitoring · Patient: <strong id="topbar-patient">Devant Kumar</strong> · Device: <span id="topbar-device">esp32_001</span></p>
+        <p>Device: <span id="hdr-device" style="font-family:var(--font-mono);color:#22c55e">esp32_001</span>
+           · Patient: <strong id="hdr-patient">Devant Kumar</strong>
+           · Battery: <span id="hdr-battery" style="color:#f59e0b">—%</span></p>
       </div>
       <div class="topbar-actions">
-        <div class="live-badge" id="live-badge"><span class="live-dot red" id="device-dot"></span><span id="live-label">FIREBASE LIVE</span></div>
+        <div class="live-badge" id="live-badge"><span class="live-dot" id="device-dot" style="background:var(--red);box-shadow:0 0 8px var(--red)"></span><span id="live-label">CONNECTING…</span></div>
         <button class="btn btn-ghost" onclick="window.print()">⬇ Export</button>
         <button class="btn btn-danger" onclick="doSignOut()">Sign Out</button>
       </div>
@@ -72,68 +71,64 @@
 
     <div class="dash-body">
 
-      <!-- ══════ OVERVIEW ══════ -->
+      <!-- ═══ OVERVIEW ═══ -->
       <div id="sec-overview" class="section-page active-section">
+        <div class="offline-note" id="offline-note">Device offline. Live heart readings are hidden until the ESP32 device is enabled and sending data.</div>
         <div class="metrics-row">
-          <!-- BPM from /spo2_data -->
-          <div class="metric-card" style="position:relative">
-            <div class="label">❤️ Heart Rate <span class="firebase-tag">LIVE</span></div>
-            <div class="value" style="color:var(--red)"><span id="disp-bpm">72</span><span class="unit">BPM</span></div>
-            <div class="sub" id="disp-rhythm">Normal Sinus Rhythm</div>
-            <div style="position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse-dot 1.6s infinite"></div>
+          <div class="metric-card reading-gated">
+            <div class="label">❤️ Heart Rate <span class="fb-tag">/vitals/latest</span></div>
+            <div class="value" style="color:var(--red)"><span id="v-bpm">—</span><span class="unit">BPM</span></div>
+            <div class="sub" id="v-rhythm">Awaiting data…</div>
           </div>
-          <!-- SpO2 from /spo2_data -->
-          <div class="metric-card">
-            <div class="label">💧 SpO2 <span class="firebase-tag">LIVE</span></div>
-            <div class="value" style="color:var(--blue)"><span id="disp-spo2">98</span><span class="unit">%</span></div>
-            <div class="sub">Blood oxygen saturation</div>
+          <div class="metric-card reading-gated">
+            <div class="label">💧 SpO2 <span class="fb-tag">/vitals/latest</span></div>
+            <div class="value" style="color:var(--blue)"><span id="v-spo2">—</span><span class="unit">%</span></div>
+            <div class="sub">Blood oxygen · SpO2</div>
           </div>
-          <!-- ML Risk from /ml_prediction -->
-          <div class="metric-card">
-            <div class="label">🤖 ML Risk <span class="firebase-tag">FIREBASE</span></div>
-            <div class="value" style="font-size:1.2rem;color:#22c55e" id="disp-risk">Low</div>
-            <div class="sub">Confidence: <span id="disp-conf">85</span>%</div>
+          <div class="metric-card reading-gated">
+            <div class="label">🤖 ML Risk <span class="fb-tag">/ml_prediction/latest</span></div>
+            <div class="value" style="font-size:1.2rem" id="v-risk" style="color:#22c55e">—</div>
+            <div class="sub">Confidence: <span id="v-conf">—</span>%</div>
           </div>
-          <!-- Alert from /alerts -->
-          <div class="metric-card">
-            <div class="label">🚨 Latest Alert <span class="firebase-tag">FIREBASE</span></div>
-            <div class="value" style="font-size:1rem;color:var(--red)" id="disp-alert-type">Tachycardia</div>
-            <div class="sub">Severity: <span id="disp-alert-sev">High</span> · Val: <span id="disp-alert-val">130</span></div>
+          <div class="metric-card reading-gated">
+            <div class="label">🚨 Latest Alert <span class="fb-tag">/alerts</span></div>
+            <div class="value" style="font-size:.95rem;color:var(--red)" id="v-alert-type">—</div>
+            <div class="sub">Severity: <span id="v-alert-sev">—</span> · Val: <span id="v-alert-val">—</span></div>
           </div>
+        </div>
+
+        <!-- Device status strip -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+          <div class="metric-card"><div class="label">📟 Device <span class="fb-tag">/devices</span></div><div class="value" style="font-size:1rem" id="d-status">—</div><div class="sub" id="d-firmware">—</div></div>
+          <div class="metric-card"><div class="label">📶 WiFi RSSI</div><div class="value" style="color:var(--blue);font-size:1.2rem" id="d-rssi">—<span class="unit">dBm</span></div><div class="sub" id="d-lastseen">—</div></div>
+          <div class="metric-card"><div class="label">🔋 Battery</div><div class="value" style="color:#f59e0b;font-size:1.4rem" id="d-battery">—<span class="unit">%</span></div><div class="sub">LiPo 2000mAh</div></div>
+          <div class="metric-card"><div class="label">📐 HRV</div><div class="value" style="color:#22c55e;font-size:1.6rem" id="v-hrv">—<span class="unit">ms</span></div><div class="sub">Heart rate variability</div></div>
         </div>
 
         <!-- BPM + SpO2 charts -->
         <div class="chart-row-2" style="margin-bottom:16px">
           <div class="chart-panel">
             <div class="chart-panel-header">
-              <div><h3>BPM Trend <span class="firebase-tag">LIVE</span></h3><div class="sub">From /spo2_data · Firebase stream</div></div>
+              <div><h3>BPM — <span style="font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted)">/vitals/{did}/history</span></h3></div>
               <span class="badge badge-live"><span class="live-dot red"></span>LIVE</span>
             </div>
             <canvas id="bpmChart" height="110"></canvas>
           </div>
           <div class="chart-panel">
-            <div class="chart-panel-header"><div><h3>SpO2 Trend <span class="firebase-tag">LIVE</span></h3><div class="sub">From /spo2_data · Firebase stream</div></div></div>
+            <div class="chart-panel-header"><div><h3>SpO2 — <span style="font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted)">/vitals/{did}/history</span></h3></div></div>
             <canvas id="spo2Chart" height="110"></canvas>
           </div>
         </div>
 
-        <!-- ML Confidence history chart -->
-        <div class="chart-panel" style="margin-bottom:16px">
-          <div class="chart-panel-header">
-            <div><h3>ML Confidence History <span class="firebase-tag">FIREBASE</span></h3><div class="sub">From /ml_prediction · Model prediction over time</div></div>
-          </div>
-          <canvas id="mlChart" height="75"></canvas>
-        </div>
-
-        <!-- AI Panel -->
+        <!-- AI analysis -->
         <div class="ai-panel">
           <div class="ai-panel-header">
             <div class="ai-icon">🤖</div>
-            <h3>AI Analysis — Claude + Firebase Data</h3>
+            <h3>AI Cardiac Analysis</h3>
             <span class="ai-badge">● CLAUDE AI</span>
-            <button class="btn btn-ghost" style="margin-left:8px;font-size:.73rem;padding:5px 12px" onclick="runAI()">🔄 Analyse</button>
+            <button class="btn btn-ghost" style="margin-left:8px;font-size:.73rem;padding:5px 12px" onclick="runAI()">🔄 Re-analyse</button>
           </div>
-          <div class="ai-output" id="ai-output">Awaiting live data from Firebase…<span class="ai-cursor"></span></div>
+          <div class="ai-output" id="ai-output">Connecting to Firebase…<span class="ai-cursor"></span></div>
           <div class="ai-diagnosis" id="ai-diag" style="display:none">
             <div class="diag-label">Diagnosis</div>
             <div class="diag-val" id="ai-diag-val">—</div>
@@ -141,103 +136,100 @@
         </div>
       </div>
 
-      <!-- ══════ LIVE ECG ══════ -->
+      <!-- ═══ LIVE ECG ═══ -->
       <div id="sec-live-ecg" class="section-page">
         <div class="ecg-wrapper" style="margin-bottom:16px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
             <div>
-              <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">
-                Live ECG — /ecg_data <span class="firebase-tag">FIREBASE</span>
-              </h3>
-              <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px">
-                AD8232 sensor → ESP32 ADC (12-bit, 0–4095) → Firebase → Canvas render · Hover for values
-              </div>
+              <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">Live ECG — <span style="font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted)">/ecg_data/esp32_001/{timestamp}</span></h3>
+              <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px">AD8232 → ESP32 ADC 12-bit (0–4095) → Firebase → Canvas · Hover for mV</div>
             </div>
             <div class="live-badge"><span class="live-dot red"></span>RECORDING</div>
           </div>
-          <canvas id="liveEcgCanvas" height="160"></canvas>
+          <canvas id="liveEcgCanvas" height="165"></canvas>
           <div id="liveEcgTooltip" class="ecg-tooltip"></div>
-          <!-- Raw ADC strip below ECG -->
-          <div style="margin-top:14px;background:var(--bg-mid);border:1px solid rgba(229,62,62,0.12);border-radius:8px;padding:12px 16px;">
-            <div style="font-size:.67rem;font-weight:700;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">
-              Firebase /ecg_data — Raw ADC Values (12-bit)
-            </div>
-            <canvas id="rawEcgChart" height="55"></canvas>
+          <!-- Raw ADC strip -->
+          <div style="margin-top:12px;background:rgba(229,62,62,0.04);border:1px solid var(--red-border);border-radius:8px;padding:12px 16px">
+            <div style="font-size:.65rem;font-weight:700;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase;margin-bottom:7px">Raw Firebase /ecg_data Values (12-bit ADC)</div>
+            <canvas id="rawAdcChart" height="50"></canvas>
           </div>
-          <div style="display:flex;align-items:center;gap:20px;margin-top:14px;font-size:.78rem;color:var(--text-dim)">
+          <div style="display:flex;align-items:center;gap:18px;margin-top:12px;font-size:.76rem;color:var(--text-dim)">
             <span class="live-dot red" style="flex-shrink:0"></span>
-            <span style="font-weight:700;font-size:.68rem;letter-spacing:.08em">LEAD II · AD8232</span>
-            <span style="font-family:var(--font-mono);color:#fff;font-weight:700" id="ecg-bpm-live">— BPM</span>
-            <span id="ecg-adc-live" style="color:var(--red);font-family:var(--font-mono)">ADC: —</span>
-            <span style="margin-left:auto;font-size:.68rem">25mm/s · 10mm/mV</span>
+            <span style="font-weight:700;font-size:.67rem;letter-spacing:.08em">LEAD II · AD8232</span>
+            <span style="font-family:var(--font-mono);color:#fff;font-weight:700" id="ecg-bpm">— BPM</span>
+            <span id="ecg-rhythm" style="color:var(--red);font-weight:700">—</span>
+            <span style="margin-left:auto;font-size:.67rem">ADC: <span id="ecg-adc" style="font-family:var(--font-mono);color:var(--red)">—</span></span>
           </div>
         </div>
         <div class="metrics-row-3">
-          <div class="metric-card"><div class="label">📟 Device ID</div><div class="value" style="font-size:1rem;color:#22c55e" id="card-device">esp32_001</div><div class="sub">WiFi Active</div></div>
-          <div class="metric-card"><div class="label">📊 ADC Range</div><div class="value" style="color:var(--blue)">12<span class="unit">bit</span></div><div class="sub">0 – 4095</div></div>
+          <div class="metric-card"><div class="label">📟 Device ID</div><div class="value" style="font-size:1rem;color:#22c55e" id="ecg-device">esp32_001</div><div class="sub">Firmware: <span id="ecg-fw">v1.0</span></div></div>
+          <div class="metric-card"><div class="label">📐 ADC Resolution</div><div class="value" style="color:var(--blue)">12<span class="unit">bit</span></div><div class="sub">Range: 0 – 4095</div></div>
           <div class="metric-card"><div class="label">⚡ Sample Rate</div><div class="value" style="color:var(--orange)">250<span class="unit">Hz</span></div><div class="sub">AD8232 output</div></div>
         </div>
       </div>
 
-      <!-- ══════ ALERTS ══════ -->
+      <!-- ═══ ALERTS ═══ -->
       <div id="sec-alerts" class="section-page">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-          <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">
-            Alerts — /alerts <span class="firebase-tag">FIREBASE</span>
-          </h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">Alerts — <span style="font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted)">/alerts/esp32_001</span></h3>
           <div style="display:flex;gap:10px;align-items:center">
             <span class="badge badge-live"><span class="live-dot red"></span>REALTIME</span>
-            <button class="btn btn-ghost" style="font-size:.73rem;padding:5px 12px" onclick="clearResolvedAlerts()">Clear Resolved</button>
           </div>
         </div>
-        <div id="alerts-container">
-          <div style="text-align:center;padding:40px;color:var(--text-muted)">Loading alerts from Firebase /alerts…</div>
+        <div id="alerts-list">
+          <div style="text-align:center;padding:40px;color:var(--text-muted)">Loading from Firebase /alerts/esp32_001…</div>
         </div>
       </div>
 
-      <!-- ══════ ML PREDICTIONS ══════ -->
-      <div id="sec-ml" class="section-page">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-          <h3 style="font-family:var(--font-display);font-size:.95rem;font-weight:700">
-            ML Predictions — /ml_prediction <span class="firebase-tag">FIREBASE</span>
-          </h3>
-          <span class="badge badge-live"><span class="live-dot red"></span>REALTIME</span>
-        </div>
-        <div class="metrics-row-3" style="margin-bottom:18px">
-          <div class="metric-card"><div class="label">🎯 Latest Confidence</div><div class="value" style="color:var(--red)" id="ml-conf-now">—<span class="unit">%</span></div><div class="sub">From /ml_prediction</div></div>
-          <div class="metric-card"><div class="label">⚠️ Risk Level</div><div class="value" style="font-size:1.2rem;color:#22c55e" id="ml-risk-now">—</div><div class="sub">ML model output</div></div>
-          <div class="metric-card"><div class="label">📦 Total Predictions</div><div class="value" style="color:var(--blue)" id="ml-total">—</div><div class="sub">Stored in Firebase</div></div>
-        </div>
+      <!-- ═══ VITALS HISTORY ═══ -->
+      <div id="sec-vitals-history" class="section-page">
         <div class="chart-panel" style="margin-bottom:16px">
-          <div class="chart-panel-header"><h3>Confidence Over Time</h3><div class="sub">All /ml_prediction entries</div></div>
-          <canvas id="mlDetailChart" height="120"></canvas>
+          <div class="chart-panel-header">
+            <h3>Vitals History — <span style="font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted)">/vitals/esp32_001/history</span></h3>
+            <span class="badge badge-live"><span class="live-dot red"></span>LIVE</span>
+          </div>
+          <canvas id="historyChart" height="110"></canvas>
         </div>
         <div class="chart-panel">
-          <div class="chart-panel-header"><h3>Recent Predictions <span class="firebase-tag">FIREBASE</span></h3></div>
+          <div class="chart-panel-header"><h3>Recent Records</h3><span style="font-size:.74rem;color:var(--text-muted)">Last 15 entries</span></div>
           <div style="overflow-x:auto">
             <table class="data-table">
-              <thead><tr><th>Timestamp</th><th>Confidence</th><th>Risk</th><th>Time</th></tr></thead>
-              <tbody id="ml-table-body">
-                <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">Loading from Firebase…</td></tr>
-              </tbody>
+              <thead><tr><th>Timestamp</th><th>BPM</th><th>SpO2</th><th>ECG ADC</th><th>Rhythm</th><th>Time</th></tr></thead>
+              <tbody id="history-tbody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ══════ AI CHAT ══════ -->
+      <!-- ═══ ML PREDICTIONS ═══ -->
+      <div id="sec-ml" class="section-page">
+        <div class="metrics-row-3" style="margin-bottom:16px">
+          <div class="metric-card"><div class="label">🎯 Latest Confidence</div><div class="value" style="color:var(--red)" id="ml-conf">—<span class="unit">%</span></div><div class="sub">/ml_prediction/latest</div></div>
+          <div class="metric-card"><div class="label">⚠️ Risk Level</div><div class="value" style="font-size:1.2rem" id="ml-risk">—</div><div class="sub">ML model output</div></div>
+          <div class="metric-card"><div class="label">📦 Predictions Total</div><div class="value" style="color:var(--blue)" id="ml-total">—</div><div class="sub">/ml_prediction/history count</div></div>
+        </div>
+        <div class="chart-panel" style="margin-bottom:16px">
+          <div class="chart-panel-header"><h3>Confidence Over Time</h3><div class="sub">/ml_prediction/history</div></div>
+          <canvas id="mlChart" height="110"></canvas>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-panel-header"><h3>Prediction History Table</h3></div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr><th>Timestamp Key</th><th>Risk</th><th>Confidence</th><th>Time</th></tr></thead>
+              <tbody id="ml-tbody"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ AI CHAT ═══ -->
       <div id="sec-ai-chat" class="section-page">
         <div class="ai-panel">
-          <div class="ai-panel-header">
-            <div class="ai-icon">💬</div>
-            <h3>AI Assistant — Firebase Context</h3>
-            <span class="ai-badge">● POWERED BY CLAUDE</span>
-          </div>
-          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px">
-            Ask about your cardiac data. AI reads live Firebase values for context.
-          </p>
+          <div class="ai-panel-header"><div class="ai-icon">💬</div><h3>AI Assistant — Live Firebase Context</h3><span class="ai-badge">● CLAUDE</span></div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px">Ask anything — AI reads your live vitals from Firebase for context.</p>
           <div class="ai-chat-msgs" id="chat-msgs">
-            <div style="color:var(--red);font-weight:600">AI: Hello, <span id="chat-patient-name">Devant</span>! I can see your live vitals from Firebase. How can I help?</div>
+            <div style="color:var(--red);font-weight:600">AI: Hello <span id="chat-name">Devant</span>! I have your live vitals from Firebase. How can I help?</div>
           </div>
           <div class="ai-chat-input">
             <input class="form-input" id="chat-input" placeholder="Ask about your heart health…" onkeydown="if(event.key==='Enter')sendChat()">
@@ -246,7 +238,7 @@
         </div>
       </div>
 
-      <!-- ══════ PROFILE ══════ -->
+      <!-- ═══ PROFILE ═══ -->
       <div id="sec-profile" class="section-page">
         <div class="grid-2" style="align-items:start">
           <div class="profile-card">
@@ -256,30 +248,29 @@
             </div>
             <div class="profile-name" id="prof-name">Devant Kumar</div>
             <div class="profile-role">Patient</div>
-            <div class="profile-email" id="prof-id">patient_001</div>
+            <div class="profile-email" id="prof-email">devant@email.com</div>
             <div class="profile-stats">
-              <div class="profile-stat"><div class="ps-val" id="ps-bpm">—</div><div class="ps-lab">BPM Now</div></div>
+              <div class="profile-stat"><div class="ps-val" id="ps-bpm">—</div><div class="ps-lab">BPM</div></div>
               <div class="profile-stat"><div class="ps-val" id="ps-spo2">—%</div><div class="ps-lab">SpO2</div></div>
               <div class="profile-stat"><div class="ps-val" id="ps-risk">—</div><div class="ps-lab">Risk</div></div>
             </div>
           </div>
           <div class="chart-panel">
-            <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:16px">
-              🩺 Patient Data — Firebase /patient <span class="firebase-tag">LIVE</span>
-            </h3>
-            <div class="profile-detail-row"><span class="dk">Patient Name</span><span class="dv" id="pd-name">Devant Kumar</span></div>
-            <div class="profile-detail-row"><span class="dk">Patient ID</span><span class="dv" style="font-family:var(--font-mono);color:var(--red)" id="pd-id">patient_001</span></div>
+            <h3 style="font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:16px">🩺 Patient — Firebase /users/user_001</h3>
+            <div class="profile-detail-row"><span class="dk">Name</span><span class="dv" id="pd-name">Devant Kumar</span></div>
+            <div class="profile-detail-row"><span class="dk">Email</span><span class="dv" id="pd-email">devant@email.com</span></div>
             <div class="profile-detail-row"><span class="dk">Age</span><span class="dv" id="pd-age">45</span></div>
             <div class="profile-detail-row"><span class="dk">Device ID</span><span class="dv" style="font-family:var(--font-mono);color:#22c55e" id="pd-device">esp32_001</span></div>
+            <div class="profile-detail-row"><span class="dk">Telegram Chat ID</span><span class="dv" style="font-family:var(--font-mono);color:var(--red)" id="pd-telegram">1594669605</span></div>
+            <div class="profile-detail-row"><span class="dk">Blood Group</span><span class="dv" id="pd-blood">B+</span></div>
             <div class="profile-detail-row"><span class="dk">Role</span><span class="dv"><span class="badge badge-crit">Patient</span></span></div>
-            <div class="profile-detail-row"><span class="dk">Firebase Path</span><span class="dv" style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted)">/patient</span></div>
           </div>
         </div>
       </div>
 
     </div><!-- /dash-body -->
   </div><!-- /dash-main -->
-</div><!-- /dash-shell -->
+</div>
 
 <!-- SETTINGS OVERLAY -->
 <div class="settings-backdrop" id="settings-backdrop" onclick="closeSettings()"></div>
@@ -289,361 +280,457 @@
     <span style="cursor:pointer;color:var(--text-muted)" onclick="closeSettings()">✕</span>
   </div>
   <div class="settings-sec">
-    <h4>Alert Thresholds</h4>
-    <div style="margin-bottom:14px"><label class="form-label">BPM Alert Above: <strong style="color:var(--red)" id="s-bpm-val">100</strong></label><input type="range" min="80" max="150" value="100" style="width:100%" oninput="document.getElementById('s-bpm-val').textContent=this.value"></div>
-    <div><label class="form-label">SpO2 Alert Below: <strong style="color:var(--red)" id="s-spo2-val">94</strong>%</label><input type="range" min="85" max="99" value="94" style="width:100%" oninput="document.getElementById('s-spo2-val').textContent=this.value"></div>
+    <h4>Device Activation <span class="fb-tag">/devices/esp32_001/status</span></h4>
+    <div class="toggle-wrap"><label>ESP32 Device Enabled</label><div id="device-enable-toggle" class="toggle" onclick="toggleDeviceActivation()"></div></div>
+    <div style="font-size:.72rem;color:var(--text-muted);line-height:1.6;margin-top:8px">When disabled, live readings show offline until the device is enabled again.</div>
   </div>
   <div class="settings-sec">
-    <h4>Notifications</h4>
-    <div class="toggle-wrap"><label>Telegram (Chat: 1594669605)</label><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-    <div class="toggle-wrap"><label>SMS Alerts</label><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-    <div class="toggle-wrap"><label>GPS Location Sharing</label><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <h4>Alert Thresholds <span class="fb-tag">/settings/esp32_001/thresholds</span></h4>
+    <div style="margin-bottom:14px"><label class="form-label">BPM High: <strong style="color:var(--red)" id="s-bpm-h">100</strong></label><input type="range" min="80" max="150" value="100" style="width:100%" oninput="document.getElementById('s-bpm-h').textContent=this.value"></div>
+    <div style="margin-bottom:14px"><label class="form-label">BPM Low: <strong style="color:var(--red)" id="s-bpm-l">50</strong></label><input type="range" min="30" max="70" value="50" style="width:100%" oninput="document.getElementById('s-bpm-l').textContent=this.value"></div>
+    <div><label class="form-label">SpO2 Low: <strong style="color:var(--red)" id="s-spo2-l">94</strong>%</label><input type="range" min="85" max="99" value="94" style="width:100%" oninput="document.getElementById('s-spo2-l').textContent=this.value"></div>
   </div>
   <div class="settings-sec">
-    <h4>Firebase Connection</h4>
-    <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);line-height:1.8;background:var(--bg-card);border-radius:6px;padding:12px">
-      DB: heartmonitorproject-ba398<br>
-      Patient: /patient<br>
-      Vitals: /spo2_data<br>
-      ECG: /ecg_data<br>
-      ML: /ml_prediction<br>
-      Alerts: /alerts
+    <h4>Notifications <span class="fb-tag">/settings/esp32_001/notifications</span></h4>
+    <div class="toggle-wrap"><label>Telegram (ID: 1594669605)</label><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-wrap"><label>SMS Alerts</label><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-wrap"><label>GPS Location Sharing</label><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+  </div>
+  <div class="settings-sec">
+    <h4>Firebase DB Paths</h4>
+    <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);background:var(--bg-card);border-radius:6px;padding:12px;line-height:2.1">
+      <div><span style="color:var(--red)">/vitals/esp32_001/latest</span> → BPM, SpO2</div>
+      <div><span style="color:var(--red)">/ecg_data/esp32_001/{ts}</span> → ADC value</div>
+      <div><span style="color:var(--red)">/ml_prediction/esp32_001/latest</span> → risk</div>
+      <div><span style="color:var(--red)">/alerts/esp32_001/{id}</span> → alerts</div>
+      <div><span style="color:var(--red)">/devices/esp32_001</span> → status, battery</div>
     </div>
   </div>
-  <button class="btn btn-primary btn-full" onclick="saveSettings()">💾 Save Settings</button>
+  <button class="btn btn-primary btn-full" onclick="saveSettings()">💾 Save to Firebase</button>
   <button class="btn btn-danger btn-full" style="margin-top:8px;border-radius:6px" onclick="doSignOut()">Sign Out</button>
 </div>
 
-<!-- Scripts -->
 <script src="js/firebase-config.js"></script>
 <script src="js/firebase-auth.js"></script>
 <script src="js/firebase-db.js"></script>
-<script src="js/ecg-simulator.js"></script>
 <script src="js/ecg.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/ai.js"></script>
 <script>
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-let _liveECG, _rawChart, _mlDetailChart;
-let _bpmBuf     = Array(60).fill(72);
-let _spo2Buf    = Array(60).fill(98);
-let _mlConfBuf  = Array(20).fill(85);
-let _rawAdcBuf  = Array(80).fill(2048);
-let _currentVitals = { bpm: 72, spo2: 98, risk: 'low', confidence: 85 };
+const DID = 'esp32_001';
+let _liveECG, _rawChart, _histChart, _mlChart;
+let _bpmBuf = Array(60).fill(72), _spo2Buf = Array(60).fill(98), _mlBuf = Array(30).fill(85);
+let _rawBuf  = Array(100).fill(2048);
+let _liveVitals = { bpm:72, spo2:98, hrv:42, risk:'low', confidence:85, rhythm:'Normal Sinus Rhythm' };
+let _mlTotal = 0;
+const _processedAlertSideEffects = new Set();
+const _autoAlertCooldown = {};
+let _alertThresholds = { bpmHigh: 100, bpmLow: 50, spo2Low: 94 };
+let _deviceOnline = false;
 
-/* ═══════════════════════════════════════════
-   BOOT
-═══════════════════════════════════════════ */
+/* ── Boot ── */
 hlGuard(['patient']).then(async ({ user }) => {
-  /* ── Load /patient from Firebase ── */
-  const patSnap = await DB.readPatient();
-  const patient = patSnap.val() || { name: user.displayName || 'Devant Kumar', id: 'patient_001', age: 45, deviceId: 'esp32_001' };
-  applyPatientUI(patient);
+  // ── Load user profile from Firebase ──
+  const snap = await DB.readUser(user.uid).catch(() => null);
+  const profile = snap?.val() || {};
+  const name    = profile.name || user.displayName || 'Devant Kumar';
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 
-  /* ── Init charts with historical data ── */
-  const hist = await DB.getVitalHistory(60);
+  // Apply UI
+  ['sidebar-name','prof-name','pd-name','hdr-patient'].forEach(id => setText(id, name));
+  ['prof-avatar','sidebar-avatar'].forEach(id => setText(id, initials));
+  setText('chat-name',    name.split(' ')[0]);
+  setText('pd-email',     profile.email    || user.email || '—');
+  setText('prof-email',   profile.email    || user.email || '—');
+  setText('pd-age',       profile.age      || '45');
+  setText('pd-device',    profile.deviceId || DID);
+  setText('pd-telegram',  profile.telegramChatId || '1594669605');
+  setText('pd-blood',     profile.bloodGroup || 'B+');
+  setText('hdr-device',   profile.deviceId || DID);
+  setText('ecg-device',   profile.deviceId || DID);
+
+  // ── Load history for charts ──
+  const hist = await DB.getVitalHistory(DID, 60);
   if (hist.bpms.length)  _bpmBuf  = hist.bpms;
   if (hist.spo2s.length) _spo2Buf = hist.spo2s;
   initBPMChart('bpmChart',  _bpmBuf);
   initSpO2Chart('spo2Chart', _spo2Buf);
-  initMLChart();
 
-  /* ── Start ESP32 simulator → writes to Firebase ── */
-  startSimulator();
-  showToast('📡 Connected to Firebase — ' + (patient.deviceId || 'esp32_001') + ' streaming', 'info', 4000);
+  // Real device mode: do not start the browser simulator or write dummy vitals.
+  ListenerManager.add(DB.startGPSSharing(DID));
+  showToast(`📡 Connected — reading live Firebase data for ${profile.deviceId || DID}`, 'info', 4000);
 
-  /* ── LISTEN: /spo2_data (BPM + SpO2) ── */
-  ListenerManager.add(DB.listenLatestSpo2((v) => {
+  // ═══ LISTENERS ═══
+
+  // 1. /vitals/{did}/latest
+  ListenerManager.add(DB.listenVitalsLatest(DID, (v) => {
     if (!v) return;
-    const bpm  = v.bpm  || 72;
-    const spo2 = v.spo2 || 98;
-    _currentVitals.bpm  = bpm;
-    _currentVitals.spo2 = spo2;
-
-    animateNum('disp-bpm',  bpm);
-    animateNum('disp-spo2', spo2);
-    document.getElementById('ecg-bpm-live').textContent = bpm + ' BPM';
-    document.getElementById('ps-bpm').textContent  = bpm;
-    document.getElementById('ps-spo2').textContent = spo2 + '%';
-
-    const rhythm = bpm > 100 ? 'Tachycardia' : bpm < 55 ? 'Bradycardia' : 'Normal Sinus Rhythm';
-    document.getElementById('disp-rhythm').textContent = rhythm;
-
-    pushToChart('bpmChart',  bpm);
-    pushToChart('spo2Chart', spo2);
-    _bpmBuf.push(bpm);  _bpmBuf.shift();
-    _spo2Buf.push(spo2); _spo2Buf.shift();
-    _liveECG?.setBPM(bpm);
+    _liveVitals = { ..._liveVitals, ...v };
+    if (!_deviceOnline) { applyOfflineReadings(); return; }
+    pop('v-bpm',   v.bpm);
+    pop('v-spo2',  v.spo2);
+    setText('v-rhythm', v.rhythm || '—');
+    setText('ps-bpm',   v.bpm);
+    setText('ps-spo2',  v.spo2 + '%');
+    setText('ecg-bpm',  v.bpm + ' BPM');
+    setText('ecg-rhythm', v.rhythm || '—');
+    pop('v-hrv', v.hrv || '—');
+    pushToChart('bpmChart',  v.bpm);
+    pushToChart('spo2Chart', v.spo2);
+    _bpmBuf.push(v.bpm);  _bpmBuf.shift();
+    _spo2Buf.push(v.spo2); _spo2Buf.shift();
+    _liveECG?.setBPM(v.bpm || 72);
+    monitorDatabaseAbnormality();
   }));
 
-  /* ── LISTEN: /ml_prediction (latest) ── */
-  ListenerManager.add(DB.listenPrediction((pred) => {
-    if (!pred) return;
-    _currentVitals.risk       = pred.risk || 'low';
-    _currentVitals.confidence = pred.confidence || 85;
-
-    const riskEl   = document.getElementById('disp-risk');
-    const riskColor = pred.risk === 'high' ? 'var(--red)' : pred.risk === 'moderate' ? 'var(--orange)' : '#22c55e';
-    riskEl.textContent = capitalize(pred.risk || 'Low');
-    riskEl.style.color = riskColor;
-    document.getElementById('disp-conf').textContent = pred.confidence || '—';
-
-    document.getElementById('ml-conf-now').innerHTML = (pred.confidence || '—') + '<span class="unit">%</span>';
-    document.getElementById('ml-risk-now').textContent = capitalize(pred.risk || '—');
-    document.getElementById('ml-risk-now').style.color = riskColor;
-    document.getElementById('ps-risk').textContent = capitalize(pred.risk || '—');
-
-    // Push to ML chart
-    _mlConfBuf.push(pred.confidence || 0);
-    _mlConfBuf.shift();
-    if (_mlDetailChart) {
-      _mlDetailChart.data.datasets[0].data.push(pred.confidence || 0);
-      if (_mlDetailChart.data.datasets[0].data.length > 40) _mlDetailChart.data.datasets[0].data.shift();
-      _mlDetailChart.data.labels.push('');
-      if (_mlDetailChart.data.labels.length > 40) _mlDetailChart.data.labels.shift();
-      _mlDetailChart.update('none');
-    }
-    pushToChart('mlChart', pred.confidence || 0);
+  // 2. /ml_prediction/{did}/latest
+  ListenerManager.add(DB.listenMLLatest(DID, (ml) => {
+    if (!ml) return;
+    _liveVitals.risk       = ml.risk;
+    _liveVitals.confidence = ml.confidence;
+    if (!_deviceOnline) { applyOfflineReadings(); return; }
+    const rc = ml.risk==='high'?'var(--red)':ml.risk==='moderate'?'var(--orange)':'#22c55e';
+    const rEl = document.getElementById('v-risk');
+    if (rEl) { rEl.textContent = cap(ml.risk); rEl.style.color = rc; }
+    setText('v-conf', ml.confidence);
+    setText('ml-conf', ml.confidence + '<span class="unit">%</span>');
+    const mlEl = document.getElementById('ml-risk');
+    if (mlEl) { mlEl.textContent = cap(ml.risk); mlEl.style.color = rc; }
+    setText('ps-risk', cap(ml.risk));
+    pushToChart('mlChart', ml.confidence);
+    _mlBuf.push(ml.confidence); _mlBuf.shift();
+    monitorDatabaseAbnormality();
   }));
 
-  /* ── LISTEN: /ml_prediction (all — for table) ── */
-  ListenerManager.add(DB.listenAllPredictions((preds) => {
-    document.getElementById('ml-total').textContent = preds.length;
-    renderMLTable(preds.slice(-15).reverse());
-  }));
-
-  /* ── LISTEN: /alerts ── */
-  ListenerManager.add(DB.listenAlerts((alerts) => {
-    document.getElementById('alert-badge').textContent = alerts.length;
+  // 3. /alerts/{did}
+  ListenerManager.add(DB.listenAlerts(DID, (alerts) => {
+    setText('alert-badge', alerts.length);
     if (alerts.length) {
-      const latest = alerts[0];
-      document.getElementById('disp-alert-type').textContent = capitalize(latest.type  || 'Alert');
-      document.getElementById('disp-alert-sev').textContent  = capitalize(latest.severity || 'High');
-      document.getElementById('disp-alert-val').textContent  = latest.value || '—';
+      const a = alerts[0];
+      setText('v-alert-type', cap(a.type));
+      setText('v-alert-sev',  cap(a.severity));
+      setText('v-alert-val',  a.value);
     }
+    alerts.filter(a => !a.resolved && !a.deliveryStarted && !_processedAlertSideEffects.has(a.id)).forEach(a => {
+      _processedAlertSideEffects.add(a.id);
+      DB.handleAlertSideEffects(DID, a.id, a)
+        .then(() => showToast('Emergency GPS captured and Telegram alert queued.', 'success', 4000))
+        .catch(() => showToast('Alert saved. Location or Telegram delivery needs permission/configuration.', 'warning', 6000));
+    });
     renderAlerts(alerts);
   }));
 
-  /* ── LISTEN: /ecg_data (raw ADC) ── */
-  ListenerManager.add(DB.listenEcg((samples) => {
+  // 3b. /settings/{did}/thresholds
+  ListenerManager.add(DB.listenSettings(DID, (settings) => {
+    if (settings?.thresholds) _alertThresholds = { ..._alertThresholds, ...settings.thresholds };
+  }));
+
+  // 4. /devices/{did}
+  ListenerManager.add(DB.listenDevice(DID, (dev) => {
+    if (!dev) return;
+    const online = dev.status === 'online';
+    _deviceOnline = online;
+    document.body.classList.toggle('device-offline-mode', !online);
+    document.getElementById('device-enable-toggle')?.classList.toggle('on', online);
+    const dot = document.getElementById('device-dot');
+    if (dot) { dot.style.background = online ? '#22c55e' : 'var(--red)'; dot.style.boxShadow = `0 0 8px ${online?'#22c55e':'var(--red)'}`; }
+    setText('live-label', online ? 'DEVICE LIVE' : 'DEVICE OFFLINE');
+    const dEl = document.getElementById('d-status');
+    if (dEl) { dEl.textContent = cap(dev.status); dEl.className = online ? 'value device-online' : 'value device-offline'; }
+    setText('d-firmware', 'FW: ' + (dev.firmware || '—'));
+    setText('d-rssi',     (dev.wifiRSSI || '—') + '<span class="unit">dBm</span>');
+    setText('d-battery',  (dev.battery  || '—') + '<span class="unit">%</span>');
+    setText('hdr-battery', (dev.battery  || '—') + '%');
+    const ls = dev.lastSeen ? new Date(dev.lastSeen).toLocaleTimeString() : '—';
+    setText('d-lastseen', 'Last: ' + ls);
+    if (!online) applyOfflineReadings();
+    else applyOnlineReadings();
+  }));
+
+  // 5. /ecg_data/{did}
+  ListenerManager.add(DB.listenECG(DID, (samples) => {
+    if (!_deviceOnline) { setText('ecg-adc', 'OFFLINE'); return; }
     if (!samples.length) return;
     const latest = samples[samples.length - 1];
-    document.getElementById('ecg-adc-live').textContent = 'ADC: ' + (latest?.value || '—');
-
-    // Update raw chart
-    const vals = samples.slice(-80).map(s => s.value);
-    _rawAdcBuf = vals;
+    setText('ecg-adc', latest.value);
+    _rawBuf = samples.slice(-100).map(s => s.value);
     if (_rawChart) {
-      _rawChart.data.datasets[0].data = [..._rawAdcBuf];
-      _rawChart.data.labels = _rawAdcBuf.map(() => '');
+      _rawChart.data.datasets[0].data = [..._rawBuf];
+      _rawChart.data.labels = _rawBuf.map(()=>'');
       _rawChart.update('none');
     }
   }));
 
-  /* ── Auto AI analysis every 30s ── */
+  // 6. /vitals/{did}/history (table + history chart)
+  ListenerManager.add(DB.listenVitalsHistory(DID, (records) => {
+    renderHistoryTable(records.slice(-15).reverse());
+    if (_histChart) {
+      const bpms = records.slice(-60).map(r => r.bpm || 0);
+      _histChart.data.datasets[0].data = bpms;
+      _histChart.data.labels = bpms.map(()=>'');
+      _histChart.update('none');
+    }
+  }));
+
+  // 7. /ml_prediction/{did}/history (table)
+  ListenerManager.add(DB.listenMLHistory(DID, (preds) => {
+    _mlTotal = preds.length;
+    setText('ml-total', _mlTotal);
+    renderMLTable(preds.slice(-12).reverse());
+  }));
+
+  // Init ML confidence chart
+  initMLChart();
+
+  // Auto AI every 30s
   runAI();
   setInterval(runAI, 30000);
 });
 
-/* ═════════════════════════════
-   UI HELPERS
-═════════════════════════════ */
-function applyPatientUI(p) {
-  const name     = p.name     || 'Devant Kumar';
-  const id       = p.id       || 'patient_001';
-  const age      = p.age      || 45;
-  const deviceId = p.deviceId || 'esp32_001';
-  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-
-  document.getElementById('topbar-patient').textContent = name;
-  document.getElementById('topbar-device').textContent  = deviceId;
-  document.getElementById('sidebar-name').textContent   = name;
-  document.getElementById('sidebar-uid').textContent    = id;
-  document.getElementById('sidebar-avatar').textContent = initials;
-  document.getElementById('prof-avatar').textContent    = initials;
-  document.getElementById('prof-name').textContent      = name;
-  document.getElementById('prof-id').textContent        = id;
-  document.getElementById('pd-name').textContent        = name;
-  document.getElementById('pd-id').textContent          = id;
-  document.getElementById('pd-age').textContent         = age;
-  document.getElementById('pd-device').textContent      = deviceId;
-  document.getElementById('card-device').textContent    = deviceId;
-  document.getElementById('chat-patient-name').textContent = name.split(' ')[0];
-}
-
-function animateNum(id, val) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = val;
-  el.classList.remove('num-pop');
-  void el.offsetWidth;
-  el.classList.add('num-pop');
-}
-
-function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
-
+/* ── RENDER ── */
 function renderAlerts(alerts) {
-  const c = document.getElementById('alerts-container');
+  const c = document.getElementById('alerts-list');
   if (!c) return;
-  if (!alerts.length) {
-    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">✅ No alerts in Firebase /alerts</div>';
-    return;
-  }
+  if (!alerts.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">✅ No alerts in Firebase</div>'; return; }
   c.innerHTML = alerts.map(a => {
-    const cls  = a.severity === 'high' ? 'alert-crit' : a.severity === 'medium' ? 'alert-warn' : 'alert-ok';
-    const icon = a.severity === 'high' ? '🚨' : a.severity === 'medium' ? '⚠️' : 'ℹ️';
-    const time = a.timestamp ? new Date(a.timestamp * 1000).toLocaleString() : '—';
-    return `<div class="alert-item ${cls}">
+    const cls  = a.severity==='high' ? 'alert-crit' : a.severity==='medium' ? 'alert-warn' : 'alert-ok';
+    const icon = a.severity==='high' ? '🚨' : a.severity==='medium' ? '⚠️' : 'ℹ️';
+    const time = a.timestamp ? new Date(a.timestamp).toLocaleString() : '—';
+    return `<div class="alert-item ${cls}" style="margin-bottom:8px">
       <span style="font-size:1.3rem">${icon}</span>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:.84rem">
-          ${capitalize(a.type || 'Alert')} &nbsp;<span style="font-family:var(--font-mono);color:var(--red);font-size:.78rem">/${a.id}</span>
-        </div>
-        <div style="font-size:.72rem;color:var(--text-muted)">
-          Severity: <strong>${capitalize(a.severity)}</strong> · Value: <strong>${a.value}</strong> · ${time}
-        </div>
+        <div style="font-weight:700;font-size:.84rem">${cap(a.type)} <span style="font-family:var(--font-mono);font-size:.7rem;color:var(--red)">· ${a.id}</span></div>
+        <div style="font-size:.71rem;color:var(--text-muted)">${a.message||''} · Val: <strong>${a.value}</strong> · ${time}</div>
+        ${a.gps?.mapsUrl ? `<a href="${a.gps.mapsUrl}" target="_blank" style="display:inline-block;margin-top:4px;font-size:.7rem;color:var(--red);font-weight:700;text-decoration:none">Open GPS location</a>` : '<div style="margin-top:4px;font-size:.7rem;color:var(--text-muted)">GPS location pending</div>'}
       </div>
-      <span class="badge badge-${a.severity==='high'?'crit':'warn'}">${capitalize(a.severity)}</span>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <span class="badge badge-${a.severity==='high'?'crit':'warn'}">${cap(a.severity)}</span>
+        ${!a.resolved ? `<button class="btn btn-ghost" style="font-size:.66rem;padding:3px 8px" onclick="resolveAlert('${a.id}')">Resolve</button>` : '<span style="font-size:.7rem;color:var(--text-muted)">Resolved</span>'}
+      </div>
     </div>`;
   }).join('');
 }
 
-function renderMLTable(preds) {
-  const tbody = document.getElementById('ml-table-body');
-  if (!tbody || !preds.length) return;
-  tbody.innerHTML = preds.map(p => {
-    const rc = p.risk === 'high' ? 'var(--red)' : p.risk === 'moderate' ? 'var(--orange)' : '#22c55e';
-    const time = new Date(parseInt(p.ts)).toLocaleString();
+function renderHistoryTable(records) {
+  const tbody = document.getElementById('history-tbody');
+  if (!tbody || !records.length) return;
+  tbody.innerHTML = records.map(r => {
+    const time = new Date(parseInt(r.ts)).toLocaleString();
+    const rc   = (r.bpm > 100 || r.bpm < 50) ? 'var(--red)' : '#22c55e';
     return `<tr>
-      <td style="font-family:var(--font-mono);color:var(--text-muted);font-size:.78rem">${p.ts}</td>
-      <td><strong style="color:var(--red)">${p.confidence}%</strong></td>
-      <td><span style="color:${rc};font-weight:700">${capitalize(p.risk)}</span></td>
-      <td style="color:var(--text-muted);font-size:.78rem">${time}</td>
+      <td style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted)">${r.ts}</td>
+      <td><strong style="color:${rc}">${r.bpm||'—'}</strong></td>
+      <td>${r.spo2||'—'}%</td>
+      <td style="font-family:var(--font-mono)">${r.ecg||'—'}</td>
+      <td style="font-size:.8rem">${r.rhythm||'—'}</td>
+      <td style="font-size:.76rem;color:var(--text-muted)">${time}</td>
     </tr>`;
   }).join('');
 }
 
-/* ═════════════════════════════
-   CHARTS
-═════════════════════════════ */
+function renderMLTable(preds) {
+  const tbody = document.getElementById('ml-tbody');
+  if (!tbody || !preds.length) return;
+  tbody.innerHTML = preds.map(p => {
+    const rc   = p.risk==='high'?'var(--red)':p.risk==='moderate'?'var(--orange)':'#22c55e';
+    const time = new Date(parseInt(p.ts)).toLocaleString();
+    return `<tr>
+      <td style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted)">${p.ts}</td>
+      <td><span style="color:${rc};font-weight:700">${cap(p.risk)}</span></td>
+      <td><strong style="color:var(--red)">${p.confidence}%</strong></td>
+      <td style="font-size:.76rem;color:var(--text-muted)">${time}</td>
+    </tr>`;
+  }).join('');
+}
+
+function applyOfflineReadings() {
+  setText('v-bpm', 'OFF');
+  setText('v-spo2', 'OFF');
+  setText('v-risk', 'OFFLINE');
+  setText('v-conf', '—');
+  setText('v-rhythm', 'Device offline');
+  setText('v-hrv', 'OFF');
+  setText('ps-bpm', '—');
+  setText('ps-spo2', '—');
+  setText('ps-risk', 'Offline');
+  setText('ecg-bpm', 'OFFLINE');
+  setText('ecg-rhythm', 'Device offline');
+  setText('ecg-adc', 'OFFLINE');
+  setText('ml-conf', '—<span class="unit">%</span>');
+  setText('ml-risk', 'Offline');
+  const riskEl = document.getElementById('v-risk');
+  if (riskEl) riskEl.style.color = 'var(--text-muted)';
+  const mlEl = document.getElementById('ml-risk');
+  if (mlEl) mlEl.style.color = 'var(--text-muted)';
+}
+
+function applyOnlineReadings() {
+  if (!_liveVitals) return;
+  pop('v-bpm', _liveVitals.bpm || '—');
+  pop('v-spo2', _liveVitals.spo2 || '—');
+  setText('v-rhythm', _liveVitals.rhythm || 'Awaiting data…');
+  setText('ps-bpm', _liveVitals.bpm || '—');
+  setText('ps-spo2', _liveVitals.spo2 ? _liveVitals.spo2 + '%' : '—');
+  setText('ecg-bpm', _liveVitals.bpm ? _liveVitals.bpm + ' BPM' : '— BPM');
+  setText('ecg-rhythm', _liveVitals.rhythm || '—');
+  pop('v-hrv', _liveVitals.hrv || '—');
+  if (_liveVitals.risk) {
+    const rc = _liveVitals.risk==='high'?'var(--red)':_liveVitals.risk==='moderate'?'var(--orange)':'#22c55e';
+    const riskEl = document.getElementById('v-risk');
+    if (riskEl) { riskEl.textContent = cap(_liveVitals.risk); riskEl.style.color = rc; }
+    const mlEl = document.getElementById('ml-risk');
+    if (mlEl) { mlEl.textContent = cap(_liveVitals.risk); mlEl.style.color = rc; }
+    setText('ps-risk', cap(_liveVitals.risk));
+  }
+  if (_liveVitals.confidence) {
+    setText('v-conf', _liveVitals.confidence);
+    setText('ml-conf', _liveVitals.confidence + '<span class="unit">%</span>');
+  }
+}
+
+async function monitorDatabaseAbnormality() {
+  if (!_deviceOnline) return;
+  const checks = [
+    {
+      type: 'tachycardia',
+      severity: 'high',
+      active: Number(_liveVitals.bpm) > Number(_alertThresholds.bpmHigh || 100),
+      value: _liveVitals.bpm,
+      message: `High heart rate detected from Firebase write - BPM: ${_liveVitals.bpm}`
+    },
+    {
+      type: 'bradycardia',
+      severity: 'medium',
+      active: Number(_liveVitals.bpm) > 0 && Number(_liveVitals.bpm) < Number(_alertThresholds.bpmLow || 50),
+      value: _liveVitals.bpm,
+      message: `Low heart rate detected from Firebase write - BPM: ${_liveVitals.bpm}`
+    },
+    {
+      type: 'low_spo2',
+      severity: 'high',
+      active: Number(_liveVitals.spo2) > 0 && Number(_liveVitals.spo2) < Number(_alertThresholds.spo2Low || 94),
+      value: _liveVitals.spo2,
+      message: `Low SpO2 detected from Firebase write - SpO2: ${_liveVitals.spo2}%`
+    },
+    {
+      type: 'ml_high_risk',
+      severity: 'high',
+      active: _liveVitals.risk === 'high',
+      value: _liveVitals.confidence || 0,
+      message: `High ML cardiac risk detected from Firebase write - confidence: ${_liveVitals.confidence || 0}%`
+    }
+  ];
+
+  for (const check of checks) {
+    if (!check.active) continue;
+    const last = _autoAlertCooldown[check.type] || 0;
+    if (Date.now() - last < 60000) continue;
+    _autoAlertCooldown[check.type] = Date.now();
+    try {
+      await DB.writeAlert(DID, check.type, check.severity, check.value, check.message);
+    } catch (err) {
+      console.warn('Unable to create database-triggered alert', check.type, err);
+    }
+  }
+}
+
+/* ── CHARTS ── */
 function initMLChart() {
   const ctx = document.getElementById('mlChart')?.getContext('2d');
   if (!ctx) return;
-  new Chart(ctx, {
-    type:'line',
-    data:{ labels: _mlConfBuf.map(()=>''), datasets:[{
-      data:[..._mlConfBuf], borderColor:'#e53e3e', borderWidth:2,
-      pointRadius:0, fill:true,
-      backgroundColor:(c)=>{ const g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height); g.addColorStop(0,'rgba(229,62,62,0.2)'); g.addColorStop(1,'rgba(229,62,62,0.01)'); return g; },
-      tension:0.42
-    }]},
-    options:{ responsive:true, animation:{duration:300}, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{display:false},grid:{color:'rgba(255,255,255,0.03)'}}, y:{min:50,max:100,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}} }
+  _mlChart = new Chart(ctx, {
+    type:'line', data:{ labels:_mlBuf.map(()=>''), datasets:[{ data:[..._mlBuf], borderColor:'#e53e3e', borderWidth:2, pointRadius:0, fill:true, backgroundColor:(c)=>{ const g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height); g.addColorStop(0,'rgba(229,62,62,0.2)'); g.addColorStop(1,'rgba(229,62,62,0.0)'); return g; }, tension:0.42 }]},
+    options:{ responsive:true, animation:{duration:300}, plugins:{legend:{display:false}}, scales:{ x:{ticks:{display:false},grid:{color:'rgba(255,255,255,0.03)'}}, y:{min:50,max:100,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}} } }
+  });
+}
+
+function initHistoryChart() {
+  const ctx = document.getElementById('historyChart')?.getContext('2d');
+  if (!ctx || _histChart) return;
+  _histChart = new Chart(ctx, {
+    type:'line', data:{ labels:_bpmBuf.map(()=>''), datasets:[
+      { label:'BPM', data:[..._bpmBuf], borderColor:'#e53e3e', borderWidth:2, pointRadius:0, fill:false, tension:0.38, yAxisID:'y' },
+      { label:'SpO2', data:[..._spo2Buf], borderColor:'#3b82f6', borderWidth:2, pointRadius:0, fill:false, tension:0.38, yAxisID:'y1' }
+    ]},
+    options:{ responsive:true, animation:{duration:300}, plugins:{legend:{position:'top',labels:{color:'#94a3b8',font:{size:11}}}},
+      scales:{
+        x:{ticks:{display:false},grid:{color:'rgba(255,255,255,0.03)'}},
+        y:{min:40,max:140,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},position:'left'},
+        y1:{min:88,max:101,ticks:{color:'#64748b',font:{size:10}},grid:{display:false},position:'right'}
+      }
     }
   });
 }
 
-function initRawECGChart() {
-  const ctx = document.getElementById('rawEcgChart')?.getContext('2d');
+function initRawChart() {
+  const ctx = document.getElementById('rawAdcChart')?.getContext('2d');
   if (!ctx || _rawChart) return;
   _rawChart = new Chart(ctx, {
-    type:'line',
-    data:{ labels:_rawAdcBuf.map(()=>''), datasets:[{
-      data:[..._rawAdcBuf], borderColor:'rgba(229,62,62,0.7)', borderWidth:1.5,
-      pointRadius:0, fill:false, tension:0
-    }]},
-    options:{ responsive:true, animation:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{display:false},grid:{display:false}}, y:{min:0,max:4095,ticks:{color:'#64748b',font:{size:8}},grid:{color:'rgba(255,255,255,0.03)'}} }
-    }
+    type:'line', data:{ labels:_rawBuf.map(()=>''), datasets:[{ data:[..._rawBuf], borderColor:'rgba(229,62,62,0.6)', borderWidth:1.2, pointRadius:0, fill:false, tension:0 }]},
+    options:{ responsive:true, animation:false, plugins:{legend:{display:false}}, scales:{ x:{ticks:{display:false},grid:{display:false}}, y:{min:0,max:4095,ticks:{color:'#64748b',font:{size:8}},grid:{color:'rgba(255,255,255,0.03)'}} } }
   });
 }
 
-function initMLDetailChart() {
-  const ctx = document.getElementById('mlDetailChart')?.getContext('2d');
-  if (!ctx || _mlDetailChart) return;
-  _mlDetailChart = new Chart(ctx, {
-    type:'line',
-    data:{ labels:[], datasets:[{
-      label:'Confidence %', data:[], borderColor:'#e53e3e', borderWidth:2,
-      pointRadius:3, pointBackgroundColor:'#e53e3e', fill:true,
-      backgroundColor:(c)=>{ const g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height); g.addColorStop(0,'rgba(229,62,62,0.15)'); g.addColorStop(1,'rgba(229,62,62,0.0)'); return g; },
-      tension:0.4
-    }]},
-    options:{ responsive:true, animation:{duration:300}, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{display:false},grid:{color:'rgba(255,255,255,0.03)'}},
-               y:{min:50,max:100,ticks:{color:'#64748b'},grid:{color:'rgba(255,255,255,0.03)'}} }
-    }
-  });
-}
-
-/* ═════════════════════════════
-   SECTION SWITCHING
-═════════════════════════════ */
+/* ── SECTION SWITCHING ── */
 function showSection(name, btn) {
   document.querySelectorAll('.section-page').forEach(el=>el.classList.remove('active-section'));
   document.getElementById('sec-'+name)?.classList.add('active-section');
   document.querySelectorAll('.sidebar-link').forEach(el=>el.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  const titles = { overview:'Overview','live-ecg':'Live ECG','alerts':'Alerts',ml:'ML Predictions','ai-chat':'AI Assistant',profile:'Profile' };
+  const titles = {overview:'Overview','live-ecg':'Live ECG',alerts:'Alerts','vitals-history':'Vitals History',ml:'ML Predictions','ai-chat':'AI Assistant',profile:'My Profile'};
   document.getElementById('topbar-title').textContent = titles[name] || name;
-  if(name==='live-ecg'){
-    setTimeout(()=>{ initLiveECG(); initRawECGChart(); }, 80);
-  }
-  if(name==='ml') setTimeout(initMLDetailChart, 80);
+  if(name==='live-ecg')        setTimeout(()=>{ initLiveECG(); initRawChart(); }, 80);
+  if(name==='vitals-history')  setTimeout(initHistoryChart, 80);
 }
 
 function initLiveECG() {
   if(_liveECG) _liveECG.destroy();
-  _liveECG = createECG('liveEcgCanvas',{
-    bpm:_currentVitals.bpm||72, color:'#e53e3e',
-    glowColor:'rgba(229,62,62,0.45)', lineWidth:2.4,
-    speed:2.2, amplitude:0.84, tooltipId:'liveEcgTooltip', showGrid:true
-  });
+  _liveECG = createECG('liveEcgCanvas',{ bpm:_liveVitals.bpm||72, color:'#e53e3e', glowColor:'rgba(229,62,62,0.45)', lineWidth:2.4, speed:2.2, amplitude:0.84, tooltipId:'liveEcgTooltip', showGrid:true });
 }
 
-/* ═════════════════════════════
-   AI + CHAT
-═════════════════════════════ */
+/* ── AI ── */
 async function runAI() {
-  const out  = document.getElementById('ai-output');
-  const diag = document.getElementById('ai-diag');
-  const diagV = document.getElementById('ai-diag-val');
-  if(diag) diag.style.display = 'none';
-  await AI.analyseVitals({
-    bpm: _currentVitals.bpm, spo2: _currentVitals.spo2,
-    hrv: 42, ecgEvents: [], patientAge: 45
-  }, out, (result) => {
-    if(diagV) diagV.innerHTML = `<strong>${result.rhythm}</strong> · Risk: ${riskBadge(result.risk)} · ${result.confidence}% confidence<br><small style="color:var(--text-dim)">${result.recommendation}</small>`;
-    if(diag) diag.style.display = 'block';
+  const out = document.getElementById('ai-output'), diag = document.getElementById('ai-diag'), diagV = document.getElementById('ai-diag-val');
+  if(diag) diag.style.display='none';
+  await AI.analyseVitals({ bpm:_liveVitals.bpm, spo2:_liveVitals.spo2, hrv:_liveVitals.hrv||42, ecgEvents:[], patientAge:45 }, out, (r) => {
+    if(diagV) diagV.innerHTML = `<strong>${r.rhythm}</strong> · Risk: ${riskBadge(r.risk)} · ${r.confidence}% confidence<br><small style="color:var(--text-dim)">${r.recommendation}</small>`;
+    if(diag) diag.style.display='block';
   });
 }
 
 async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const msgs  = document.getElementById('chat-msgs');
-  const msg   = input.value.trim();
-  if(!msg) return;
-  input.value = '';
+  const input = document.getElementById('chat-input'), msgs = document.getElementById('chat-msgs');
+  const msg = input.value.trim(); if(!msg) return; input.value='';
   msgs.innerHTML += `<div style="color:#fff;margin-top:10px;font-weight:600">You: ${msg}</div>`;
-  const replyEl = document.createElement('div');
-  replyEl.style.cssText = 'color:var(--red);margin-top:8px;font-weight:600';
-  replyEl.textContent = 'AI: ';
-  msgs.appendChild(replyEl);
-  msgs.scrollTop = msgs.scrollHeight;
-  await AI.chat(msg, _currentVitals, replyEl);
-  msgs.scrollTop = msgs.scrollHeight;
+  const replyEl = document.createElement('div'); replyEl.style.cssText='color:var(--red);margin-top:8px;font-weight:600'; replyEl.textContent='AI: ';
+  msgs.appendChild(replyEl); msgs.scrollTop=msgs.scrollHeight;
+  await AI.chat(msg, _liveVitals, replyEl); msgs.scrollTop=msgs.scrollHeight;
 }
 
-/* ═════════════════════════════
-   MISC
-═════════════════════════════ */
-function clearResolvedAlerts() { showToast('ℹ️ Alert management handled in Firebase Console.', 'info'); }
+async function resolveAlert(alertId) {
+  await DB.resolveAlert(DID, alertId);
+  showToast('✅ Alert resolved in Firebase.', 'success');
+}
+
+/* ── HELPERS ── */
+function pop(id, val) { const e=document.getElementById(id); if(!e) return; e.textContent=val; e.classList.remove('num-pop'); void e.offsetWidth; e.classList.add('num-pop'); }
+function setText(id, val) { const e=document.getElementById(id); if(e) e.innerHTML=String(val); }
+function cap(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : '—'; }
 function openSettings()  { document.getElementById('settings-panel').classList.add('open'); document.getElementById('settings-backdrop').classList.add('open'); }
 function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); document.getElementById('settings-backdrop').classList.remove('open'); }
-function saveSettings()  { closeSettings(); showToast('✅ Settings saved!', 'success'); }
-function doSignOut()     { stopSimulator(); ListenerManager.removeAll(); signOut(); }
+async function saveSettings() {
+  await DB.updateThresholds(DID, { bpmHigh: parseInt(document.getElementById('s-bpm-h').textContent), bpmLow: parseInt(document.getElementById('s-bpm-l').textContent), spo2Low: parseInt(document.getElementById('s-spo2-l').textContent) });
+  await DB.updateNotifications(DID, { telegram: true, gps: true });
+  closeSettings(); showToast('✅ Thresholds saved to Firebase!', 'success');
+}
+async function toggleDeviceActivation() {
+  const toggle = document.getElementById('device-enable-toggle');
+  const nextOnline = !toggle?.classList.contains('on');
+  toggle?.classList.toggle('on', nextOnline);
+  await DB.writeDeviceStatus(DID, nextOnline ? 'online' : 'offline');
+  showToast(nextOnline ? 'Device enabled. Live readings will display.' : 'Device disabled. Readings hidden as offline.', nextOnline ? 'success' : 'warning');
+}
+function doSignOut() { ListenerManager.removeAll(); signOut(); }
 </script>
 </body>
 </html>

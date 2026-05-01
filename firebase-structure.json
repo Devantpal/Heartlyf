@@ -1,0 +1,349 @@
+{
+  "_comment": "HeartLyft Firebase Realtime Database Structure v2.0",
+  "_database": "https://heartmonitorproject-ba398-default-rtdb.firebaseio.com/",
+  "_updated": "2026-04-28",
+
+  "users": {
+    "user_001": {
+      "name": "Devant Kumar",
+      "role": "patient",
+      "age": 45,
+      "email": "devant@email.com",
+      "deviceId": "esp32_001",
+      "telegramChatId": "1594669605",
+      "bloodGroup": "B+",
+      "emergencyContact": "+91 9876543210",
+      "createdAt": 1710000000000,
+      "emailVerified": true,
+      "active": true
+    },
+    "user_002": {
+      "name": "Dr. Asati",
+      "role": "doctor",
+      "email": "asati@gniot.ac.in",
+      "specialization": "Cardiologist",
+      "license": "MCI-2019-4521",
+      "hospital": "GNIOT Medical Centre",
+      "telegramChatId": "1594669605",
+      "createdAt": 1710000000000,
+      "emailVerified": true,
+      "active": true
+    }
+  },
+
+  "devices": {
+    "esp32_001": {
+      "status": "online",
+      "patientId": "user_001",
+      "patientName": "Devant Kumar",
+      "lastSeen": 1710000000000,
+      "battery": 82,
+      "firmware": "v1.0",
+      "wifiRSSI": -60,
+      "wifiSSID": "HomeNetwork",
+      "ipAddress": "192.168.1.100",
+      "macAddress": "AA:BB:CC:DD:EE:FF",
+      "chipRevision": 1,
+      "flashSize": 4194304,
+      "model": "ESP32-WROOM-32",
+      "sensors": {
+        "max30102": true,
+        "ad8232": true,
+        "oled": true,
+        "gps": false
+      }
+    }
+  },
+
+  "vitals": {
+    "esp32_001": {
+      "latest": {
+        "bpm": 72,
+        "spo2": 98,
+        "ecg": 512,
+        "hrv": 42,
+        "temperature": 36.6,
+        "bp_sys": 120,
+        "bp_dia": 80,
+        "rhythm": "Normal Sinus Rhythm",
+        "timestamp": 1710000000000
+      },
+      "history": {
+        "1710000000000": {
+          "bpm": 72,
+          "spo2": 98,
+          "ecg": 512,
+          "hrv": 42,
+          "timestamp": 1710000000000
+        },
+        "1710000005000": {
+          "bpm": 75,
+          "spo2": 97,
+          "ecg": 530,
+          "hrv": 40,
+          "timestamp": 1710000005000
+        },
+        "1710000010000": {
+          "bpm": 73,
+          "spo2": 98,
+          "ecg": 510,
+          "hrv": 43,
+          "timestamp": 1710000010000
+        }
+      }
+    }
+  },
+
+  "ecg_data": {
+    "esp32_001": {
+      "1710000000000": { "value": 512 },
+      "1710000000010": { "value": 530 },
+      "1710000000020": { "value": 548 },
+      "1710000000030": { "value": 2890 },
+      "1710000000040": { "value": 4010 },
+      "1710000000050": { "value": 3200 },
+      "1710000000060": { "value": 1600 },
+      "1710000000070": { "value": 520 },
+      "1710000000080": { "value": 510 },
+      "1710000000090": { "value": 518 }
+    }
+  },
+
+  "ml_prediction": {
+    "esp32_001": {
+      "latest": {
+        "risk": "low",
+        "confidence": 85,
+        "classification": "Normal Sinus Rhythm",
+        "modelVersion": "TinyML-v2.4",
+        "timestamp": 1710000000000
+      },
+      "history": {
+        "1710000000000": {
+          "risk": "low",
+          "confidence": 85,
+          "classification": "Normal Sinus Rhythm",
+          "timestamp": 1710000000000
+        },
+        "1710000005000": {
+          "risk": "moderate",
+          "confidence": 78,
+          "classification": "Sinus Tachycardia",
+          "timestamp": 1710000005000
+        }
+      }
+    }
+  },
+
+  "alerts": {
+    "esp32_001": {
+      "alert_001": {
+        "type": "tachycardia",
+        "severity": "high",
+        "value": 130,
+        "message": "High heart rate detected — BPM: 130",
+        "timestamp": 1710000001000,
+        "resolved": false,
+        "resolvedAt": null,
+        "notificationSent": true,
+        "telegramSent": true
+      },
+      "alert_002": {
+        "type": "low_spo2",
+        "severity": "high",
+        "value": 91,
+        "message": "Low SpO2 detected — SpO2: 91%",
+        "timestamp": 1710000060000,
+        "resolved": true,
+        "resolvedAt": 1710000120000,
+        "notificationSent": true,
+        "telegramSent": true
+      },
+      "alert_003": {
+        "type": "bradycardia",
+        "severity": "medium",
+        "value": 48,
+        "message": "Low heart rate detected — BPM: 48",
+        "timestamp": 1710000180000,
+        "resolved": false,
+        "resolvedAt": null,
+        "notificationSent": true,
+        "telegramSent": false,
+        "telegramQueued": true,
+        "locationShared": true,
+        "gps": {
+          "latitude": 28.6139,
+          "longitude": 77.2090,
+          "accuracy": 35,
+          "mapsUrl": "https://maps.google.com/?q=28.6139,77.2090",
+          "source": "frontend_geolocation",
+          "timestamp": 1710000180000
+        }
+      }
+    }
+  },
+
+  "gps_tracking": {
+    "esp32_001": {
+      "latest": {
+        "deviceId": "esp32_001",
+        "source": "frontend_geolocation",
+        "latitude": 28.6139,
+        "longitude": 77.2090,
+        "accuracy": 35,
+        "mapsUrl": "https://maps.google.com/?q=28.6139,77.2090",
+        "timestamp": 1710000180000
+      },
+      "alert_003": {
+        "deviceId": "esp32_001",
+        "alertId": "alert_003",
+        "alertType": "bradycardia",
+        "severity": "medium",
+        "source": "frontend_geolocation",
+        "latitude": 28.6139,
+        "longitude": 77.2090,
+        "accuracy": 35,
+        "mapsUrl": "https://maps.google.com/?q=28.6139,77.2090",
+        "timestamp": 1710000180000
+      },
+      "history": {
+        "1710000180000": {
+          "deviceId": "esp32_001",
+          "source": "frontend_geolocation",
+          "latitude": 28.6139,
+          "longitude": 77.2090,
+          "accuracy": 35,
+          "mapsUrl": "https://maps.google.com/?q=28.6139,77.2090",
+          "timestamp": 1710000180000
+        }
+      }
+    }
+  },
+
+  "telegram_alerts": {
+    "esp32_001": {
+      "alert_003": {
+        "deviceId": "esp32_001",
+        "alertId": "alert_003",
+        "chatIds": ["1594669605"],
+        "text": "Heartlyf emergency alert\nPatient: Devant Kumar\nDevice: esp32_001\nType: bradycardia\nSeverity: medium\nValue: 48\nGPS: 28.6139, 77.2090\nMap: https://maps.google.com/?q=28.6139,77.2090",
+        "status": "queued",
+        "provider": "telegram",
+        "queuedAt": 1710000180000,
+        "sentAt": null
+      }
+    }
+  },
+
+  "settings": {
+    "esp32_001": {
+      "thresholds": {
+        "bpmHigh": 100,
+        "bpmLow": 50,
+        "spo2Low": 94,
+        "hrvLow": 20
+      },
+      "notifications": {
+        "telegram": true,
+        "telegramChatId": "1594669605",
+        "telegramBotToken": "SET_IN_BACKEND_OR_LOCALSTORAGE_ONLY",
+        "sms": false,
+        "gps": true,
+        "emailAlert": true
+      },
+      "sampling": {
+        "vitalsIntervalMs": 2000,
+        "ecgIntervalMs": 10,
+        "uploadIntervalMs": 2000
+      },
+      "display": {
+        "brightness": 255,
+        "showECG": true,
+        "showBPM": true,
+        "showSpO2": true
+      }
+    }
+  },
+
+  "logs": {
+    "esp32_001": {
+      "1710000000000": {
+        "event": "device_started",
+        "firmware": "v1.0",
+        "ipAddress": "192.168.1.100",
+        "battery": 100
+      },
+      "1710000001000": {
+        "event": "sensors_initialized",
+        "max30102": true,
+        "ad8232": true,
+        "oled": true
+      },
+      "1710000002000": {
+        "event": "firebase_connected",
+        "latencyMs": 245
+      },
+      "1710000060000": {
+        "event": "alert_triggered",
+        "alertId": "alert_001",
+        "type": "tachycardia",
+        "value": 130
+      },
+      "1710000120000": {
+        "event": "wifi_reconnect",
+        "ssid": "HomeNetwork",
+        "rssi": -65
+      }
+    }
+  },
+
+  "_firebase_rules": {
+    "_comment": "Place these in Firebase Console → Realtime Database → Rules",
+    "rules": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "users": {
+        "$uid": {
+          ".read": "auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'doctor' || root.child('users').child(auth.uid).child('role').val() === 'researcher'",
+          ".write": "auth.uid === $uid"
+        }
+      },
+      "devices": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "vitals": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "ecg_data": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "ml_prediction": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "alerts": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "gps_tracking": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "telegram_alerts": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "settings": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "logs": {
+        ".read": "root.child('users').child(auth.uid).child('role').val() === 'doctor' || root.child('users').child(auth.uid).child('role').val() === 'researcher'",
+        ".write": "auth != null"
+      }
+    }
+  }
+}
