@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+heartlyf-bot/node_modules/
+
+# Environment files and confidential credentials
+.env
+.env.*
+!.env.example
+*.env
+secrets.*
+credentials.*
+serviceAccountKey.json
+**/serviceAccountKey.json
+*-firebase-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+
+# Firebase local state and emulator output
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+
+# Generated output and archives
+dist/
+build/
+coverage/
+*.zip
+*.log
+*.tmp
+*.temp
+
+# Arduino local secrets and compiled firmware
+esp32/secrets.h
+esp32/credentials.h
+*.bin
+*.elf
+*.map
+
+# Editor and operating-system files
+.idea/
+.vscode/
+!.vscode/settings.json
+.DS_Store
+Thumbs.db
+desktop.ini
